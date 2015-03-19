@@ -1,56 +1,105 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A User has a set of workspaces (owned)
+ * and is represented by their nickname and email.
+ * A user is responsible for managing their own workspaces.
+ */
 public class User {
-    private Map<String, Workspace> ownedWorkspaces;
+    private Map<String, WorkSpace> ownedWorkSpaces;
+    private Map<String, WorkSpace> subscribedWorkSpaces;
     private String nickname;
     private String email;
 
-    public User(Map<String, Workspace> ownedWorkspaces, String nickname, String email) {
-        this.ownedWorkspaces = new HashMap<String, Workspace>();
+    /**
+     * Initializes this {@code User}. Can be used to create a new user or load an existing one
+     *
+     * @param ownedWorkSpaces      Use {@code null} if creating a new user
+     * @param subscribedWorkSpaces Use {@code null} if creating a new user
+     * @param nickname             User's nickname
+     * @param email                User's email
+     */
+    public User(Map<String, WorkSpace> ownedWorkSpaces, Map<String, WorkSpace> subscribedWorkSpaces, String nickname, String email) {
+        this.ownedWorkSpaces = ownedWorkSpaces;
+        this.subscribedWorkSpaces = subscribedWorkSpaces;
         this.nickname = nickname;
         this.email = email;
     }
 
     public void createWorkspace(String name, int quota, Collection<String> tags, boolean isPublic) {
-        ownedWorkspaces.put(name, new Workspace(name, quota, tags, isPublic, this));
+        ownedWorkSpaces.put(name, new WorkSpace(name, quota, tags, isPublic, this));
     }
 
-    public void deleteWorkspace(Workspace ws) {
-        ownedWorkspaces.remove(ws);
+    /**
+     * Delete a given workspace. To get user's workspaces use {@link User#getOwnedWorkSpaces}
+     *
+     * @param ws instance of WorkSpace to delete.
+     */
+    public void deleteWorkspace(WorkSpace ws) {
+        ownedWorkSpaces.remove(ws);
+    }
+
+    public void subscribeWorkspace(WorkSpace ws) {
+        ws.addPermittedUser(this);
+    }
+
+    public void unsubscribeWorkspace(WorkSpace ws) {
+        ws.removePermittedUser(this);
     }
 
     public void setWorkSpaceQuota(String workSpaceName, int quota) {
-        Workspace ws = getWorkspaceByName(workSpaceName);
+        WorkSpace ws = getWorkspaceByName(workSpaceName);
         ws.setQuota(quota);
     }
 
-    void addTagToWorkSpace(String workSpaceName, Map<String, String> tags) {
-        //TODO: Implement
+    void addTagToWorkSpace(String workSpaceName, String tag) {
+        WorkSpace ws = getWorkspaceByName(workSpaceName);
+        ws.addTag(tag);
     }
 
-    void removeTagFromWorkSpace(String workSpaceName, Map<String, String> tags) {
-        //TODO: Implement
+    void removeTagFromWorkSpace(String workSpaceName, String tag) {
+        WorkSpace ws = getWorkspaceByName(workSpaceName);
+        ws.removeTag(tag);
+    }
+
+    void addFileToWorkSpace(String workSpaceName, File f) {
+        WorkSpace ws = getWorkspaceByName(workSpaceName);
+        ws.addFile(f);
+    }
+
+    void removeFileFromWorkSpace(String workSpaceName, File f) {
+        WorkSpace ws = getWorkspaceByName(workSpaceName);
+        ws.removeFile(f);
+    }
+
+    void setWorkSpaceToPublic(String workSpaceName) {
+        WorkSpace ws = getWorkspaceByName(workSpaceName);
+        ws.setPublic(true);
+    }
+
+    void setWorkSpaceToPrivate(String workSpaceName) {
+        WorkSpace ws = getWorkspaceByName(workSpaceName);
+        ws.setPublic(false);
     }
 
     public void setWorkSpaceName(String oldName, String newName) {
-        Workspace ws = getWorkspaceByName(oldName);
+        WorkSpace ws = getWorkspaceByName(oldName);
         ws.setName(newName);
     }
 
     public void addUserToWorkSpace(String workSpaceName, User u) {
-        Workspace ws = getWorkspaceByName(workSpaceName);
+        WorkSpace ws = getWorkspaceByName(workSpaceName);
         ws.addPermittedUser(u);
     }
 
     public void removeUserFromWorkSpace(String workSpaceName, User u) {
-        Workspace ws = getWorkspaceByName(workSpaceName);
+        WorkSpace ws = getWorkspaceByName(workSpaceName);
         ws.removePermittedUser(u);
     }
+
 
     /*
      * Getters
@@ -64,40 +113,20 @@ public class User {
         return email;
     }
 
+    public Map<String, WorkSpace> getOwnedWorkSpaces() {
+        return ownedWorkSpaces;
+    }
+
+    public Map<String, WorkSpace> getSubscribedWorkSpaces() {
+        return subscribedWorkSpaces;
+    }
+
+
     /*
-
-
-    void addFile(File f) {
-        files.add(f);
-    }
-
-    void removeFile(File f) {
-        files.remove(f);
-    }
-
-    void setPublic(boolean isPublic) {
-        this.isPublic = isPublic;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    void setName(String name) {
-        this.name = name;
-    }
-
-    void addPermittedUser(User u) {
-        permittedUsers.add(u);
-    }
-
-    void removePermittedUser(User u) {
-        permittedUsers.remove(u);
-    }
-
+     * Private methods
      */
 
-    private Workspace getWorkspaceByName(String workSpaceName) {
-        return ownedWorkspaces.get(workSpaceName);
+    private WorkSpace getWorkspaceByName(String workSpaceName) {
+        return ownedWorkSpaces.get(workSpaceName);
     }
 }

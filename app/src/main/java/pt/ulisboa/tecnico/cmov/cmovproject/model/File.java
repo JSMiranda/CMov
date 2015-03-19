@@ -4,17 +4,21 @@ import java.util.Date;
 
 /**
  * This class abstracts a file. Before opening, closing and reading from a
- * file it is needed to set the implementation using {@link pt.ulisboa.tecnico.cmov.cmovproject.model.File#setImpl(FileImpl)}.
+ * file it is needed to set the implementation using {@link File#setImpl(FileImpl)}.
  */
 public class File {
     private static FileImpl impl;
 
     private String name;
     private Date lastChanged;
+    private int size;
 
     public File(String name) {
         this.name = name;
         lastChanged = new Date();
+        /* TODO: set "initial" size. The size when the file was loaded
+         * (the file might have been created before app initiation)
+         */
     }
 
     /**
@@ -32,6 +36,11 @@ public class File {
 
     public String read() {
         return impl.read();
+    }
+
+    public void write() {
+        impl.write();
+        // TODO: Change size
     }
 
     public void open() {
@@ -56,5 +65,25 @@ public class File {
 
     public void setLastChanged(Date lastChanged) {
         this.lastChanged = lastChanged;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+
+    /*
+     * Private methods
+     */
+
+    /**
+     * Only the method {@link File#write()} should use this method
+     * (and this is why it is private). We are using an attribute
+     * to speed up size queries.
+     *
+     * @param size
+     */
+    private void setSize(int size) {
+        this.size = size;
     }
 }

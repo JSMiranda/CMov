@@ -3,7 +3,12 @@ package pt.ulisboa.tecnico.cmov.cmovproject.model;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class Workspace {
+/**
+ * A WorkSpace is responsible for maintaining files
+ * and maintaining a very simple ACL
+ * (a list of permitted users) for itself.
+ */
+public class WorkSpace {
     private String name;
     private int quota;
     private Collection<String> tags;
@@ -12,7 +17,7 @@ public class Workspace {
     private Collection<User> permittedUsers;
     private User owner;
 
-    public Workspace(String name, int quota, Collection<String> tags, boolean isPublic, User owner) {
+    public WorkSpace(String name, int quota, Collection<String> tags, boolean isPublic, User owner) {
         this.name = name;
         this.quota = quota;
         this.tags = tags; // FIXME: make a copy?
@@ -20,6 +25,14 @@ public class Workspace {
         this.isPublic = isPublic;
         this.permittedUsers = new ArrayList<User>();
         this.owner = owner;
+    }
+
+    public int getUsedQuota() {
+        int res = 0;
+        for (File f : files) {
+            res += f.getSize();
+        }
+        return res;
     }
 
     /*
@@ -50,14 +63,29 @@ public class Workspace {
         return permittedUsers;
     }
 
-
-    void setQuota(int quota) {
-        // TODO: verify if it is valid
-        this.quota = quota;
+    public User getOwner() {
+        return owner;
     }
 
-    void setTags(Collection<String> tags) {
-        this.tags = tags;
+
+    /*
+     * Package access methods
+     */
+
+    void setQuota(int quota) {
+        if (quota >= getUsedQuota()) {
+            this.quota = quota;
+        } else {
+            throw new IllegalStateException("Trying to set quota to a value lower than used quota");
+        }
+    }
+
+    void addTag(String tag) {
+        tags.add(tag);
+    }
+
+    void removeTag(String tag) {
+        tags.remove(tag);
     }
 
     void addFile(File f) {
@@ -70,10 +98,6 @@ public class Workspace {
 
     void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
-    }
-
-    public User getOwner() {
-        return owner;
     }
 
     void setName(String name) {
