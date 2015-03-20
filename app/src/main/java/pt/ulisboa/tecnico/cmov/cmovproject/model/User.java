@@ -43,10 +43,12 @@ public class User {
     }
 
     public void subscribeWorkspace(WorkSpace ws) {
+        subscribedWorkSpaces.put(ws.getName(), ws);
         ws.addPermittedUser(this);
     }
 
     public void unsubscribeWorkspace(WorkSpace ws) {
+        subscribedWorkSpaces.remove(ws.getName());
         ws.removePermittedUser(this);
     }
 
