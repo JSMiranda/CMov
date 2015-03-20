@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">CMovProject</string>
+    <string name="app_name">AirDesk</string>
+
+    <!-- ActionBar Strings for WorkSpace Activities -->
+    <string name="action_search_file">Search File</string>
+    <!-- Only for owned WorkSpaces -->
+    <string name="action_share">Share</string>
+    <string name="action_edit_ws">Edit WorkSpace</string>
+    <string name="action_delete_ws">Delete WorkSpace</string>
+
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <!-- Colors -->
+    <color name="light_blue">#33b5e5</color>
 
 </resources>
