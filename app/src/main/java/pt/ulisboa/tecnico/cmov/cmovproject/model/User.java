@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,14 +18,12 @@ public class User {
     /**
      * Initializes this {@code User}. Can be used to create a new user or load an existing one
      *
-     * @param ownedWorkSpaces      Use {@code null} if creating a new user
-     * @param subscribedWorkSpaces Use {@code null} if creating a new user
-     * @param nickname             User's nickname
-     * @param email                User's email
+     * @param nickname User's nickname
+     * @param email    User's email
      */
-    public User(Map<String, WorkSpace> ownedWorkSpaces, Map<String, WorkSpace> subscribedWorkSpaces, String nickname, String email) {
-        this.ownedWorkSpaces = ownedWorkSpaces;
-        this.subscribedWorkSpaces = subscribedWorkSpaces;
+    public User(String nickname, String email) {
+        this.ownedWorkSpaces = new HashMap<String, WorkSpace>();
+        this.subscribedWorkSpaces = new HashMap<String, WorkSpace>();
         this.nickname = nickname;
         this.email = email;
     }

@@ -1,13 +1,17 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.app;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 public class ImageAdapter extends BaseAdapter {
     private Context mContext;
@@ -16,47 +20,46 @@ public class ImageAdapter extends BaseAdapter {
         mContext = c;
     }
 
+    @Override
     public int getCount() {
-        return mThumbIds.length;
+        return AirDesk.getInstance("MyName").getMainUser().getOwnedWorkSpaces().size();
     }
 
-    public Object getItem(int position) {
-        return null;
+    @Override
+    public WorkSpace getItem(int position) {
+        WorkSpace ws = (WorkSpace) AirDesk.getInstance("MyName").getMainUser().getOwnedWorkSpaces().values().toArray()[position];
+        return ws;
     }
 
+    @Override
+    // Method not used
     public long getItemId(int position) {
         return 0;
     }
 
+    @Override
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
+        View view;
         ImageView imageView;
+        TextView textView;
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
-            imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(8, 8, 8, 8);
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.workspace_view, null);
         } else {
-            imageView = (ImageView) convertView;
+            view = convertView;
         }
+        imageView = (ImageView) view.findViewById(R.id.imageView);
+        imageView.setImageResource(mThumbIds[0]);
+        textView = (TextView) view.findViewById(R.id.textView);
+        textView.setText(getItem(position).getName());
 
-        imageView.setImageResource(mThumbIds[position]);
-        return imageView;
+        return view;
     }
 
-    // references to our images
+    // references to our images FIXME: public/private folder images
     private Integer[] mThumbIds = {
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
             R.drawable.ic_action_discard, R.drawable.ic_action_discard,
     };
 }
