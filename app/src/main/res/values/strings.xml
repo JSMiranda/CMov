@@ -15,5 +15,6 @@
 
     <!-- Colors -->
     <color name="light_blue">#33b5e5</color>
+    <string name="title_activity_create_workspace">CreateWorkspaceActivity</string>
 
 </resources>
