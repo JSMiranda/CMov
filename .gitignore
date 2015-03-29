@@ -27,4 +27,4 @@ proguard/
 
 # Android studio
 .idea/
-CMov.iml
+*.iml
