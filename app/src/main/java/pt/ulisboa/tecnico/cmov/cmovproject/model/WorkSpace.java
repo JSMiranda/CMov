@@ -1,7 +1,13 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A WorkSpace is responsible for maintaining files
@@ -27,6 +33,68 @@ public class WorkSpace {
         this.owner = owner;
     }
 
+
+    /*
+     * SQL Operation Methods
+     */
+    public static synchronized void loadWorkspaces(User u, List<WorkSpace> list, Context context) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(context);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = "SELECT * FROM WORKSPACES WHERE owner = '" + u.getEmail() + "'";
+        Cursor c = db.rawQuery(query, null);
+        while (c.moveToNext()) {
+            String name = c.getString(0);
+            int quota = c.getInt(1);
+            boolean isPublic = c.getInt(3) == 0 ? false : true;
+            list.add(new WorkSpace(name, quota, null, isPublic, u));
+        }
+        // TODO other tables...
+    }
+
+    public synchronized void update(Context context) {
+        //TODO implement
+    }
+
+    public synchronized void delete(Context context) {
+
+    }
+
+    public synchronized void insert(Context context) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "INSERT INTO WORKSPACES VALUES('" + name + "', '" + quota + "', '" + isPublic + "', '" + owner.getEmail() + "');";
+        db.execSQL(query);
+    }
+
+    public synchronized void insertTag(Context context) {
+
+    }
+
+    public synchronized void deleteTag(Context context) {
+
+    }
+
+    public synchronized void insertFile(Context context) {
+
+    }
+
+    public synchronized void deleteFile(Context context) {
+
+    }
+
+    public synchronized void insertUser(Context context) {
+
+    }
+
+    public synchronized void deleteUser(Context context) {
+
+    }
+
+
+    /*
+     * Domain Logic
+     */
+
     public int getUsedQuota() {
         int res = 0;
         for (File f : files) {
@@ -34,6 +102,7 @@ public class WorkSpace {
         }
         return res;
     }
+
 
     /*
      * Getters and setters
