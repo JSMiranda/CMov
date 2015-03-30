@@ -59,5 +59,9 @@ public class AirDesk {
         // Hard coded for test
         mainUser.createWorkspace("Banana", 1024, null, true);
         mainUser.createWorkspace("Peach", 2048, null, true);
+        File file = new File("test");
+        File file2 = new File("test2");
+        mainUser.getOwnedWorkSpaces().get("Banana").addFile(file);
+        mainUser.getOwnedWorkSpaces().get("Peach").addFile(file2);
     }
 }

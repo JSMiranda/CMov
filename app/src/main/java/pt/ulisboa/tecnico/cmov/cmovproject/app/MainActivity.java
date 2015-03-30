@@ -11,7 +11,12 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -21,14 +26,23 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        AirDesk airDesk = AirDesk.getInstance("MyName");
+//        User user = airDesk.getMainUser();
+//        ArrayList<String> workspaceNames = user.getOwnedWorkspaceNames();
+
         GridView gridview = (GridView) findViewById(R.id.gridview);
-        gridview.setAdapter(new ImageAdapter(this));
+        final ImageAdapter imageAdapter = new ImageAdapter(this);
+        gridview.setAdapter(imageAdapter);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Toast.makeText(MainActivity.this, "" + position,
-                        Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(MainActivity.this, WorkspaceActivity.class);
+                intent.putExtra("WorkspaceName", imageAdapter.getItem(position).getName());
+                startActivity(intent);
+//                Toast.makeText(MainActivity.this, "" + position,
+//                        Toast.LENGTH_SHORT).show();
             }
         });
 

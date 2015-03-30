@@ -20,6 +20,10 @@
             android:name=".app.CreateWorkspaceActivity"
             android:label="@string/title_activity_create_workspace" >
         </activity>
+        <activity
+            android:name=".app.WorkspaceActivity"
+            android:label="@string/title_activity_workspace" >
+        </activity>
     </application>
 
 </manifest>

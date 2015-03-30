@@ -136,6 +136,24 @@ public class WorkSpace {
         return owner;
     }
 
+    public void removeFileByName(String name) {
+        for(File file : files) {
+            if(file.getName().equals("name")){
+                files.remove(file);
+                break;
+            }
+        }
+    }
+
+    public void renameFile(String oldName, String newName) {
+        for(File file : files) {
+            if(file.getName().equals("name")){
+                file.setName(newName);
+                break;
+            }
+        }
+    }
+
 
     /*
      * Package access methods
@@ -180,4 +198,6 @@ public class WorkSpace {
     void removePermittedUser(User u) {
         permittedUsers.remove(u);
     }
+
+
 }

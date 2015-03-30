@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
+import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,6 +103,17 @@ public class User {
         ws.removePermittedUser(u);
     }
 
+    public ArrayList<String> getOwnedWorkspaceNames() {
+        ArrayList<String> workspaces = new ArrayList<String>();
+        for(Map.Entry<String, WorkSpace> entry: ownedWorkSpaces.entrySet()) {
+            workspaces.add(entry.getValue().getName());
+        }
+
+        return workspaces;
+    }
+
+
+
 
     /*
      * Getters
@@ -122,12 +135,14 @@ public class User {
         return subscribedWorkSpaces;
     }
 
+    public WorkSpace getWorkspaceByName(String workSpaceName) {
+        return ownedWorkSpaces.get(workSpaceName);
+    }
+
 
     /*
      * Private methods
      */
 
-    private WorkSpace getWorkspaceByName(String workSpaceName) {
-        return ownedWorkSpaces.get(workSpaceName);
-    }
+
 }
