@@ -77,6 +77,5 @@ public class MainActivity extends ActionBarActivity {
     public void startCreateWorkspaceActivity(View v) {
         Intent intent = new Intent(MainActivity.this, CreateWorkspaceActivity.class);
         startActivity(intent);
-        finish();
     }
 }

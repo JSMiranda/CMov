@@ -22,14 +22,13 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 public class CreateWorkspaceActivity extends ActionBarActivity {
 
-    private ArrayList<String> tags;
+    private ArrayList<String> tags = new ArrayList<String>();
     private ArrayAdapter<String> tagListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_workspace);
-        tags = new ArrayList<String>(); //fix this to use the saved state
         tagListAdapter =  new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, tags);
 
         final ListView tagsList = (ListView) findViewById(R.id.tagsList);

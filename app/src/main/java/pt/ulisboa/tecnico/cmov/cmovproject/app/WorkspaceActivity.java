@@ -27,9 +27,9 @@ public class WorkspaceActivity extends ActionBarActivity {
 
     private WorkSpace workSpace;
 
-    private ArrayAdapter<String> fileAdapter;
-
     private Collection<File> files;
+
+    private ArrayAdapter<String> fileAdapter;
 
     private ArrayList<String> fileNames;
 
@@ -107,20 +107,17 @@ public class WorkspaceActivity extends ActionBarActivity {
     }
 
     private void renameFile(int position) {
-        workSpace.renameFile(fileAdapter.getItem(position), "TEST"); //TODO:
-        fileAdapter.notifyDataSetChanged();
+        final String fileName = fileAdapter.getItem(position);
+        fileAdapter.remove(fileName);
+        fileAdapter.insert("TEST", position);
+        workSpace.renameFile(fileName, "TEST");
     }
 
     private void deleteFileFromWorkspace(int position) {
-        String fileName = fileAdapter.getItem(position);
+        final String fileName = fileAdapter.getItem(position);
+        fileAdapter.remove(fileName);
         workSpace.removeFileByName(fileName);
         Toast.makeText(WorkspaceActivity.this, fileName, Toast.LENGTH_SHORT).show();
-//        for(File file : files) {
-//            if(file.getName().equals("")) {
-//                fileNames.remove(file);
-//            }
-//        }
-        fileAdapter.notifyDataSetChanged();
     }
 
     public void exitActivity(View v) {
