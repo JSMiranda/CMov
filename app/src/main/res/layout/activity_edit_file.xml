@@ -10,62 +10,22 @@
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
-        <!--<ScrollView-->
-            <!--android:id="@+id/ScrollView01"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="150dip">-->
-            <EditText
-                android:id="@+id/fileEditText"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:padding="4dp"
-                android:gravity="top"
-                android:background="@drawable/text_area"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:layout_marginTop="15dp"
-                android:inputType="textMultiLine"
-                android:singleLine="false"
-                android:overScrollMode="always"
-                android:scrollbarStyle="insideInset"
-                android:scrollbars="vertical" >
-    </EditText>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Tags:"
-            android:id="@+id/textTag" />
-
-        <LinearLayout
-            android:orientation="horizontal"
+        <EditText
+            android:id="@+id/fileEditText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:weightSum="1">
-
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/tagInputBox"
-                android:layout_weight="0.90"
-                android:maxLength="20" />
-
-            <Button
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:text="Add"
-                android:id="@+id/button"
-                android:layout_weight="0.05"
-                android:onClick="addTag" />
-
-        </LinearLayout>
-
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="212dp"
-            android:id="@+id/tagsList"
-            android:layout_weight="0.7" />
+            android:layout_height="300dp"
+            android:padding="4dp"
+            android:gravity="top"
+            android:background="@drawable/text_area"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_marginTop="15dp"
+            android:inputType="textMultiLine"
+            android:singleLine="false"
+            android:overScrollMode="always"
+            android:scrollbarStyle="insideInset"
+            android:scrollbars="vertical" >
+        </EditText>
 
         <LinearLayout
             android:orientation="horizontal"

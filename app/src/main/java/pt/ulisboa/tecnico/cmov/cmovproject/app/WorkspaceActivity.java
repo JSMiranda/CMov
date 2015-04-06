@@ -57,6 +57,12 @@ public class WorkspaceActivity extends ActionBarActivity {
         filesList.setAdapter(fileAdapter);
 
         registerForContextMenu(filesList);
+        filesList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?>adapter,View v, int position, long id){
+                openFile(position, false);
+            }
+        });
     }
 
 
@@ -100,17 +106,18 @@ public class WorkspaceActivity extends ActionBarActivity {
                 renameFile(info.position);
                 return true;
             case R.id.edit_file:
-                editFile(info.position);
+                openFile(info.position,true);
                 return true;
             default:
                 return super.onContextItemSelected(item);
         }
     }
 
-    private void editFile(int position){
+    private void openFile(int position, Boolean enabled){
         Intent intent = new Intent(WorkspaceActivity.this, EditFileActivity.class);
-        intent.putExtra("FileName", fileAdapter.getItem(position));
-        intent.putExtra("WorkspaceName", workspaceName);
+        intent.putExtra("fileName", fileAdapter.getItem(position));
+        intent.putExtra("workspaceName", workspaceName);
+        intent.putExtra("enabled", enabled.toString());
         startActivity(intent);
     }
 

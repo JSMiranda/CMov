@@ -6,29 +6,20 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-
+import android.text.InputType;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
-
 
 public class EditFileActivity extends ActionBarActivity {
 
     private WorkSpace workspace;
     private String fileName;
     private String workSpaceName;
-    private ArrayList<String> tags = new ArrayList<String>();
-    private ArrayAdapter<String> tagListAdapter;
-    EditText fileEditText;
+    private EditText fileEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,29 +27,20 @@ public class EditFileActivity extends ActionBarActivity {
         setContentView(R.layout.activity_edit_file);
 
         Intent intent = getIntent();
-        fileName = intent.getStringExtra("FileName");
-        workSpaceName = intent.getStringExtra("WorkspaceName");
+        fileName = intent.getStringExtra("fileName");
+        workSpaceName = intent.getStringExtra("workspaceName");
         setTitle(workSpaceName + "/" + fileName);
         fileEditText = (EditText) findViewById(R.id.fileEditText);
         String fileText = "... File text...";
+        boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         //String fileText = workspace.getFileText(workSpaceName, fileName);
         fileEditText.setText(fileText);
+        fileEditText.setEnabled(enabled);
         AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
         User user = airDesk.getMainUser();
         workspace = user.getOwnedWorkspaceByName(workSpaceName);
-        tagListAdapter =  new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, tags);
-
-        final ListView tagsList = (ListView) findViewById(R.id.tagsList);
-        tagsList.setAdapter(tagListAdapter);
-
-        tagsList.setOnItemLongClickListener(new ListView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                tagListAdapter.remove(tagsList.getItemAtPosition(position).toString());
-                return true;
-            }
-        });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -72,20 +54,18 @@ public class EditFileActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_edit:
+                toggleEditable();
+                return true;
+            case R.id.action_search:
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void addTag(View v) {
-        TextView tagInputBox = (TextView) findViewById(R.id.tagInputBox);
-        String tag = tagInputBox.getText().toString();
-        tagListAdapter.add(tag);
-        tagInputBox.setText("");
     }
 
     public void saveFile(View v) {
@@ -108,4 +88,9 @@ public class EditFileActivity extends ActionBarActivity {
         startActivity(intent);
         finish();
     }
+
+    public void toggleEditable(){
+        fileEditText.setEnabled(!fileEditText.isEnabled());
+    }
+
 }
