@@ -146,7 +146,7 @@ public class WorkSpace {
         }
     }
 
-    public void renameFile(String oldName, String newName) {
+    public void renameFile(String oldName, String newName) {//in which workspace? new name already exists in this workspace?
         for(File file : files) {
             if(file.getName().equals(oldName)){
                 file.setName(newName);

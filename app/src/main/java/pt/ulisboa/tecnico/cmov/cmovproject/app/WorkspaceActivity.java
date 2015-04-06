@@ -103,9 +103,19 @@ public class WorkspaceActivity extends ActionBarActivity {
             case R.id.rename_file:
                 renameFile(info.position);
                 return true;
+            case R.id.edit_file:
+                editFile(info.position);
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    private void editFile(int position){
+        Intent intent = new Intent(WorkspaceActivity.this, EditFileActivity.class);
+        intent.putExtra("FileName", fileAdapter.getItem(position));
+        intent.putExtra("WorkspaceName", workspaceName);
+        startActivity(intent);
     }
 
     private void renameFile(int position) {

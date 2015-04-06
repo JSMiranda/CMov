@@ -28,6 +28,10 @@
             android:name=".app.RenameFileActivity"
             android:label="@string/title_activity_rename_file" >
         </activity>
+        <activity
+            android:name=".app.EditFileActivity"
+            android:label="@string/title_activity_edit_file" >
+        </activity>
     </application>
 
 </manifest>
