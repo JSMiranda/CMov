@@ -1,9 +1,12 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
-import java.security.PublicKey;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,8 +33,127 @@ public class User {
         this.email = email;
     }
 
-    public void createWorkspace(String name, int quota, Collection<String> tags, boolean isPublic) {
-        ownedWorkSpaces.put(name, new WorkSpace(name, quota, tags, isPublic, this));
+    //////////////////////////////////////////////////////////////////////
+    //////////////////// SQL operation methods ///////////////////////////
+    //////////////////////////////////////////////////////////////////////
+
+    /**
+     * Loads from the database all users.
+     * @return The list of users
+     */
+    static synchronized List<User> sqlLoadUsers() {
+        List<User> users = new ArrayList<User>();
+
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = "SELECT * FROM USERS";
+        Cursor c = db.rawQuery(query, null);
+        while (c.moveToNext()) {
+            String nickname = c.getString(0);
+            String email = c.getString(1);
+            users.add(new User(nickname, email));
+        }
+
+        for(User u : users) {
+            u.sqlLoadWorkspaces(users);
+        }
+        return users;
+    }
+
+    /**
+     * Loads from database all workspaces owned by this user
+     * @param users The list of all users (needed to fill the permitted users list)
+     */
+    private synchronized void sqlLoadWorkspaces(List<User> users) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = "SELECT * FROM WORKSPACES WHERE owner = ?";
+        String[] args = new String[] {this.getEmail()};
+        Cursor c = db.rawQuery(query, args);
+        while (c.moveToNext()) {
+            String name = c.getString(0);
+            int quota = c.getInt(1);
+            boolean isPublic = c.getInt(3) == 0 ? false : true;
+
+            ownedWorkSpaces.put(name, new WorkSpace(name, quota, isPublic, this));
+            WorkSpace ws = getOwnedWorkspaceByName(name);
+
+            // for each workspace, create the file list and the permitted users list
+            ws.sqlLoadFiles();
+            query = "SELECT user FROM SUBSCRIPTIONS WHERE workSpace = ? AND owner = ?";
+            args = new String[] {name, this.getEmail()};
+            Cursor c2 = db.rawQuery(query, args);
+            while(c2.moveToNext()) {
+                // find by email. When found, add to permitted users.
+                for(User u : users) {
+                    if(u.getEmail() == c2.getString(0)) {
+                        ws.addPermittedUser(u);
+                        subscribedWorkSpaces.put(ws.getName(), ws);
+                        ws.addPermittedUser(this);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO:
+    // This method should be used only after connection is implemented.
+    // At that point, think more carefully about visibility
+    private synchronized void sqlInsert() {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "INSERT INTO USERS VALUES(?, ?)";
+        String[] args = new String[]{nickname, email};
+        db.execSQL(query, args);
+    }
+
+    // TODO:
+    // This method should be used only after connection is implemented.
+    // At that point, think more carefully about visibility
+    private synchronized void sqlUpdate(String oldNick, String oldEmail) {
+        // TODO: Check if one can change his email. If not, correct this
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "UPDATE USERS SET name = ?, email WHERE name = ? AND email = ?";
+        String[] args = new String[]{nickname, email, oldNick, oldEmail};
+        db.execSQL(query, args);
+    }
+
+    // TODO:
+    // This method should be used only after connection is implemented.
+    // At that point, think more carefully about visibility
+    private synchronized void sqlDelete() {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "DELETE FROM USERS WHERE name = ? AND email = ?";
+        String[] args = new String[]{nickname, email};
+        db.execSQL(query, args);
+    }
+
+    private synchronized void sqlInsertSubscription(WorkSpace ws) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?, ?)";
+        String[] args = new String[]{this.getEmail(), ws.getName(), ws.getOwner().getEmail()};
+        db.execSQL(query, args);
+    }
+
+    private synchronized void sqlDeleteSubscription(WorkSpace ws) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "DELETE FROM SUBSCRIPTIONS WHERE user =?, workSpace = ?, owner = ?";
+        String[] args = new String[]{this.getEmail(), ws.getName(), ws.getOwner().getEmail()};
+        db.execSQL(query, args);
+    }
+
+    //////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////
+
+    public void createWorkspace(String name, int quota, boolean isPublic) {
+        WorkSpace ws = new WorkSpace(name, quota, isPublic, this);
+        ownedWorkSpaces.put(name, ws);
+        ws.sqlInsert();
     }
 
     /**
@@ -41,66 +163,70 @@ public class User {
      */
     public void deleteWorkspace(WorkSpace ws) {
         ownedWorkSpaces.remove(ws);
+        // TODO: Remove all files and subscriptions
+        ws.sqlDelete();
     }
 
     public void subscribeWorkspace(WorkSpace ws) {
         subscribedWorkSpaces.put(ws.getName(), ws);
         ws.addPermittedUser(this);
+        sqlInsertSubscription(ws);
     }
 
     public void unsubscribeWorkspace(WorkSpace ws) {
         subscribedWorkSpaces.remove(ws.getName());
         ws.removePermittedUser(this);
+        sqlDeleteSubscription(ws);
     }
 
     public void setWorkSpaceQuota(String workSpaceName, int quota) {
-        WorkSpace ws = getWorkspaceByName(workSpaceName);
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.setQuota(quota);
     }
 
-    void addTagToWorkSpace(String workSpaceName, String tag) {
-        WorkSpace ws = getWorkspaceByName(workSpaceName);
+    public void addTagToWorkSpace(String workSpaceName, String tag) {
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.addTag(tag);
     }
 
-    void removeTagFromWorkSpace(String workSpaceName, String tag) {
-        WorkSpace ws = getWorkspaceByName(workSpaceName);
+    public void removeTagFromWorkSpace(String workSpaceName, String tag) {
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.removeTag(tag);
     }
 
-    void addFileToWorkSpace(String workSpaceName, File f) {
-        WorkSpace ws = getWorkspaceByName(workSpaceName);
+    public void addFileToWorkSpace(String workSpaceName, File f) {
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.addFile(f);
     }
 
-    void removeFileFromWorkSpace(String workSpaceName, File f) {
-        WorkSpace ws = getWorkspaceByName(workSpaceName);
+    public void removeFileFromWorkSpace(String workSpaceName, File f) {
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.removeFile(f);
     }
 
-    void setWorkSpaceToPublic(String workSpaceName) {
-        WorkSpace ws = getWorkspaceByName(workSpaceName);
+    public void setWorkSpaceToPublic(String workSpaceName) {
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.setPublic(true);
     }
 
-    void setWorkSpaceToPrivate(String workSpaceName) {
-        WorkSpace ws = getWorkspaceByName(workSpaceName);
+    public void setWorkSpaceToPrivate(String workSpaceName) {
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.setPublic(false);
     }
 
     public void setWorkSpaceName(String oldName, String newName) {
-        WorkSpace ws = getWorkspaceByName(oldName);
+        WorkSpace ws = getOwnedWorkspaceByName(oldName);
         ws.setName(newName);
     }
 
     public void addUserToWorkSpace(String workSpaceName, User u) {
-        WorkSpace ws = getWorkspaceByName(workSpaceName);
-        ws.addPermittedUser(u);
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
+        u.unsubscribeWorkspace(ws);
     }
 
     public void removeUserFromWorkSpace(String workSpaceName, User u) {
-        WorkSpace ws = getWorkspaceByName(workSpaceName);
-        ws.removePermittedUser(u);
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
+        u.subscribeWorkspace(ws);
     }
 
     public ArrayList<String> getOwnedWorkspaceNames() {
@@ -111,9 +237,6 @@ public class User {
 
         return workspaces;
     }
-
-
-
 
     /*
      * Getters
@@ -135,14 +258,8 @@ public class User {
         return subscribedWorkSpaces;
     }
 
-    public WorkSpace getWorkspaceByName(String workSpaceName) {
+    public WorkSpace getOwnedWorkspaceByName(String workSpaceName) {
         return ownedWorkSpaces.get(workSpaceName);
     }
-
-
-    /*
-     * Private methods
-     */
-
 
 }

@@ -1,6 +1,14 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * This class abstracts a file. Before opening, closing and reading from a
@@ -10,16 +18,47 @@ public class File {
     private static FileImpl impl;
 
     private String name;
-    private Date lastChanged;
+    private Date lastChangeTime; // not used for now
+    private User lastChangeBy; // not used for now
     private int size;
 
-    public File(String name) {
+    public File(String name, int size) {
         this.name = name;
-        lastChanged = new Date();
-        /* TODO: set "initial" size. The size when the file was loaded
-         * (the file might have been created before app initiation)
-         */
+        this.lastChangeTime = new Date();
+        this.size = size;
     }
+
+    //////////////////////////////////////////////////////////////////////
+    //////////////////// SQL operation methods ///////////////////////////
+    //////////////////////////////////////////////////////////////////////
+
+    synchronized void sqlInsert(String wsName, String ownerEmail) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "INSERT INTO FILES VALUES(?, ?, ?, ?)";
+        String[] args = new String[]{wsName, ownerEmail, name, Integer.toString(size)};
+        db.execSQL(query, args);
+    }
+
+    synchronized void sqlUpdate(String oldName, String wsName, String ownerEmail) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        values.put("size", size);
+        String[] whereArgs = new String[]{wsName, ownerEmail, oldName};
+        db.update("FILES", values, "workSpace = ? AND owner = ? AND name = ?", whereArgs);
+    }
+
+    synchronized void sqlDelete(String wsName, String ownerEmail) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String[] whereArgs = new String[]{wsName, ownerEmail, name};
+        db.delete("FILES", "workSpace = ? AND owner = ? AND name = ?", whereArgs);
+    }
+
+    //////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////
 
     /**
      * Use this method to set an implementation for the file reader
@@ -40,7 +79,7 @@ public class File {
 
     public void write() {
         impl.write();
-        // TODO: Change size
+        // TODO: Change size & last changes
     }
 
     public void open() {
@@ -55,16 +94,8 @@ public class File {
         return name;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
-    }
-
-    public Date getLastChanged() {
-        return lastChanged;
-    }
-
-    public void setLastChanged(Date lastChanged) {
-        this.lastChanged = lastChanged;
     }
 
     public int getSize() {

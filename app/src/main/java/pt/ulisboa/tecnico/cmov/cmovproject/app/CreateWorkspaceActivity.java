@@ -90,9 +90,12 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
             return;
         }
 
-        AirDesk airDesk = AirDesk.getInstance("MyName");
+        AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
         User user = airDesk.getMainUser();
-        user.createWorkspace(name, quota, tags, true); //we need to catch some exceptions were (duplicate workspaces .. etc.) TODO
+        user.createWorkspace(name, quota, true); //we need to catch some exceptions were (duplicate workspaces .. etc.) TODO
+        for(String tag : tags) {
+            user.addTagToWorkSpace(name, tag);
+        }
 
         exitActivity(v);
 

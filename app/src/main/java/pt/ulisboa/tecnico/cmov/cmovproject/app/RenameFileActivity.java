@@ -32,9 +32,9 @@ public class RenameFileActivity extends ActionBarActivity {
         inputBox = (TextView) findViewById(R.id.newNameBox);
         inputBox.setText(oldName);
 
-        AirDesk airDesk = AirDesk.getInstance("MyName");
+        AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
         User user = airDesk.getMainUser();
-        workSpace = user.getWorkspaceByName(workspaceName);
+        workSpace = user.getOwnedWorkspaceByName(workspaceName);
     }
 
 
