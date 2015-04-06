@@ -43,9 +43,9 @@ public class WorkspaceActivity extends ActionBarActivity {
         Intent intent = getIntent();
         workspaceName = intent.getStringExtra("WorkspaceName");
 
-        AirDesk airDesk = AirDesk.getInstance("MyName");
+        AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
         User user = airDesk.getMainUser();
-        workSpace = user.getWorkspaceByName(workspaceName);
+        workSpace = user.getOwnedWorkspaceByName(workspaceName);
         files = workSpace.getFiles();
 
         fileNames = new ArrayList<String>();

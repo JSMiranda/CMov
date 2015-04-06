@@ -24,73 +24,87 @@ public class WorkSpace {
     private Collection<User> permittedUsers;
     private User owner;
 
-    public WorkSpace(String name, int quota, Collection<String> tags, boolean isPublic, User owner) {
+    WorkSpace(String name, int quota, boolean isPublic, User owner) {
         this.name = name;
         this.quota = quota;
-        this.tags = tags; // FIXME: make a copy?
         this.files = new ArrayList<File>();
         this.isPublic = isPublic;
         this.permittedUsers = new ArrayList<User>();
         this.owner = owner;
     }
 
+    //////////////////////////////////////////////////////////////////////
+    //////////////////// SQL operation methods ///////////////////////////
+    //////////////////////////////////////////////////////////////////////
 
-    /*
-     * SQL Operation Methods
-     */
-    public static synchronized void loadWorkspaces(User u, List<WorkSpace> list, Context context) {
-        SQLiteOpenHelper dbHelper = new MyOpenHelper(context);
+    synchronized void sqlLoadFiles() {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String query = "SELECT * FROM WORKSPACES WHERE owner = '" + u.getEmail() + "'";
-        Cursor c = db.rawQuery(query, null);
+        String query = "SELECT name, size FROM FILES WHERE workSpace = ? AND owner = ?";
+        String[] args = new String[] {name, owner.getEmail()};
+        Cursor c = db.rawQuery(query, args);
         while (c.moveToNext()) {
-            String name = c.getString(0);
-            int quota = c.getInt(1);
-            boolean isPublic = c.getInt(3) == 0 ? false : true;
-            list.add(new WorkSpace(name, quota, null, isPublic, u));
+            String fileName = c.getString(0);
+            int size = c.getInt(1);
+            files.add(new File(fileName, size));
         }
-        // TODO other tables...
     }
 
-    public synchronized void update(Context context) {
-        //TODO implement
-    }
-
-    public synchronized void delete(Context context) {
-
-    }
-
-    public synchronized void insert(Context context) {
-        SQLiteOpenHelper dbHelper = new MyOpenHelper(context);
+    synchronized void sqlInsert() {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "INSERT INTO WORKSPACES VALUES('" + name + "', '" + quota + "', '" + isPublic + "', '" + owner.getEmail() + "');";
-        db.execSQL(query);
+        String query = "INSERT INTO WORKSPACES VALUES(?, ?, ?, ?)";
+        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic), owner.getEmail()};
+        db.execSQL(query, args);
     }
 
-    public synchronized void insertTag(Context context) {
-
+    private synchronized void sqlUpdate(String previousName) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "UPDATE WORKSPACES SET workSpace = ?, quota = ?, isPublic = ? WHERE name = ?";
+        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic), previousName};
+        db.execSQL(query, args);
+        // TODO: Change other tables. Create another method to update when no name change is done
     }
 
-    public synchronized void deleteTag(Context context) {
+    synchronized void sqlDelete() {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "DELETE FROM WORKSPACES WHERE name = ? AND owner = ?";
+        String[] args = new String[]{name, owner.getEmail()};
+        db.execSQL(query, args);
 
+        query = "DELETE FROM FILES WHERE workSpace = ? AND owner = ?";
+        args = new String[]{name, owner.getEmail()};
+        db.execSQL(query, args);
+
+        query = "DELETE FROM SUBSCRIPTIONS WHERE workSpace = ? AND owner = ?";
+        args = new String[]{name, owner.getEmail()};
+        db.execSQL(query, args);
+
+        query = "DELETE FROM TAGS WHERE workSpace = ? AND owner = ?";
+        args = new String[]{name, owner.getEmail()};
+        db.execSQL(query, args);
     }
 
-    public synchronized void insertFile(Context context) {
-
+    private synchronized void sqlInsertTag(String tag) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "INSERT INTO TAGS VALUES(?, ?, ?)";
+        String[] args = new String[]{name, owner.getEmail(), tag};
+        db.execSQL(query, args);
     }
 
-    public synchronized void deleteFile(Context context) {
-
+    private synchronized void sqlDeleteTag(String tag) {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "DELETE FROM TAGS WHERE tag = ? AND workSpace = ? AND owner = ?";
+        String[] args = new String[]{tag, name, owner.getEmail()};
+        db.execSQL(query, args);
     }
 
-    public synchronized void insertUser(Context context) {
-
-    }
-
-    public synchronized void deleteUser(Context context) {
-
-    }
-
+    //////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////
 
     /*
      * Domain Logic
@@ -141,6 +155,7 @@ public class WorkSpace {
         for(File file : files) {
             if(file.getName().equals(name)){
                 files.remove(file);
+                file.sqlDelete(this.name, owner.getEmail());
                 break;
             }
         }
@@ -150,6 +165,7 @@ public class WorkSpace {
         for(File file : files) {
             if(file.getName().equals(oldName)){
                 file.setName(newName);
+                file.sqlUpdate(oldName, name, owner.getEmail());
                 break;
             }
         }
@@ -163,6 +179,7 @@ public class WorkSpace {
     void setQuota(int quota) {
         if (quota >= getUsedQuota()) {
             this.quota = quota;
+            sqlUpdate(name);
         } else {
             throw new IllegalStateException("Trying to set quota to a value lower than used quota");
         }
@@ -170,26 +187,33 @@ public class WorkSpace {
 
     void addTag(String tag) {
         tags.add(tag);
+        sqlInsertTag(tag);
     }
 
     void removeTag(String tag) {
         tags.remove(tag);
+        sqlDeleteTag(tag);
     }
 
     void addFile(File f) {
         files.add(f);
+        f.sqlInsert(name, owner.getEmail());
     }
 
     void removeFile(File f) {
         files.remove(f);
+        f.sqlDelete(name, owner.getEmail());
     }
 
     void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
+        sqlUpdate(name);
     }
 
     void setName(String name) {
+        String prevName = this.name;
         this.name = name;
+        sqlUpdate(prevName);
     }
 
     void addPermittedUser(User u) {

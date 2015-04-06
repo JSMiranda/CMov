@@ -13,21 +13,21 @@ import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
-public class ImageAdapter extends BaseAdapter {
+public class WorkSpaceAdapter extends BaseAdapter {
     private Context mContext;
 
-    public ImageAdapter(Context c) {
+    public WorkSpaceAdapter(Context c) {
         mContext = c;
     }
 
     @Override
     public int getCount() {
-        return AirDesk.getInstance("MyName").getMainUser().getOwnedWorkSpaces().size();
+        return AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", mContext).getMainUser().getOwnedWorkSpaces().size();
     }
 
     @Override
     public WorkSpace getItem(int position) {
-        WorkSpace ws = (WorkSpace) AirDesk.getInstance("MyName").getMainUser().getOwnedWorkSpaces().values().toArray()[position];
+        WorkSpace ws = (WorkSpace) AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", mContext).getMainUser().getOwnedWorkSpaces().values().toArray()[position];
         return ws;
     }
 
