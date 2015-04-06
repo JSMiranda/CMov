@@ -19,5 +19,6 @@
     <color name="light_blue">#33b5e5</color>
     <string name="title_activity_create_workspace">CreateWorkspaceActivity</string>
     <string name="title_activity_workspace">WorkspaceActivity</string>
+    <string name="title_activity_rename_file">RenameFileActivity</string>
 
 </resources>

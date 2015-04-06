@@ -33,13 +33,15 @@ public class WorkspaceActivity extends ActionBarActivity {
 
     private ArrayList<String> fileNames;
 
+    private String workspaceName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workspace);
 
         Intent intent = getIntent();
-        String workspaceName = intent.getStringExtra("WorkspaceName");
+        workspaceName = intent.getStringExtra("WorkspaceName");
 
         AirDesk airDesk = AirDesk.getInstance("MyName");
         User user = airDesk.getMainUser();
@@ -108,9 +110,15 @@ public class WorkspaceActivity extends ActionBarActivity {
 
     private void renameFile(int position) {
         final String fileName = fileAdapter.getItem(position);
-        fileAdapter.remove(fileName);
-        fileAdapter.insert("TEST", position);
-        workSpace.renameFile(fileName, "TEST");
+
+        Intent intent = new Intent(WorkspaceActivity.this, RenameFileActivity.class);
+        intent.putExtra("OldName", fileName);
+        intent.putExtra("WorkspaceName", workspaceName);
+        startActivity(intent);
+
+        //fileAdapter.remove(fileName);
+        //fileAdapter.insert("TEST", position);
+        //workSpace.renameFile(fileName, "TEST");
     }
 
     private void deleteFileFromWorkspace(int position) {

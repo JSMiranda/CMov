@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -138,7 +139,7 @@ public class WorkSpace {
 
     public void removeFileByName(String name) {
         for(File file : files) {
-            if(file.getName().equals("name")){
+            if(file.getName().equals(name)){
                 files.remove(file);
                 break;
             }
@@ -147,7 +148,7 @@ public class WorkSpace {
 
     public void renameFile(String oldName, String newName) {
         for(File file : files) {
-            if(file.getName().equals("name")){
+            if(file.getName().equals(oldName)){
                 file.setName(newName);
                 break;
             }

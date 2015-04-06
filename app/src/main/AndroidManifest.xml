@@ -24,6 +24,10 @@
             android:name=".app.WorkspaceActivity"
             android:label="@string/title_activity_workspace" >
         </activity>
+        <activity
+            android:name=".app.RenameFileActivity"
+            android:label="@string/title_activity_rename_file" >
+        </activity>
     </application>
 
 </manifest>
