@@ -20,9 +20,11 @@
     <!-- Colors -->
     <color name="light_blue">#33b5e5</color>
 
+
     <!-- Activity titles -->
     <string name="title_activity_create_workspace">Create Workspace</string>
     <string name="title_rename_file">Rename File</string>
     <string name="title_activity_edit_file">Edit File</string>
+    <string name="title_activity_workspace_permissions">Workspace Permissions</string>
 
 </resources>

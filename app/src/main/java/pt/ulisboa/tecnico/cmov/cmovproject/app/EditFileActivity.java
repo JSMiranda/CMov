@@ -23,7 +23,7 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 public class EditFileActivity extends ActionBarActivity {
 
-    private WorkSpace workSpace;
+    private WorkSpace workspace;
     private String fileName;
     private String workSpaceName;
     private ArrayList<String> tags = new ArrayList<String>();
@@ -41,11 +41,11 @@ public class EditFileActivity extends ActionBarActivity {
         setTitle(workSpaceName + "/" + fileName);
         fileEditText = (EditText) findViewById(R.id.fileEditText);
         String fileText = "... File text...";
-        //String fileText = workSpace.getFileText(workSpaceName, fileName);
+        //String fileText = workspace.getFileText(workSpaceName, fileName);
         fileEditText.setText(fileText);
         AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
         User user = airDesk.getMainUser();
-        workSpace = user.getOwnedWorkspaceByName(workSpaceName);
+        workspace = user.getOwnedWorkspaceByName(workSpaceName);
         tagListAdapter =  new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, tags);
 
         final ListView tagsList = (ListView) findViewById(R.id.tagsList);
@@ -89,7 +89,7 @@ public class EditFileActivity extends ActionBarActivity {
     }
 
     public void saveFile(View v) {
-        //workSpace.saveFile(workSpaceName, fileName, fileEditText.getText().toString());
+        //space.saveFile(workSpaceName, fileName, fileEditText.getText().toString());
         Toast.makeText(EditFileActivity.this, "Changes saved!",
                 Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(EditFileActivity.this, WorkspaceActivity.class);

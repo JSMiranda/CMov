@@ -31,6 +31,10 @@
             android:name=".app.EditFileActivity"
             android:label="@string/title_activity_edit_file" >
         </activity>
+        <activity
+            android:name=".app.workspacePermissionsActivity"
+            android:label="@string/title_activity_workspace_permissions" >
+        </activity>
     </application>
 
 </manifest>
