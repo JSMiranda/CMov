@@ -43,9 +43,9 @@ public class EditFileActivity extends ActionBarActivity {
         String fileText = "... File text...";
         //String fileText = workSpace.getFileText(workSpaceName, fileName);
         fileEditText.setText(fileText);
-        AirDesk airDesk = AirDesk.getInstance("MyName");
+        AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
         User user = airDesk.getMainUser();
-        workSpace = user.getWorkspaceByName(workSpaceName);
+        workSpace = user.getOwnedWorkspaceByName(workSpaceName);
         tagListAdapter =  new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, tags);
 
         final ListView tagsList = (ListView) findViewById(R.id.tagsList);
