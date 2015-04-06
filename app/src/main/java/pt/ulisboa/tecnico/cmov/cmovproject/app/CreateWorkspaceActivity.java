@@ -100,7 +100,8 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
 
     public void exitActivity(View v) {
         Intent intent = new Intent(CreateWorkspaceActivity.this, MainActivity.class);
-        startActivity(intent); // we need to kill this activity first TODO
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
         finish();
     }
 }

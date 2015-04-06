@@ -66,7 +66,7 @@ public class RenameFileActivity extends ActionBarActivity {
 
         Intent intent = new Intent(RenameFileActivity.this, WorkspaceActivity.class);
         intent.putExtra("WorkspaceName", workspaceName);
-        //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
     }
