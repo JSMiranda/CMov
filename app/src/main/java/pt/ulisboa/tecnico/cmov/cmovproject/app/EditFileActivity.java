@@ -41,7 +41,7 @@ public class EditFileActivity extends ActionBarActivity {
         setTitle(workSpaceName + "/" + fileName);
         fileEditText = (EditText) findViewById(R.id.fileEditText);
         String fileText = "... File text...";
-        //String fileText = workSpace.getFileText(workSpaceName, fileName, fileText.getText().toString());
+        //String fileText = workSpace.getFileText(workSpaceName, fileName);
         fileEditText.setText(fileText);
         AirDesk airDesk = AirDesk.getInstance("MyName");
         User user = airDesk.getMainUser();
