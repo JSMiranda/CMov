@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AirDesk</string>
+    <string name="action_search_workspace">Search WorkSpace</string>
+
     <!-- ActionBar Strings for WorkSpace Activities -->
     <!-- Only for owned WorkSpaces -->
     <string name="action_share">Share</string>
     <string name="action_edit_ws">Edit WorkSpace</string>
     <string name="action_delete_ws">Delete WorkSpace</string>
+
+
     <string name="action_rename_file">Rename File</string>
     <string name="action_delete_file">Delete File</string>
     <string name="action_edit_file">Edit File</string>
-
     <string name="action_search_file">Search File</string>
-
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
 
     <!-- Colors -->
     <color name="light_blue">#33b5e5</color>
-    <string name="title_activity_create_workspace">CreateWorkspaceActivity</string>
-    <string name="title_activity_workspace">WorkspaceActivity</string>
-    <string name="title_activity_rename_file">RenameFileActivity</string>
-    <string name="title_activity_edit_file">EditFileActivity</string>
+
+    <!-- Activity titles -->
+    <string name="title_activity_create_workspace">Create Workspace</string>
+    <string name="title_rename_file">Rename File</string>
+    <string name="title_activity_edit_file">Edit File</string>
 
 </resources>

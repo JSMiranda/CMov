@@ -24,15 +24,10 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 
 public class WorkspaceActivity extends ActionBarActivity {
-
     private WorkSpace workSpace;
-
     private Collection<File> files;
-
     private ArrayAdapter<String> fileAdapter;
-
     private ArrayList<String> fileNames;
-
     private String workspaceName;
 
     @Override
@@ -42,6 +37,7 @@ public class WorkspaceActivity extends ActionBarActivity {
 
         Intent intent = getIntent();
         workspaceName = intent.getStringExtra("WorkspaceName");
+        setTitle(workspaceName);
 
         AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
         User user = airDesk.getMainUser();
@@ -90,7 +86,7 @@ public class WorkspaceActivity extends ActionBarActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_workspace, menu);
+        inflater.inflate(R.menu.menu_file_long_press, menu);
     }
 
     @Override
@@ -120,15 +116,10 @@ public class WorkspaceActivity extends ActionBarActivity {
 
     private void renameFile(int position) {
         final String fileName = fileAdapter.getItem(position);
-
         Intent intent = new Intent(WorkspaceActivity.this, RenameFileActivity.class);
         intent.putExtra("OldName", fileName);
         intent.putExtra("WorkspaceName", workspaceName);
         startActivity(intent);
-
-        //fileAdapter.remove(fileName);
-        //fileAdapter.insert("TEST", position);
-        //workSpace.renameFile(fileName, "TEST");
     }
 
     private void deleteFileFromWorkspace(int position) {

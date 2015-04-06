@@ -27,6 +27,7 @@ public class RenameFileActivity extends ActionBarActivity {
 
         Intent intent = getIntent();
         oldName = intent.getStringExtra("OldName");
+        setTitle(getTitle() + " (" + oldName + ")");
         workspaceName = intent.getStringExtra("WorkspaceName");
 
         inputBox = (TextView) findViewById(R.id.newNameBox);

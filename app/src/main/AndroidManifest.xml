@@ -21,12 +21,11 @@
             android:label="@string/title_activity_create_workspace" >
         </activity>
         <activity
-            android:name=".app.WorkspaceActivity"
-            android:label="@string/title_activity_workspace" >
+            android:name=".app.WorkspaceActivity" >
         </activity>
         <activity
             android:name=".app.RenameFileActivity"
-            android:label="@string/title_activity_rename_file" >
+            android:label="@string/title_rename_file" >
         </activity>
         <activity
             android:name=".app.EditFileActivity"

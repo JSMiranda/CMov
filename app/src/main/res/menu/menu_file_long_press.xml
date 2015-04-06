@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="pt.ulisboa.tecnico.cmov.cmovproject.app.WorkspaceActivity">
+    <item android:id="@+id/delete_file"
+        android:title="@string/action_delete_file"
+        app:showAsAction="never"  />
+    <item android:id="@+id/rename_file"
+        android:title="@string/action_rename_file"
+        app:showAsAction="never"  />
+    <item android:id="@+id/edit_file"
+        android:title="@string/action_edit_file"
+        app:showAsAction="never"  />
+</menu>
