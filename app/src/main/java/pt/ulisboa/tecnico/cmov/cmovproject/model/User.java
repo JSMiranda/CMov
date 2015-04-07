@@ -262,4 +262,8 @@ public class User {
         return ownedWorkSpaces.get(workSpaceName);
     }
 
+    @Override
+    public String toString(){
+        return nickname;
+    }
 }

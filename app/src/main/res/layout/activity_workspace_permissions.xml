@@ -9,7 +9,24 @@
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/abc_text_size_headline_material"
+            android:text="Share workspace with:"
+            android:id="@+id/textViewMessage" />
+        <ListView
+            android:id="@+id/amazingList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:choiceMode="multipleChoice"
+            android:textFilterEnabled="true"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            >
+        </ListView>
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -20,7 +37,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="save"
+                android:text="done"
                 android:id="@+id/doneButton"
                 android:layout_marginLeft="30dp"
                 android:onClick="saveShare" />

@@ -19,7 +19,6 @@ public class EditFileActivity extends ActionBarActivity {
     private WorkSpace workspace;
     private String fileName;
     private String workspaceName;
-    private EditText fileEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +29,7 @@ public class EditFileActivity extends ActionBarActivity {
         fileName = intent.getStringExtra("fileName");
         workspaceName = intent.getStringExtra("workspaceName");
         setTitle(workspaceName + "/" + fileName);
-        fileEditText = (EditText) findViewById(R.id.fileEditText);
+        EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
         String fileText = "... File text...";
         boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         //String fileText = workspace.getFileText(workspaceName, fileName);
@@ -90,6 +89,7 @@ public class EditFileActivity extends ActionBarActivity {
     }
 
     public void toggleEditable(){
+        EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
         fileEditText.setEnabled(!fileEditText.isEnabled());
     }
 
