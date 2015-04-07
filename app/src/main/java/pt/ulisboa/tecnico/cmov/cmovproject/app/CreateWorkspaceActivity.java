@@ -142,7 +142,7 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
     }
 
     public void exitActivity(View v) {
-        Intent intent = new Intent(CreateWorkspaceActivity.this, MainActivity.class);
+        Intent intent = new Intent(CreateWorkspaceActivity.this, ShowWorkspacesActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
