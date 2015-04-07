@@ -35,12 +35,12 @@ public class AirDesk {
     private AirDesk() {
         mainUser = null;
         otherUsers = null;
-        init("sarah_w@tecnico.ulisboa.pt"); // FIXME: hardcoded
+        init("sarah_w@tecnico.ulisboa.pt", "Sarah"); // FIXME: hardcoded
     }
 
-    public void init(String email) {
+    public void init(String email, String nickName) {
         // FIXME: hardcoded, change for "sqlInsertMainUser", and move sqlLoadWorkspaces to WorkSpace class
-        mainUser = new User("Sarah", "sarah_w@tecnico.ulisboa.pt");
+        mainUser = new User(nickName, email);
         List<User> users = User.sqlLoadUsers();
         otherUsers = users;
         mainUser.sqlLoadWorkspaces(users);
@@ -54,6 +54,6 @@ public class AirDesk {
      */
     public boolean load() {
         // TODO: Implement (in user class, and call here) load main user
-        return true;
+        return false;
     }
 }

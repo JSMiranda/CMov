@@ -16,6 +16,9 @@
     <string name="action_search_file">Search File</string>
     <string name="action_settings">Settings</string>
 
+    <string name="email">Email</string>
+    <string name="nickname">Nickname</string>
+
 
     <!-- Colors -->
     <color name="light_blue">#33b5e5</color>
@@ -26,5 +29,8 @@
     <string name="title_rename_file">Rename File</string>
     <string name="title_activity_edit_file">Edit File</string>
     <string name="title_activity_workspace_permissions">Workspace Permissions</string>
+    <string name="title_activity_login">LoginActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>
