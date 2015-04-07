@@ -28,6 +28,10 @@ public class AirDesk {
         return mainUser;
     }
 
+    public List<User> getOtherUsers() {
+        return otherUsers;
+    }
+
     private AirDesk() {
         mainUser = null;
         otherUsers = null;
