@@ -219,6 +219,8 @@ public class User {
     public void setWorkSpaceName(String oldName, String newName) {
         WorkSpace ws = getOwnedWorkspaceByName(oldName);
         ws.setName(newName);
+        ownedWorkSpaces.remove(oldName);
+        ownedWorkSpaces.put(newName, ws);
     }
 
     public void addUserToWorkSpace(String workSpaceName, User u) {
