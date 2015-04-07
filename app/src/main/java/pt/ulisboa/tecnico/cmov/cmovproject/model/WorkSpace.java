@@ -41,8 +41,8 @@ public class WorkSpace {
     synchronized void sqlLoadFiles() {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String query = "SELECT name, size FROM FILES WHERE workSpace = ? AND owner = ?";
-        String[] args = new String[] {name, owner.getEmail()};
+        String query = "SELECT name, size FROM FILES WHERE workSpace = ?";
+        String[] args = new String[] {name};
         Cursor c = db.rawQuery(query, args);
         while (c.moveToNext()) {
             String fileName = c.getString(0);
@@ -54,16 +54,16 @@ public class WorkSpace {
     synchronized void sqlInsert() {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "INSERT INTO WORKSPACES VALUES(?, ?, ?, ?)";
-        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic), owner.getEmail()};
+        String query = "INSERT INTO WORKSPACES VALUES(?, ?, ?)";
+        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic)};
         db.execSQL(query, args);
     }
 
     private synchronized void sqlUpdate(String previousName) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "UPDATE WORKSPACES SET name = ?, quota = ?, isPublic = ? WHERE name = ? AND owner = ?";
-        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic), previousName, owner.getEmail()};
+        String query = "UPDATE WORKSPACES SET name = ?, quota = ?, isPublic = ? WHERE name = ?";
+        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic), previousName};
         db.execSQL(query, args);
         // TODO: Change other tables. Create another method to update when no name change is done
     }
@@ -71,36 +71,36 @@ public class WorkSpace {
     synchronized void sqlDelete() {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "DELETE FROM WORKSPACES WHERE name = ? AND owner = ?";
-        String[] args = new String[]{name, owner.getEmail()};
+        String query = "DELETE FROM WORKSPACES WHERE name = ?";
+        String[] args = new String[]{name};
         db.execSQL(query, args);
 
-        query = "DELETE FROM FILES WHERE workSpace = ? AND owner = ?";
-        args = new String[]{name, owner.getEmail()};
+        query = "DELETE FROM FILES WHERE workSpace = ?";
+        args = new String[]{name};
         db.execSQL(query, args);
 
-        query = "DELETE FROM SUBSCRIPTIONS WHERE workSpace = ? AND owner = ?";
-        args = new String[]{name, owner.getEmail()};
+        query = "DELETE FROM SUBSCRIPTIONS WHERE workSpace = ?";
+        args = new String[]{name};
         db.execSQL(query, args);
 
-        query = "DELETE FROM TAGS WHERE workSpace = ? AND owner = ?";
-        args = new String[]{name, owner.getEmail()};
+        query = "DELETE FROM TAGS WHERE workSpace = ?";
+        args = new String[]{name};
         db.execSQL(query, args);
     }
 
     private synchronized void sqlInsertTag(String tag) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "INSERT INTO TAGS VALUES(?, ?, ?)";
-        String[] args = new String[]{name, owner.getEmail(), tag};
+        String query = "INSERT INTO TAGS VALUES(?, ?)";
+        String[] args = new String[]{name, tag};
         db.execSQL(query, args);
     }
 
     private synchronized void sqlDeleteTag(String tag) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "DELETE FROM TAGS WHERE tag = ? AND workSpace = ? AND owner = ?";
-        String[] args = new String[]{tag, name, owner.getEmail()};
+        String query = "DELETE FROM TAGS WHERE tag = ? AND workSpace = ?";
+        String[] args = new String[]{tag, name};
         db.execSQL(query, args);
     }
 
@@ -156,7 +156,7 @@ public class WorkSpace {
         for(File file : files) {
             if(file.getName().equals(name)){
                 files.remove(file);
-                file.sqlDelete(this.name, owner.getEmail());
+                file.sqlDelete(this.name);
                 break;
             }
         }
@@ -166,7 +166,7 @@ public class WorkSpace {
         for(File file : files) {
             if(file.getName().equals(oldName)){
                 file.setName(newName);
-                file.sqlUpdate(oldName, name, owner.getEmail());
+                file.sqlUpdate(oldName, name);
                 break;
             }
         }
@@ -205,12 +205,12 @@ public class WorkSpace {
 
     void addFile(File f) {
         files.add(f);
-        f.sqlInsert(name, owner.getEmail());
+        f.sqlInsert(name);
     }
 
     void removeFile(File f) {
         files.remove(f);
-        f.sqlDelete(name, owner.getEmail());
+        f.sqlDelete(name);
     }
 
     void setPublic(boolean isPublic) {

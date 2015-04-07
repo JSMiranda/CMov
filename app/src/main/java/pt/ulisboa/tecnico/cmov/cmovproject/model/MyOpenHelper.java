@@ -30,18 +30,20 @@ public class MyOpenHelper extends SQLiteOpenHelper {
     }
 
     private void createTables(SQLiteDatabase db) {
-        final String MAIN_USER_CREATE = "CREATE TABLE MAIN_USER (name TEXT)";
+        final String MAIN_USER_CREATE = "CREATE TABLE MAIN_USER (name TEXT, email TEXT)";
         final String TABLE1_CREATE =
-                "CREATE TABLE WORKSPACES (name TEXT, quota INTEGER, isPublic INTEGER, owner TEXT);";
+                "CREATE TABLE WORKSPACES (name TEXT, quota INTEGER, isPublic INTEGER);";
         final String TABLE2_CREATE =
                 "CREATE TABLE USERS (nickname TEXT, email TEXT);";
         final String TABLE3_CREATE =
-                "CREATE TABLE SUBSCRIPTIONS (user TEXT, workSpace TEXT, owner TEXT);";
+                "CREATE TABLE SUBSCRIPTIONS (user TEXT, workSpace TEXT);";
+        final String TABLE6_CREATE =
+                "CREATE TABLE MY_SUBSCRIPTIONS (user TEXT, workSpace TEXT);";
         final String TABLE4_CREATE =
-                "CREATE TABLE FILES (workSpace TEXT, owner TEXT, name TEXT, size INTEGER);";
+                "CREATE TABLE FILES (workSpace TEXT, name TEXT, size INTEGER);";
         final String TABLE5_CREATE =
-                "CREATE TABLE TAGS (workSpace TEXT, owner TEXT, tag TEXT);";
-        final String[] CREATE_STRINGS = { MAIN_USER_CREATE, TABLE1_CREATE, TABLE2_CREATE, TABLE3_CREATE, TABLE4_CREATE, TABLE5_CREATE };
+                "CREATE TABLE TAGS (workSpace TEXT, tag TEXT);";
+        final String[] CREATE_STRINGS = { MAIN_USER_CREATE, TABLE1_CREATE, TABLE2_CREATE, TABLE3_CREATE, TABLE4_CREATE, TABLE5_CREATE, TABLE6_CREATE };
 
         for(String createStr : CREATE_STRINGS) {
             db.execSQL(createStr);
@@ -51,46 +53,46 @@ public class MyOpenHelper extends SQLiteOpenHelper {
 
     private void populate(SQLiteDatabase db) {
         // FIXME: hardcode main user init
-        String query = "INSERT INTO MAIN_USER VALUES(?)";
-        String[] args = new String[]{"sarah_w@tecnico.ulisboa.pt"};
+        String query = "INSERT INTO MAIN_USER VALUES(?, ?)";
+        String[] args = new String[]{"Sarah", "sarah_w@tecnico.ulisboa.pt"};
         db.execSQL(query, args);
 
         // Populate users' table
         query = "INSERT INTO USERS VALUES(?, ?)";
         args = new String[]{"Anna", "anna@gmail.com"};
         db.execSQL(query, args);
-        args = new String[]{"Sarah", "sarah_w@tecnico.ulisboa.pt"};
-        db.execSQL(query, args);
         args = new String[]{"Katherine", "kathie91_m@hotmail.com"};
         db.execSQL(query, args);
 
         // Populate workspaces' table
-        query = "INSERT INTO WORKSPACES VALUES(?, ?, ?, ?)";
-        args = new String[]{"Deserts", Integer.toString(1024), Boolean.toString(true), "sarah_w@tecnico.ulisboa.pt"};
+        query = "INSERT INTO WORKSPACES VALUES(?, ?, ?)";
+        args = new String[]{"Deserts", Integer.toString(1024), Boolean.toString(true)};
         db.execSQL(query, args);
-        args = new String[]{"Meat", Integer.toString(512), Boolean.toString(true), "sarah_w@tecnico.ulisboa.pt"};
+        args = new String[]{"Meat", Integer.toString(512), Boolean.toString(true)};
         db.execSQL(query, args);
-        args = new String[]{"Fish", Integer.toString(1024), Boolean.toString(true), "sarah_w@tecnico.ulisboa.pt"};
+        args = new String[]{"Fish", Integer.toString(1024), Boolean.toString(true)};
         db.execSQL(query, args);
 
         // Populate subscriptions' table
-        query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?, ?)";
-        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Deserts", "sarah_w@tecnico.ulisboa.pt"};
+        /*
+        query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?)";
+        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Deserts"};
         db.execSQL(query, args);
-        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Meat", "sarah_w@tecnico.ulisboa.pt"};
+        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Meat"};
         db.execSQL(query, args);
-        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Fish", "sarah_w@tecnico.ulisboa.pt"};
+        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Fish"};
         db.execSQL(query, args);
+        */ // FIXME: We first thought this was part of init, should we add other permissions instead of these?
 
         // Populate files' table
-        query = "INSERT INTO FILES VALUES(?, ?, ?, ?)";
-        args = new String[]{"Deserts", "sarah_w@tecnico.ulisboa.pt", "Banana Split", Integer.toString(8)};
+        query = "INSERT INTO FILES VALUES(?, ?, ?)";
+        args = new String[]{"Deserts", "Banana Split", Integer.toString(8)};
         db.execSQL(query, args);
-        args = new String[]{"Deserts", "sarah_w@tecnico.ulisboa.pt", "Strawberry Cheesecake", Integer.toString(4)};
+        args = new String[]{"Deserts", "Strawberry Cheesecake", Integer.toString(4)};
         db.execSQL(query, args);
-        args = new String[]{"Deserts", "sarah_w@tecnico.ulisboa.pt", "Brownie", Integer.toString(8)};
+        args = new String[]{"Deserts", "Brownie", Integer.toString(8)};
         db.execSQL(query, args);
-        args = new String[]{"Fish", "sarah_w@tecnico.ulisboa.pt", "Asian seared tuna", Integer.toString(16)};
+        args = new String[]{"Fish", "Asian seared tuna", Integer.toString(16)};
         db.execSQL(query, args);
     }
 }

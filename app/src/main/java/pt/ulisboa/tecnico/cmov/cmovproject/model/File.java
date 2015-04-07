@@ -32,29 +32,29 @@ public class File {
     //////////////////// SQL operation methods ///////////////////////////
     //////////////////////////////////////////////////////////////////////
 
-    synchronized void sqlInsert(String wsName, String ownerEmail) {
+    synchronized void sqlInsert(String wsName) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "INSERT INTO FILES VALUES(?, ?, ?, ?)";
-        String[] args = new String[]{wsName, ownerEmail, name, Integer.toString(size)};
+        String query = "INSERT INTO FILES VALUES(?, ?, ?)";
+        String[] args = new String[]{wsName, name, Integer.toString(size)};
         db.execSQL(query, args);
     }
 
-    synchronized void sqlUpdate(String oldName, String wsName, String ownerEmail) {
+    synchronized void sqlUpdate(String oldName, String wsName) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
         values.put("size", size);
-        String[] whereArgs = new String[]{wsName, ownerEmail, oldName};
-        db.update("FILES", values, "workSpace = ? AND owner = ? AND name = ?", whereArgs);
+        String[] whereArgs = new String[]{wsName, oldName};
+        db.update("FILES", values, "workSpace = ? AND name = ?", whereArgs);
     }
 
-    synchronized void sqlDelete(String wsName, String ownerEmail) {
+    synchronized void sqlDelete(String wsName) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String[] whereArgs = new String[]{wsName, ownerEmail, name};
-        db.delete("FILES", "workSpace = ? AND owner = ? AND name = ?", whereArgs);
+        String[] whereArgs = new String[]{wsName, name};
+        db.delete("FILES", "workSpace = ? AND name = ?", whereArgs);
     }
 
     //////////////////////////////////////////////////////////////////////

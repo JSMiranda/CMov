@@ -35,14 +35,11 @@ public class AirDesk {
     }
 
     public void init(String email) {
+        // FIXME: hardcoded, change for "sqlLoadMainUser", and move sqlLoadWorkspaces to WorkSpace class
+        mainUser = new User("Sarah", "sarah_w@tecnico.ulisboa.pt");
         List<User> users = User.sqlLoadUsers();
-        for (User u : users) {
-            if (u.getEmail().equals(email)) {
-                mainUser = u;
-                users.remove(u);
-                break;
-            }
-        }
         otherUsers = users;
+        mainUser.sqlLoadWorkspaces(users);
+
     }
 }

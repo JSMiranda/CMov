@@ -54,9 +54,6 @@ public class User {
             users.add(new User(nickname, email));
         }
 
-        for(User u : users) {
-            u.sqlLoadWorkspaces(users);
-        }
         return users;
     }
 
@@ -64,24 +61,24 @@ public class User {
      * Loads from database all workspaces owned by this user
      * @param users The list of all users (needed to fill the permitted users list)
      */
-    private synchronized void sqlLoadWorkspaces(List<User> users) {
+    synchronized void sqlLoadWorkspaces(List<User> users) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String query = "SELECT * FROM WORKSPACES WHERE owner = ?";
-        String[] args = new String[] {this.getEmail()};
-        Cursor c = db.rawQuery(query, args);
+        String query = "SELECT * FROM WORKSPACES";
+        Cursor c = db.rawQuery(query, null);
         while (c.moveToNext()) {
             String name = c.getString(0);
             int quota = c.getInt(1);
-            boolean isPublic = c.getInt(3) == 0 ? false : true;
+            boolean isPublic = c.getInt(2) == 0 ? false : true;
 
+            // note that all workspaces in db are owned by the "main user"
             ownedWorkSpaces.put(name, new WorkSpace(name, quota, isPublic, this));
             WorkSpace ws = getOwnedWorkspaceByName(name);
 
             // for each workspace, create the file list and the permitted users list
             ws.sqlLoadFiles();
-            query = "SELECT user FROM SUBSCRIPTIONS WHERE workSpace = ? AND owner = ?";
-            args = new String[] {name, this.getEmail()};
+            query = "SELECT user FROM SUBSCRIPTIONS WHERE workSpace = ?";
+            String[] args = new String[] {name};
             Cursor c2 = db.rawQuery(query, args);
             while(c2.moveToNext()) {
                 // find by email. When found, add to permitted users.
@@ -115,7 +112,7 @@ public class User {
         // TODO: Check if one can change his email. If not, correct this
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "UPDATE USERS SET name = ?, email WHERE name = ? AND email = ?";
+        String query = "UPDATE USERS SET name = ?, email = ? WHERE name = ? AND email = ?";
         String[] args = new String[]{nickname, email, oldNick, oldEmail};
         db.execSQL(query, args);
     }
@@ -134,16 +131,16 @@ public class User {
     private synchronized void sqlInsertSubscription(WorkSpace ws) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?, ?)";
-        String[] args = new String[]{this.getEmail(), ws.getName(), ws.getOwner().getEmail()};
+        String query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?)";
+        String[] args = new String[]{this.getEmail(), ws.getName()};
         db.execSQL(query, args);
     }
 
     private synchronized void sqlDeleteSubscription(WorkSpace ws) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "DELETE FROM SUBSCRIPTIONS WHERE user =?, workSpace = ?, owner = ?";
-        String[] args = new String[]{this.getEmail(), ws.getName(), ws.getOwner().getEmail()};
+        String query = "DELETE FROM SUBSCRIPTIONS WHERE user = ?, workSpace = ?";
+        String[] args = new String[]{this.getEmail(), ws.getName()};
         db.execSQL(query, args);
     }
 
