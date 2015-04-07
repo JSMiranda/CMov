@@ -39,11 +39,21 @@ public class AirDesk {
     }
 
     public void init(String email) {
-        // FIXME: hardcoded, change for "sqlLoadMainUser", and move sqlLoadWorkspaces to WorkSpace class
+        // FIXME: hardcoded, change for "sqlInsertMainUser", and move sqlLoadWorkspaces to WorkSpace class
         mainUser = new User("Sarah", "sarah_w@tecnico.ulisboa.pt");
         List<User> users = User.sqlLoadUsers();
         otherUsers = users;
         mainUser.sqlLoadWorkspaces(users);
+    }
 
+    /**
+     * Loads the AirDesk.
+     *
+     * @return true if successful, false otherwise. If the return is false,
+     * the method {@link #init(String)} should be called
+     */
+    public boolean load() {
+        // TODO: Implement (in user class, and call here) load main user
+        return true;
     }
 }
