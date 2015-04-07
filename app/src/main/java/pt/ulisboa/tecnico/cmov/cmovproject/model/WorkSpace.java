@@ -196,6 +196,13 @@ public class WorkSpace {
         sqlDeleteTag(tag);
     }
 
+    void removeAllTags() {
+        for(String tag : tags) {
+            sqlDeleteTag(tag);
+        }
+        tags.clear();
+    }
+
     void addFile(File f) {
         files.add(f);
         f.sqlInsert(name, owner.getEmail());

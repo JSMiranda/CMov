@@ -194,6 +194,11 @@ public class User {
         ws.removeTag(tag);
     }
 
+    public void removeAllTagsFromWorkSpace(String workSpaceName) {
+        WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
+        ws.removeAllTags();
+    }
+
     public void addFileToWorkSpace(String workSpaceName, File f) {
         WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.addFile(f);

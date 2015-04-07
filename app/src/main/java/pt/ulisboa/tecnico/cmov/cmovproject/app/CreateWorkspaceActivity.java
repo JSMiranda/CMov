@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -46,6 +47,9 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
             for (String tag : ws.getTags()) {
                 tags.add(tag);
             }
+
+            final CheckBox checkBox = (CheckBox) findViewById(R.id.publicCheckBox);
+            checkBox.setChecked(ws.isPublic());
         }
 
         tagListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, tags);
@@ -98,8 +102,10 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
         TextView nameInputBox = (TextView) findViewById(R.id.nameInputBox);
         TextView quotaInputBox = (TextView) findViewById(R.id.quotaInputBox);
         TextView tagInputBox = (TextView) findViewById(R.id.tagInputBox);
+        CheckBox checkBox = (CheckBox) findViewById(R.id.publicCheckBox);
 
-        String name = nameInputBox.getText().toString();
+        String workspaceName = nameInputBox.getText().toString();
+        boolean isPublic = checkBox.isChecked();
         int quota;
 
         try {
@@ -113,16 +119,22 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
         AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
         if(ws == null) {
-            user.createWorkspace(name, quota, true); //we need to catch some exceptions were (duplicate workspaces .. etc.) TODO
+            user.createWorkspace(workspaceName, quota, isPublic); //we need to catch some exceptions were (duplicate workspaces .. etc.) TODO
         } else {
-            user.setWorkSpaceName(ws.getName(), name);
-            user.setWorkSpaceQuota(name, quota);
-            user.setWorkSpaceToPublic(name); // FIXME hardcode
+            user.setWorkSpaceName(ws.getName(), workspaceName);
+            user.setWorkSpaceQuota(workspaceName, quota);
+            if(isPublic) {
+                user.setWorkSpaceToPublic(workspaceName);
+            } else {
+                user.setWorkSpaceToPrivate(workspaceName);
+            }
+
         }
 
+        user.removeAllTagsFromWorkSpace(workspaceName);
 
         for (String tag : tags) {
-            user.addTagToWorkSpace(name, tag);
+            user.addTagToWorkSpace(workspaceName, tag);
         }
 
         exitActivity(v);

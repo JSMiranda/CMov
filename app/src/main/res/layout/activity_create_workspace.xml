@@ -41,24 +41,43 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
-            <EditText
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:ems="10"
-                android:id="@+id/quotaInputBox"
-                android:maxLength="10" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-            <TextView
+                <EditText
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:ems="10"
+                    android:id="@+id/quotaInputBox"
+                    android:maxLength="10" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Mb"
+                    android:id="@+id/textView4"
+                    android:layout_gravity="center_vertical"
+                    android:imeOptions="actionNext"
+                    android:layout_column="1" />
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="20px"
+                android:layout_height="20px"
+                android:layout_weight="0.2" />
+
+            <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Mb"
-                android:id="@+id/textView4"
-                android:layout_gravity="center_vertical"
-                android:imeOptions="actionNext"
-                android:layout_column="1" />
-
+                android:text="Public"
+                android:id="@+id/publicCheckBox"
+                android:checked="false"
+                android:layout_weight="0.1" />
         </LinearLayout>
 
         <TextView
