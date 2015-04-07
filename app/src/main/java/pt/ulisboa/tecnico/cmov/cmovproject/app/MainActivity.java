@@ -19,6 +19,7 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 public class MainActivity extends ActionBarActivity {
     private WorkSpaceAdapter wsAdapter;
+    static Showing state = Showing.OWNED; // FIXME: pass via context / other class? + INIT on load !
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,6 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -57,33 +57,38 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        /*
-        //////// REMOVED
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        */
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_workspace, menu);
+        if(state == Showing.OWNED) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.menu_workspace, menu);
+        } //FIXME: add option to display info (which will be possible if showing FOREIGN
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case R.id.action_delete:
-                deleteWorkspace(info.position);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+        if(state == Showing.OWNED) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            switch (item.getItemId()) {
+                case R.id.action_delete:
+                    deleteWorkspace(info.position);
+                    return true;
+                case R.id.action_edit:
+                    editWorkspace(info.position);
+                    return true;
+                case R.id.action_share:
+                    // TODO: share workspace...
+                    return true;
+                default:
+                    return super.onContextItemSelected(item);
+            }
+        } else {
+            //FIXME: add option to display info (which will be possible if showing FOREIGN
+            return true;
         }
     }
 
@@ -96,6 +101,30 @@ public class MainActivity extends ActionBarActivity {
         Toast.makeText(this, wsName, Toast.LENGTH_SHORT).show();
     }
 
+    private void editWorkspace(int position) {
+        WorkSpace ws = wsAdapter.getItem(position);
+        String wsName = ws.getName();
+        Intent intent = new Intent(MainActivity.this, CreateWorkspaceActivity.class);
+        intent.putExtra("wsName", wsName);
+        startActivity(intent);
+    }
+
+
+    public void showOwnedWorkSpaces(View v) {
+        findViewById(R.id.newWorkspaceButton).setVisibility(View.VISIBLE);
+        findViewById(R.id.ownedWSButton).setBackgroundColor(getResources().getColor(R.color.light_blue));
+        findViewById(R.id.foreignWSButton).setBackgroundColor(getResources().getColor(R.color.button_material_light));
+        state = Showing.OWNED;
+        wsAdapter.notifyDataSetChanged();
+    }
+
+    public void showForeignWorkSpaces(View v) {
+        findViewById(R.id.newWorkspaceButton).setVisibility(View.INVISIBLE);
+        findViewById(R.id.foreignWSButton).setBackgroundColor(getResources().getColor(R.color.light_blue));
+        findViewById(R.id.ownedWSButton).setBackgroundColor(getResources().getColor(R.color.button_material_light));
+        state = Showing.FOREIGN;
+        wsAdapter.notifyDataSetChanged();
+    }
 
     public void startCreateWorkspaceActivity(View v) {
         Intent intent = new Intent(MainActivity.this, CreateWorkspaceActivity.class);

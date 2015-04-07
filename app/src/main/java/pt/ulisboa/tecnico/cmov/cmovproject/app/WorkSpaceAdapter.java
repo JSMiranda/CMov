@@ -5,12 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 public class WorkSpaceAdapter extends BaseAdapter {
@@ -22,12 +22,25 @@ public class WorkSpaceAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", mContext).getMainUser().getOwnedWorkSpaces().size();
+        User u = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", mContext).getMainUser();
+        int count = 0;
+        if (MainActivity.state == Showing.OWNED) {
+            count = u.getOwnedWorkSpaces().size();
+        } else if (MainActivity.state == Showing.FOREIGN) {
+            count = u.getSubscribedWorkSpaces().size();
+        }
+        return count;
     }
 
     @Override
     public WorkSpace getItem(int position) {
-        WorkSpace ws = (WorkSpace) AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", mContext).getMainUser().getOwnedWorkSpaces().values().toArray()[position];
+        User u = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", mContext).getMainUser();
+        WorkSpace ws = null;
+        if (MainActivity.state == Showing.OWNED) {
+            ws = (WorkSpace) u.getOwnedWorkSpaces().values().toArray()[position];
+        } else if (MainActivity.state == Showing.FOREIGN) {
+            ws = (WorkSpace) u.getSubscribedWorkSpaces().values().toArray()[position];
+        }
         return ws;
     }
 

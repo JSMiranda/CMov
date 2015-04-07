@@ -1,8 +1,8 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.app;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,7 +46,7 @@ public class WorkspaceActivity extends ActionBarActivity {
 
         fileNames = new ArrayList<String>();
 
-        for(File file : files) {
+        for (File file : files) {
             fileNames.add(file.getName());
         }
 
@@ -57,9 +57,9 @@ public class WorkspaceActivity extends ActionBarActivity {
         filesList.setAdapter(fileAdapter);
 
         registerForContextMenu(filesList);
-        filesList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        filesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?>adapter,View v, int position, long id){
+            public void onItemClick(AdapterView<?> adapter, View v, int position, long id) {
                 openFile(position, false);
             }
         });
@@ -80,12 +80,16 @@ public class WorkspaceActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         switch (id) {
-            case R.id.action_settings:
-                return true;
             case R.id.action_share:
                 shareWorkspace();
+                return true;
+            case R.id.action_delete:
+                AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this).getMainUser().deleteWorkspace(workSpace);
+                exitActivity(item.getActionView());
+                return true;
+            case R.id.action_edit:
+                // TODO: edit workspace...
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -110,14 +114,14 @@ public class WorkspaceActivity extends ActionBarActivity {
                 renameFile(info.position);
                 return true;
             case R.id.edit_file:
-                openFile(info.position,true);
+                openFile(info.position, true);
                 return true;
             default:
                 return super.onContextItemSelected(item);
         }
     }
 
-    private void openFile(int position, Boolean enabled){
+    private void openFile(int position, Boolean enabled) {
         Intent intent = new Intent(WorkspaceActivity.this, EditFileActivity.class);
         intent.putExtra("fileName", fileAdapter.getItem(position));
         intent.putExtra("workspaceName", workspaceName);
@@ -125,7 +129,7 @@ public class WorkspaceActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
-    private void shareWorkspace(){
+    private void shareWorkspace() {
         Intent intent = new Intent(WorkspaceActivity.this, WorkspacePermissionsActivity.class);
         intent.putExtra("workspaceName", workspaceName);
         startActivity(intent);

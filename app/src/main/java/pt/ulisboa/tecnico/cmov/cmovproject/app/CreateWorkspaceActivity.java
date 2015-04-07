@@ -1,19 +1,19 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.app;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
@@ -24,18 +24,36 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
 
     private ArrayList<String> tags = new ArrayList<String>();
     private ArrayAdapter<String> tagListAdapter;
+    private WorkSpace ws = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_workspace);
-        tagListAdapter =  new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, tags);
+
+        String wsName = getIntent().getStringExtra("wsName");
+        ws = null;
+        if (wsName != null) {
+            setTitle("Edit Workspace");
+            ws = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this).getMainUser().getOwnedWorkspaceByName(wsName);
+        }
+
+        if (ws != null) {
+            final EditText nameBox = (EditText) findViewById(R.id.nameInputBox);
+            nameBox.setText(ws.getName());
+            final EditText quotaBox = (EditText) findViewById(R.id.quotaInputBox);
+            quotaBox.setText(Integer.toString(ws.getQuota()));
+            for (String tag : ws.getTags()) {
+                tags.add(tag);
+            }
+        }
+
+        tagListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, tags);
 
         final ListView tagsList = (ListView) findViewById(R.id.tagsList);
-        final TextView tagInputBox = (TextView) findViewById(R.id.tagInputBox);
         tagsList.setAdapter(tagListAdapter);
 
-        tagsList.setOnItemLongClickListener(new ListView.OnItemLongClickListener(){
+        tagsList.setOnItemLongClickListener(new ListView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 tagListAdapter.remove(tagsList.getItemAtPosition(position).toString());
@@ -69,8 +87,10 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
 
     public void addTag(View v) {
         TextView tagInputBox = (TextView) findViewById(R.id.tagInputBox);
-        String tag = tagInputBox.getText().toString();
-        tagListAdapter.add(tag);
+        if (tagInputBox.length() > 0) {
+            String tag = tagInputBox.getText().toString();
+            tagListAdapter.add(tag);
+        }
         tagInputBox.setText("");
     }
 
@@ -83,7 +103,7 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
         int quota;
 
         try {
-             quota = Integer.parseInt(quotaInputBox.getText().toString());
+            quota = Integer.parseInt(quotaInputBox.getText().toString());
         } catch (NumberFormatException e) {
             Toast.makeText(getApplicationContext(), "Invalid quota!", Toast.LENGTH_LONG).show();
             quotaInputBox.setText("");
@@ -92,8 +112,16 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
 
         AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
         User user = airDesk.getMainUser();
-        user.createWorkspace(name, quota, true); //we need to catch some exceptions were (duplicate workspaces .. etc.) TODO
-        for(String tag : tags) {
+        if(ws == null) {
+            user.createWorkspace(name, quota, true); //we need to catch some exceptions were (duplicate workspaces .. etc.) TODO
+        } else {
+            user.setWorkSpaceName(ws.getName(), name);
+            user.setWorkSpaceQuota(name, quota);
+            user.setWorkSpaceToPublic(name); // FIXME hardcode
+        }
+
+
+        for (String tag : tags) {
             user.addTagToWorkSpace(name, tag);
         }
 

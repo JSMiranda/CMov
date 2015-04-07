@@ -29,6 +29,7 @@ public class WorkSpace {
         this.quota = quota;
         this.files = new ArrayList<File>();
         this.isPublic = isPublic;
+        this.tags = new ArrayList<String>();
         this.permittedUsers = new ArrayList<User>();
         this.owner = owner;
     }
@@ -61,8 +62,8 @@ public class WorkSpace {
     private synchronized void sqlUpdate(String previousName) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "UPDATE WORKSPACES SET workSpace = ?, quota = ?, isPublic = ? WHERE name = ?";
-        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic), previousName};
+        String query = "UPDATE WORKSPACES SET name = ?, quota = ?, isPublic = ? WHERE name = ? AND owner = ?";
+        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic), previousName, owner.getEmail()};
         db.execSQL(query, args);
         // TODO: Change other tables. Create another method to update when no name change is done
     }

@@ -22,6 +22,33 @@
             android:gravity="center"
             android:layout_weight="0.9" />
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.50"
+                android:layout_margin="5dp"
+                android:text="View My WorkSpaces"
+                android:id="@+id/ownedWSButton"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/light_blue"
+                android:onClick="showOwnedWorkSpaces" />
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.50"
+                android:layout_margin="5dp"
+                android:text="View Foreign WorkSpaces"
+                android:id="@+id/foreignWSButton"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/button_material_light"
+                android:onClick="showForeignWorkSpaces" />
+        </LinearLayout>
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

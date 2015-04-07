@@ -86,7 +86,7 @@ public class User {
             while(c2.moveToNext()) {
                 // find by email. When found, add to permitted users.
                 for(User u : users) {
-                    if(u.getEmail() == c2.getString(0)) {
+                    if(u.getEmail().equals(c2.getString(0))) {
                         ws.addPermittedUser(u);
                         subscribedWorkSpaces.put(ws.getName(), ws);
                         ws.addPermittedUser(this);
@@ -162,7 +162,7 @@ public class User {
      * @param ws instance of WorkSpace to delete.
      */
     public void deleteWorkspace(WorkSpace ws) {
-        ownedWorkSpaces.remove(ws);
+        ownedWorkSpaces.remove(ws.getName());
         // TODO: Remove all files and subscriptions
         ws.sqlDelete();
     }

@@ -67,7 +67,14 @@ public class MyOpenHelper extends SQLiteOpenHelper {
         args = new String[]{"Fish", Integer.toString(1024), Boolean.toString(true), "sarah_w@tecnico.ulisboa.pt"};
         db.execSQL(query, args);
 
-        // TODO: Add permissions to self
+        // Populate subscriptions' table
+        query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?, ?)";
+        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Deserts", "sarah_w@tecnico.ulisboa.pt"};
+        db.execSQL(query, args);
+        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Meat", "sarah_w@tecnico.ulisboa.pt"};
+        db.execSQL(query, args);
+        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Fish", "sarah_w@tecnico.ulisboa.pt"};
+        db.execSQL(query, args);
 
         // Populate files' table
         query = "INSERT INTO FILES VALUES(?, ?, ?, ?)";
