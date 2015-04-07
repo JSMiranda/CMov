@@ -39,7 +39,7 @@ public class WorkspaceActivity extends ActionBarActivity {
         workspaceName = intent.getStringExtra("WorkspaceName");
         setTitle(workspaceName);
 
-        AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
+        AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
         workSpace = user.getOwnedWorkspaceByName(workspaceName);
         files = workSpace.getFiles();
@@ -85,7 +85,7 @@ public class WorkspaceActivity extends ActionBarActivity {
                 shareWorkspace();
                 return true;
             case R.id.action_delete:
-                AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this).getMainUser().deleteWorkspace(workSpace);
+                AirDesk.getInstance(this).getMainUser().deleteWorkspace(workSpace);
                 exitActivity(item.getActionView());
                 return true;
             case R.id.action_edit:

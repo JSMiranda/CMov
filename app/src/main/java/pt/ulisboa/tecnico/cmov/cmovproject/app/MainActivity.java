@@ -95,7 +95,7 @@ public class MainActivity extends ActionBarActivity {
     private void deleteWorkspace(int position) {
         WorkSpace ws = wsAdapter.getItem(position);
         String wsName = ws.getName();
-        AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
+        AirDesk airDesk = AirDesk.getInstance(this);
         airDesk.getMainUser().deleteWorkspace(ws);
         wsAdapter.notifyDataSetChanged();
         Toast.makeText(this, wsName, Toast.LENGTH_SHORT).show();

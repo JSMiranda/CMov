@@ -30,6 +30,7 @@ public class MyOpenHelper extends SQLiteOpenHelper {
     }
 
     private void createTables(SQLiteDatabase db) {
+        final String MAIN_USER_CREATE = "CREATE TABLE MAIN_USER (name TEXT)";
         final String TABLE1_CREATE =
                 "CREATE TABLE WORKSPACES (name TEXT, quota INTEGER, isPublic INTEGER, owner TEXT);";
         final String TABLE2_CREATE =
@@ -40,7 +41,7 @@ public class MyOpenHelper extends SQLiteOpenHelper {
                 "CREATE TABLE FILES (workSpace TEXT, owner TEXT, name TEXT, size INTEGER);";
         final String TABLE5_CREATE =
                 "CREATE TABLE TAGS (workSpace TEXT, owner TEXT, tag TEXT);";
-        final String[] CREATE_STRINGS = { TABLE1_CREATE, TABLE2_CREATE, TABLE3_CREATE, TABLE4_CREATE, TABLE5_CREATE };
+        final String[] CREATE_STRINGS = { MAIN_USER_CREATE, TABLE1_CREATE, TABLE2_CREATE, TABLE3_CREATE, TABLE4_CREATE, TABLE5_CREATE };
 
         for(String createStr : CREATE_STRINGS) {
             db.execSQL(createStr);
@@ -49,9 +50,14 @@ public class MyOpenHelper extends SQLiteOpenHelper {
 
 
     private void populate(SQLiteDatabase db) {
+        // FIXME: hardcode main user init
+        String query = "INSERT INTO MAIN_USER VALUES(?)";
+        String[] args = new String[]{"sarah_w@tecnico.ulisboa.pt"};
+        db.execSQL(query, args);
+
         // Populate users' table
-        String query = "INSERT INTO USERS VALUES(?, ?)";
-        String[] args = new String[]{"Anna", "anna@gmail.com"};
+        query = "INSERT INTO USERS VALUES(?, ?)";
+        args = new String[]{"Anna", "anna@gmail.com"};
         db.execSQL(query, args);
         args = new String[]{"Sarah", "sarah_w@tecnico.ulisboa.pt"};
         db.execSQL(query, args);

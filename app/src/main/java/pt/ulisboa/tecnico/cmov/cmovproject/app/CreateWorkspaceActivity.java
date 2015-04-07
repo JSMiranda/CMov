@@ -35,7 +35,7 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
         ws = null;
         if (wsName != null) {
             setTitle("Edit Workspace");
-            ws = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this).getMainUser().getOwnedWorkspaceByName(wsName);
+            ws = AirDesk.getInstance(this).getMainUser().getOwnedWorkspaceByName(wsName);
         }
 
         if (ws != null) {
@@ -110,7 +110,7 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
             return;
         }
 
-        AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
+        AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
         if(ws == null) {
             user.createWorkspace(name, quota, true); //we need to catch some exceptions were (duplicate workspaces .. etc.) TODO

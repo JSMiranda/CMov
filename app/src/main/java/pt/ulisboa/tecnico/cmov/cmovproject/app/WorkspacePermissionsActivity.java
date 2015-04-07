@@ -37,7 +37,7 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         Intent intent = getIntent();
         workspaceName = intent.getStringExtra("workspaceName");
         setTitle(workspaceName);
-        AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
+        AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
         workspace = user.getOwnedWorkspaceByName(workspaceName);
         Collection<User> users;

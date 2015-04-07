@@ -22,7 +22,7 @@ public class WorkSpaceAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        User u = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", mContext).getMainUser();
+        User u = AirDesk.getInstance(mContext).getMainUser();
         int count = 0;
         if (MainActivity.state == Showing.OWNED) {
             count = u.getOwnedWorkSpaces().size();
@@ -34,7 +34,7 @@ public class WorkSpaceAdapter extends BaseAdapter {
 
     @Override
     public WorkSpace getItem(int position) {
-        User u = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", mContext).getMainUser();
+        User u = AirDesk.getInstance(mContext).getMainUser();
         WorkSpace ws = null;
         if (MainActivity.state == Showing.OWNED) {
             ws = (WorkSpace) u.getOwnedWorkSpaces().values().toArray()[position];

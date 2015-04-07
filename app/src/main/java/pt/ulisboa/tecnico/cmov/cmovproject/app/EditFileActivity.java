@@ -35,7 +35,7 @@ public class EditFileActivity extends ActionBarActivity {
         //String fileText = workspace.getFileText(workspaceName, fileName);
         fileEditText.setText(fileText);
         fileEditText.setEnabled(enabled);
-        AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
+        AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
         workspace = user.getOwnedWorkspaceByName(workspaceName);
     }

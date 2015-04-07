@@ -1,11 +1,8 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
 import android.content.Context;
-import android.util.Log;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AirDesk {
     private static AirDesk instance = null;
@@ -14,10 +11,10 @@ public class AirDesk {
     private User mainUser;
     private List<User> otherUsers;
 
-    public static AirDesk getInstance(String email, Context context) {
-        if(instance == null) {
+    public static AirDesk getInstance(Context context) {
+        if (instance == null) {
             AirDesk.context = context;
-            instance = new AirDesk(email);
+            instance = new AirDesk();
         }
         return instance;
     }
@@ -31,10 +28,16 @@ public class AirDesk {
         return mainUser;
     }
 
-    private AirDesk(String email) {
+    private AirDesk() {
+        mainUser = null;
+        otherUsers = null;
+        init("sarah_w@tecnico.ulisboa.pt"); // FIXME: hardcoded
+    }
+
+    public void init(String email) {
         List<User> users = User.sqlLoadUsers();
-        for(User u : users) {
-            if(u.getEmail().equals(email)) {
+        for (User u : users) {
+            if (u.getEmail().equals(email)) {
                 mainUser = u;
                 users.remove(u);
                 break;
