@@ -32,7 +32,7 @@
             android:label="@string/title_activity_edit_file" >
         </activity>
         <activity
-            android:name=".app.workspacePermissionsActivity"
+            android:name=".app.WorkspacePermissionsActivity"
             android:label="@string/title_activity_workspace_permissions" >
         </activity>
     </application>

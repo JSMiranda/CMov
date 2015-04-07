@@ -81,11 +81,15 @@ public class WorkspaceActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_share:
+                shareWorkspace();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -118,6 +122,12 @@ public class WorkspaceActivity extends ActionBarActivity {
         intent.putExtra("fileName", fileAdapter.getItem(position));
         intent.putExtra("workspaceName", workspaceName);
         intent.putExtra("enabled", enabled.toString());
+        startActivity(intent);
+    }
+
+    private void shareWorkspace(){
+        Intent intent = new Intent(WorkspaceActivity.this, WorkspacePermissionsActivity.class);
+        intent.putExtra("workspaceName", workspaceName);
         startActivity(intent);
     }
 

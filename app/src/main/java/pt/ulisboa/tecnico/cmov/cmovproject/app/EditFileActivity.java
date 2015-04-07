@@ -18,7 +18,7 @@ public class EditFileActivity extends ActionBarActivity {
 
     private WorkSpace workspace;
     private String fileName;
-    private String workSpaceName;
+    private String workspaceName;
     private EditText fileEditText;
 
     @Override
@@ -28,17 +28,17 @@ public class EditFileActivity extends ActionBarActivity {
 
         Intent intent = getIntent();
         fileName = intent.getStringExtra("fileName");
-        workSpaceName = intent.getStringExtra("workspaceName");
-        setTitle(workSpaceName + "/" + fileName);
+        workspaceName = intent.getStringExtra("workspaceName");
+        setTitle(workspaceName + "/" + fileName);
         fileEditText = (EditText) findViewById(R.id.fileEditText);
         String fileText = "... File text...";
         boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
-        //String fileText = workspace.getFileText(workSpaceName, fileName);
+        //String fileText = workspace.getFileText(workspaceName, fileName);
         fileEditText.setText(fileText);
         fileEditText.setEnabled(enabled);
         AirDesk airDesk = AirDesk.getInstance("sarah_w@tecnico.ulisboa.pt", this);
         User user = airDesk.getMainUser();
-        workspace = user.getOwnedWorkspaceByName(workSpaceName);
+        workspace = user.getOwnedWorkspaceByName(workspaceName);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class EditFileActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
-        switch (item.getItemId()) {
+        switch (id) {
             case R.id.action_settings:
                 return true;
             case R.id.action_edit:
@@ -69,11 +69,11 @@ public class EditFileActivity extends ActionBarActivity {
     }
 
     public void saveFile(View v) {
-        //space.saveFile(workSpaceName, fileName, fileEditText.getText().toString());
+        //space.saveFile(workspaceName, fileName, fileEditText.getText().toString());
         Toast.makeText(EditFileActivity.this, "Changes saved!",
                 Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(EditFileActivity.this, WorkspaceActivity.class);
-        intent.putExtra("WorkspaceName", workSpaceName);
+        intent.putExtra("WorkspaceName", workspaceName);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
@@ -83,7 +83,7 @@ public class EditFileActivity extends ActionBarActivity {
                 Toast.makeText(EditFileActivity.this, "Changes discarded!",
                         Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(EditFileActivity.this, WorkspaceActivity.class);
-        intent.putExtra("WorkspaceName", workSpaceName);
+        intent.putExtra("WorkspaceName", workspaceName);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

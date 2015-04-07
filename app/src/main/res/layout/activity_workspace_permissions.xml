@@ -4,6 +4,40 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="pt.ulisboa.tecnico.cmov.cmovproject.app.workspacePermissionsActivity">
+    tools:context="pt.ulisboa.tecnico.cmov.cmovproject.app.WorkspacePermissionsActivity">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="save"
+                android:id="@+id/doneButton"
+                android:layout_marginLeft="30dp"
+                android:onClick="saveShare" />
+
+            <Space
+                android:layout_width="20px"
+                android:layout_height="20px"
+                android:layout_weight="0.5" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="cancel"
+                android:id="@+id/cancelButton"
+                android:layout_marginRight="30dp"
+                android:onClick="cancelShare" />
+
+        </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>
