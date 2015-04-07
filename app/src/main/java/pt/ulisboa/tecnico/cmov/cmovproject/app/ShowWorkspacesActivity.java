@@ -17,7 +17,7 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 
-public class MainActivity extends ActionBarActivity {
+public class ShowWorkspacesActivity extends ActionBarActivity {
     private WorkSpaceAdapter wsAdapter;
     static Showing state = Showing.OWNED; // FIXME: pass via context / other class? + INIT on load !
 
@@ -35,7 +35,7 @@ public class MainActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
 
-                Intent intent = new Intent(MainActivity.this, WorkspaceActivity.class);
+                Intent intent = new Intent(ShowWorkspacesActivity.this, WorkspaceActivity.class);
                 intent.putExtra("WorkspaceName", wsAdapter.getItem(position).getName());
                 startActivity(intent);
             }
@@ -104,7 +104,7 @@ public class MainActivity extends ActionBarActivity {
     private void editWorkspace(int position) {
         WorkSpace ws = wsAdapter.getItem(position);
         String wsName = ws.getName();
-        Intent intent = new Intent(MainActivity.this, CreateWorkspaceActivity.class);
+        Intent intent = new Intent(ShowWorkspacesActivity.this, CreateWorkspaceActivity.class);
         intent.putExtra("wsName", wsName);
         startActivity(intent);
     }
@@ -127,7 +127,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void startCreateWorkspaceActivity(View v) {
-        Intent intent = new Intent(MainActivity.this, CreateWorkspaceActivity.class);
+        Intent intent = new Intent(ShowWorkspacesActivity.this, CreateWorkspaceActivity.class);
         startActivity(intent);
     }
 }
