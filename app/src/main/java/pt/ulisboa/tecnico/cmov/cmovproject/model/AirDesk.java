@@ -35,12 +35,14 @@ public class AirDesk {
     private AirDesk() {
         mainUser = null;
         otherUsers = null;
-        init("sarah_w@tecnico.ulisboa.pt", "Sarah"); // FIXME: hardcoded
     }
 
     public void init(String email, String nickName) {
-        // FIXME: hardcoded, change for "sqlInsertMainUser", and move sqlLoadWorkspaces to WorkSpace class
         mainUser = new User(nickName, email);
+        mainUser.sqlInsertMainUser();
+
+        // The lines below should not be necessary if we did not have
+        // the DB populated before using the app.
         List<User> users = User.sqlLoadUsers();
         otherUsers = users;
         mainUser.sqlLoadWorkspaces(users);
@@ -50,10 +52,18 @@ public class AirDesk {
      * Loads the AirDesk.
      *
      * @return true if successful, false otherwise. If the return is false,
-     * the method {@link #init(String)} should be called
+     * the method {@link #init(String, String)} should be called
      */
     public boolean load() {
-        // TODO: Implement (in user class, and call here) load main user
-        return false;
+        mainUser = User.sqlLoadMainUser();
+
+        if(mainUser != null) {
+            List<User> users = User.sqlLoadUsers();
+            otherUsers = users;
+            mainUser.sqlLoadWorkspaces(users);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

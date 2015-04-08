@@ -58,6 +58,38 @@ public class User {
     }
 
     /**
+     * Loads from the database the logged in user.
+     * @return The logged in user. null if no login was done
+     */
+    static synchronized User sqlLoadMainUser() {
+        User user = null;
+
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String query = "SELECT * FROM MAIN_USER";
+        Cursor c = db.rawQuery(query, null);
+        if (c.moveToNext()) {
+            String nickname = c.getString(0);
+            String email = c.getString(1);
+            user = new User(nickname, email);
+        }
+
+        return user;
+    }
+
+    /**
+     * Inserts this user as a main user (logged in).
+     */
+    synchronized void sqlInsertMainUser() {
+        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String query = "INSERT INTO MAIN_USER VALUES(?, ?)";
+        String[] args = new String[]{nickname, email};
+        db.execSQL(query, args);
+    }
+
+
+    /**
      * Loads from database all workspaces owned by this user
      * @param users The list of all users (needed to fill the permitted users list)
      */
@@ -75,11 +107,17 @@ public class User {
             ownedWorkSpaces.put(name, new WorkSpace(name, quota, isPublic, this));
             WorkSpace ws = getOwnedWorkspaceByName(name);
 
-            // for each workspace, create the file list and the permitted users list
+            // for each workspace, create the file list, tag list, and the permitted users list
             ws.sqlLoadFiles();
-            query = "SELECT user FROM SUBSCRIPTIONS WHERE workSpace = ?";
+            query = "SELECT tag FROM TAGS WHERE workSpace = ?";
             String[] args = new String[] {name};
             Cursor c2 = db.rawQuery(query, args);
+            while(c2.moveToNext()) {
+                ws.getTags().add(c2.getString(0)); // FIXME: violating encapsulation
+            }
+            query = "SELECT user FROM SUBSCRIPTIONS WHERE workSpace = ?";
+            args = new String[] {name};
+            Cursor c3 = db.rawQuery(query, args);
             while(c2.moveToNext()) {
                 // find by email. When found, add to permitted users.
                 for(User u : users) {

@@ -52,16 +52,14 @@ public class MyOpenHelper extends SQLiteOpenHelper {
 
 
     private void populate(SQLiteDatabase db) {
-        // FIXME: hardcode main user init
-        String query = "INSERT INTO MAIN_USER VALUES(?, ?)";
-        String[] args = new String[]{"Sarah", "sarah_w@tecnico.ulisboa.pt"};
-        db.execSQL(query, args);
 
         // Populate users' table
-        query = "INSERT INTO USERS VALUES(?, ?)";
-        args = new String[]{"Anna", "anna@gmail.com"};
+        String query = "INSERT INTO USERS VALUES(?, ?)";
+        String[] args = new String[]{"Anna", "anna@gmail.com"};
         db.execSQL(query, args);
         args = new String[]{"Katherine", "kathie91_m@hotmail.com"};
+        db.execSQL(query, args);
+        args = new String[]{"Sarah", "sarah_w@tecnico.ulisboa.pt"};
         db.execSQL(query, args);
 
         // Populate workspaces' table

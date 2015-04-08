@@ -55,7 +55,7 @@ public class WorkSpace {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String query = "INSERT INTO WORKSPACES VALUES(?, ?, ?)";
-        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic)};
+        String[] args = new String[]{name, Integer.toString(quota), isPublic ? "1" : "0"};
         db.execSQL(query, args);
     }
 
@@ -63,7 +63,7 @@ public class WorkSpace {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String query = "UPDATE WORKSPACES SET name = ?, quota = ?, isPublic = ? WHERE name = ?";
-        String[] args = new String[]{name, Integer.toString(quota), Boolean.toString(isPublic), previousName};
+        String[] args = new String[]{name, Integer.toString(quota), isPublic ? "1" : "0", previousName};
         db.execSQL(query, args);
         // TODO: Change other tables. Create another method to update when no name change is done
     }
