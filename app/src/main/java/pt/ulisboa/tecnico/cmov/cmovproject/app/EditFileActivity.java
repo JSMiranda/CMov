@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmov.cmovproject.app;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +13,7 @@ import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.airDeskFile;
 
 public class EditFileActivity extends ActionBarActivity {
 
@@ -29,9 +31,9 @@ public class EditFileActivity extends ActionBarActivity {
         workspaceName = intent.getStringExtra("workspaceName");
         setTitle(workspaceName + "/" + fileName);
         EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
-        String fileText = "... File text...";
-        boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         //String fileText = workspace.getFileText(workspaceName, fileName);
+        String fileText = airDeskFile.readFromFile(fileName+".txt");
+        boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         fileEditText.setText(fileText);
         setTextEditable(enabled);
         AirDesk airDesk = AirDesk.getInstance(this);
@@ -68,6 +70,7 @@ public class EditFileActivity extends ActionBarActivity {
 
     public void saveFile(View v) {
         //space.saveFile(workspaceName, fileName, fileEditText.getText().toString());
+        airDeskFile.writeToFile(fileName+".txt", "" + ((EditText) findViewById(R.id.fileEditText)).getText().toString());
         backToParent("Changes saved!");
     }
 

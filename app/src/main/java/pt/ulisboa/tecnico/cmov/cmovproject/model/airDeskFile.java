@@ -28,7 +28,7 @@ public class airDeskFile {
     private Date lastChangeTime; // not used for now
     private User lastChangeBy; // not used for now
     private int size;
-    private String filesRootFolder = "/data/airDesk/";
+    private static final String filesRootFolder = "/data/airDesk/";
 
     public airDeskFile(String name, int size) {
         this.name = name;
@@ -126,7 +126,7 @@ public class airDeskFile {
         this.size = size;
     }
 
-    protected void writeToFile(String filename, String outputString) {
+    public static void writeToFile(String filename, String outputString) {
         if (isExternalStorageWritable()) {
             try {
                 java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),filesRootFolder);
@@ -144,7 +144,7 @@ public class airDeskFile {
         };
     }
 
-    protected String readFromFile(String filename){
+    public static String readFromFile(String filename){
         String strRet = "";
         if (isExternalStorageReadable()) {
             try {
