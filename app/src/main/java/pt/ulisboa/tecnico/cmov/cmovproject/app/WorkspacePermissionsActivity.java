@@ -135,10 +135,9 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         for(User iUser : listUsers)
             mapUsers.put(iUser.getNickname(), iUser);
         for (int i = 0; i < checkUsersAdapter.getCount(); i++) {
+            thisUser.removeUserFromWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i).toString()));
             if (checked.get(i))
                 thisUser.addUserToWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i).toString()));
-            else
-                thisUser.removeUserFromWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i).toString()));
         }
     }
 }
