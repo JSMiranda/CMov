@@ -1,17 +1,14 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
- * A WorkSpace is responsible for maintaining files
+ * A WorkSpace is responsible for maintaining airDeskFiles
  * and maintaining a very simple ACL
  * (a list of permitted users) for itself.
  */
@@ -19,7 +16,7 @@ public class WorkSpace {
     private String name;
     private int quota;
     private Collection<String> tags;
-    private Collection<File> files;
+    private Collection<airDeskFile> airDeskFiles;
     private boolean isPublic;
     private Collection<User> permittedUsers;
     private User owner;
@@ -27,7 +24,7 @@ public class WorkSpace {
     WorkSpace(String name, int quota, boolean isPublic, User owner) {
         this.name = name;
         this.quota = quota;
-        this.files = new ArrayList<File>();
+        this.airDeskFiles = new ArrayList<airDeskFile>();
         this.isPublic = isPublic;
         this.tags = new ArrayList<String>();
         this.permittedUsers = new ArrayList<User>();
@@ -47,7 +44,7 @@ public class WorkSpace {
         while (c.moveToNext()) {
             String fileName = c.getString(0);
             int size = c.getInt(1);
-            files.add(new File(fileName, size));
+            airDeskFiles.add(new airDeskFile(fileName, size));
         }
     }
 
@@ -113,7 +110,7 @@ public class WorkSpace {
 
     public int getUsedQuota() {
         int res = 0;
-        for (File f : files) {
+        for (airDeskFile f : airDeskFiles) {
             res += f.getSize();
         }
         return res;
@@ -136,8 +133,8 @@ public class WorkSpace {
         return tags;
     }
 
-    public Collection<File> getFiles() {
-        return files;
+    public Collection<airDeskFile> getAirDeskFiles() {
+        return airDeskFiles;
     }
 
     public boolean isPublic() {
@@ -153,20 +150,20 @@ public class WorkSpace {
     }
 
     public void removeFileByName(String name) {
-        for(File file : files) {
-            if(file.getName().equals(name)){
-                files.remove(file);
-                file.sqlDelete(this.name);
+        for(airDeskFile airDeskFile : airDeskFiles) {
+            if(airDeskFile.getName().equals(name)){
+                airDeskFiles.remove(airDeskFile);
+                airDeskFile.sqlDelete(this.name);
                 break;
             }
         }
     }
 
     public void renameFile(String oldName, String newName) {//in which workspace? new name already exists in this workspace?
-        for(File file : files) {
-            if(file.getName().equals(oldName)){
-                file.setName(newName);
-                file.sqlUpdate(oldName, name);
+        for(airDeskFile airDeskFile : airDeskFiles) {
+            if(airDeskFile.getName().equals(oldName)){
+                airDeskFile.setName(newName);
+                airDeskFile.sqlUpdate(oldName, name);
                 break;
             }
         }
@@ -206,13 +203,13 @@ public class WorkSpace {
         tags.clear();
     }
 
-    void addFile(File f) {
-        files.add(f);
+    void addFile(airDeskFile f) {
+        airDeskFiles.add(f);
         f.sqlInsert(name);
     }
 
-    void removeFile(File f) {
-        files.remove(f);
+    void removeFile(airDeskFile f) {
+        airDeskFiles.remove(f);
         f.sqlDelete(name);
     }
 

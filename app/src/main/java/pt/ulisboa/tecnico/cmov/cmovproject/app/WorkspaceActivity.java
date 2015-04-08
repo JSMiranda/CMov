@@ -18,14 +18,14 @@ import java.util.Collection;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.File;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.airDeskFile;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 
 public class WorkspaceActivity extends ActionBarActivity {
     private WorkSpace workSpace;
-    private Collection<File> files;
+    private Collection<airDeskFile> airDeskFiles;
     private ArrayAdapter<String> fileAdapter;
     private ArrayList<String> fileNames;
     private String workspaceName;
@@ -42,12 +42,12 @@ public class WorkspaceActivity extends ActionBarActivity {
         AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
         workSpace = user.getOwnedWorkspaceByName(workspaceName);
-        files = workSpace.getFiles();
+        airDeskFiles = workSpace.getAirDeskFiles();
 
         fileNames = new ArrayList<String>();
 
-        for (File file : files) {
-            fileNames.add(file.getName());
+        for (airDeskFile airDeskFile : airDeskFiles) {
+            fileNames.add(airDeskFile.getName());
         }
 
         fileAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileNames);
