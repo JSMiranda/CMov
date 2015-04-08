@@ -239,12 +239,12 @@ public class User {
         ws.removeAllTags();
     }
 
-    public void addFileToWorkSpace(String workSpaceName, File f) {
+    public void addFileToWorkSpace(String workSpaceName, airDeskFile f) {
         WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.addFile(f);
     }
 
-    public void removeFileFromWorkSpace(String workSpaceName, File f) {
+    public void removeFileFromWorkSpace(String workSpaceName, airDeskFile f) {
         WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.removeFile(f);
     }
@@ -274,11 +274,6 @@ public class User {
     public void removeUserFromWorkSpace(String workSpaceName, User u) {
         WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         u.unsubscribeWorkspace(ws);
-    }
-
-    public void removeAllUsersFromWorkspace(String workSpaceName){
-        //WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
-        //TODO
     }
 
     public ArrayList<String> getOwnedWorkspaceNames() {

@@ -30,7 +30,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="create file"
+                android:text="create File"
                 android:id="@+id/createFile"
                 android:layout_marginLeft="30dp" />
 
