@@ -263,12 +263,12 @@ public class User {
 
     public void addUserToWorkSpace(String workSpaceName, User u) {
         WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
-        u.unsubscribeWorkspace(ws);
+        u.subscribeWorkspace(ws);
     }
 
     public void removeUserFromWorkSpace(String workSpaceName, User u) {
         WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
-        u.subscribeWorkspace(ws);
+        u.unsubscribeWorkspace(ws);
     }
 
     public ArrayList<String> getOwnedWorkspaceNames() {

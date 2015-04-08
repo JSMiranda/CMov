@@ -12,12 +12,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.File;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
@@ -25,8 +24,6 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 public class WorkspacePermissionsActivity extends ActionBarActivity {
     private WorkSpace workspace;
     private String workspaceName;
-    //private ArrayList<String> checkedUsers;
-    //private ArrayList<String> uncheckedUsers;
     ArrayAdapter<String> checkUsersAdapter;
 
     @Override
@@ -38,21 +35,21 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         workspaceName = intent.getStringExtra("workspaceName");
         setTitle(workspaceName);
         AirDesk airDesk = AirDesk.getInstance(this);
-        User user = airDesk.getMainUser();
-        workspace = user.getOwnedWorkspaceByName(workspaceName);
-        Collection<User> users;
-        //users = workspace.getPermittedUsers(workspaceName)
-        users = workspace.getPermittedUsers();
-        ArrayList<String> checkedUsers = new ArrayList<String>();
-        for(User iUser : users)
-            checkedUsers.add(iUser.getNickname());
-        //users = workspace.getUnPermittedUsers(workspaceName)
-        ArrayList<String> uncheckedUsers = new ArrayList<String>(Arrays.asList("John", "Peter", "Bob"));
-        //for(User iUser : users)
-        //uncheckedUsers.add(iUser.getNickname());
-        fillAmazingList(checkedUsers, uncheckedUsers);
+        User thisUser = airDesk.getMainUser();
+        workspace = thisUser.getOwnedWorkspaceByName(workspaceName);
+        Collection <User> listUsers = workspace.getPermittedUsers();
+        int numCheckedUsers = listUsers.size();
+        ArrayList<String> listUserNames = new ArrayList<String>();
+        for(User iUser : listUsers)
+            listUserNames.add(iUser.getNickname());
+        listUsers = airDesk.getOtherUsers();
+        for(User iUser : listUsers)
+            if(!listUserNames.contains(iUser.getNickname()))
+                listUserNames.add(iUser.getNickname());
+        listUserNames.add(0,airDesk.getMainUser().getNickname()); //saveListUsers starts in index 1
+        numCheckedUsers += 1;
+        fillAmazingList(listUserNames, numCheckedUsers);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -77,7 +74,7 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
     }
 
     public void saveShare(View v) {
-        //space.savePermissions(workspaceName, getListCheckedUsers());
+        saveListUsers();
         Toast.makeText(WorkspacePermissionsActivity.this, "Changes saved!",
                 Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(WorkspacePermissionsActivity.this, WorkspaceActivity.class);
@@ -97,16 +94,11 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         finish();
     }
 
-    private void fillAmazingList(ArrayList<String> chckdUsers, ArrayList<String> unchckdUsers){
-        chckdUsers = new ArrayList<String>(Arrays.asList("Joao", "Jose", "Edson")); //populated with example
-        ArrayList<String> tempList = new ArrayList<String>();
-        tempList.addAll(chckdUsers);
-        tempList.addAll(unchckdUsers);
-        ArrayAdapter<String> usersAdapter;
-        checkUsersAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_checked, tempList);
+    private void fillAmazingList(ArrayList<String>listUserNames, int numCheckedUsers){
+        checkUsersAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_checked, listUserNames);
         ListView amazingList = (ListView) findViewById(R.id.amazingList);
         amazingList.setAdapter(checkUsersAdapter);
-        for(int i = chckdUsers.size()-1; i >= 0; i--){
+        for(int i = numCheckedUsers-1; i >= 0; i--){
             amazingList.setItemChecked(i,true);
         }
     }
@@ -122,5 +114,26 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
             }
         }
         return tempList;
+    }
+
+    private void saveListUsers(){
+        User user = AirDesk.getInstance(this).getMainUser();
+        ListView amazingList = (ListView) findViewById(R.id.amazingList);
+        SparseBooleanArray checked = amazingList.getCheckedItemPositions();
+
+        AirDesk airDesk = AirDesk.getInstance(this);
+        User thisUser = airDesk.getMainUser();
+        ArrayList<User> listUsers = new ArrayList<User>(workspace.getPermittedUsers());
+        listUsers.addAll(airDesk.getOtherUsers());
+        HashMap<String,User> mapUsers = new HashMap<String,User>();
+
+        for(User iUser : listUsers)
+            mapUsers.put(iUser.getNickname(), iUser);
+        for (int i = 1; i < checkUsersAdapter.getCount(); i++) { //starts in one to ignore of MainUser
+            if (checked.get(i))
+                thisUser.addUserToWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i).toString()));
+            else
+                thisUser.removeUserFromWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i).toString()));
+        }
     }
 }
