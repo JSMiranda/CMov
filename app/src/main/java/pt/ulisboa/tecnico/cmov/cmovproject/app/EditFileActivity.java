@@ -1,11 +1,13 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
@@ -107,6 +109,13 @@ public class EditFileActivity extends ActionBarActivity {
         fileEditText.setFocusable(editable);
         fileEditText.setClickable(editable);
         fileEditText.setFocusableInTouchMode(editable);
+        InputMethodManager inputMM = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (editable) {
+            fileEditText.requestFocus();
+            inputMM.showSoftInput(fileEditText, 0);
+        }
+        else
+            inputMM.hideSoftInputFromWindow(fileEditText.getWindowToken(), 0);
     }
 
 
