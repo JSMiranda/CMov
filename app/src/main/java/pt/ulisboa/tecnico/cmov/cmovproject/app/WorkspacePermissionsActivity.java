@@ -46,8 +46,12 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         for(User iUser : listUsers)
             if(!listUserNames.contains(iUser.getNickname()))
                 listUserNames.add(iUser.getNickname());
-        listUserNames.add(0,airDesk.getMainUser().getNickname()); //saveListUsers starts in index 1
-        numCheckedUsers += 1;
+
+        // TODO: Remove in the 2nd part of project
+        if(!listUserNames.contains(thisUser.getNickname())) {
+            listUserNames.add(0, thisUser.getNickname());
+        }
+
         fillAmazingList(listUserNames, numCheckedUsers);
     }
 
