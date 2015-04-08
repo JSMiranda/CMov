@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pt.ulisboa.tecnico.cmov.cmovproject.exception.InvalidQuotaException;
+
 /**
  * A User has a set of workspaces (owned)
  * and is represented by their nickname and email.
@@ -219,7 +221,7 @@ public class User {
         sqlDeleteSubscription(ws);
     }
 
-    public void setWorkSpaceQuota(String workSpaceName, int quota) {
+    public void setWorkSpaceQuota(String workSpaceName, int quota) throws InvalidQuotaException {
         WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.setQuota(quota);
     }
@@ -239,12 +241,12 @@ public class User {
         ws.removeAllTags();
     }
 
-    public void addFileToWorkSpace(String workSpaceName, airDeskFile f) {
+    public void addFileToWorkSpace(String workSpaceName, AirDeskFile f) {
         WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.addFile(f);
     }
 
-    public void removeFileFromWorkSpace(String workSpaceName, airDeskFile f) {
+    public void removeFileFromWorkSpace(String workSpaceName, AirDeskFile f) {
         WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.removeFile(f);
     }

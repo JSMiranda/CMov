@@ -3,12 +3,16 @@ package pt.ulisboa.tecnico.cmov.cmovproject.model;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
+import android.os.StatFs;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import pt.ulisboa.tecnico.cmov.cmovproject.exception.InvalidQuotaException;
+
 /**
- * A WorkSpace is responsible for maintaining airDeskFiles
+ * A WorkSpace is responsible for maintaining files
  * and maintaining a very simple ACL
  * (a list of permitted users) for itself.
  */
@@ -16,7 +20,7 @@ public class WorkSpace {
     private String name;
     private int quota;
     private Collection<String> tags;
-    private Collection<airDeskFile> airDeskFiles;
+    private Collection<AirDeskFile> airDeskFiles;
     private boolean isPublic;
     private Collection<User> permittedUsers;
     private User owner;
@@ -24,7 +28,7 @@ public class WorkSpace {
     WorkSpace(String name, int quota, boolean isPublic, User owner) {
         this.name = name;
         this.quota = quota;
-        this.airDeskFiles = new ArrayList<airDeskFile>();
+        this.airDeskFiles = new ArrayList<AirDeskFile>();
         this.isPublic = isPublic;
         this.tags = new ArrayList<String>();
         this.permittedUsers = new ArrayList<User>();
@@ -44,7 +48,7 @@ public class WorkSpace {
         while (c.moveToNext()) {
             String fileName = c.getString(0);
             int size = c.getInt(1);
-            airDeskFiles.add(new airDeskFile(fileName, size));
+            airDeskFiles.add(new AirDeskFile(fileName, size));
         }
     }
 
@@ -110,7 +114,7 @@ public class WorkSpace {
 
     public int getUsedQuota() {
         int res = 0;
-        for (airDeskFile f : airDeskFiles) {
+        for (AirDeskFile f : airDeskFiles) {
             res += f.getSize();
         }
         return res;
@@ -133,8 +137,18 @@ public class WorkSpace {
         return tags;
     }
 
-    public Collection<airDeskFile> getAirDeskFiles() {
+    public Collection<AirDeskFile> getAirDeskFiles() {
         return airDeskFiles;
+    }
+
+    public AirDeskFile getFile(String fileName) {
+        for (AirDeskFile airDeskFile : airDeskFiles) {
+            if (airDeskFile.getName().equals(fileName)) {
+                return airDeskFile;
+            }
+        }
+
+        return null;
     }
 
     public boolean isPublic() {
@@ -149,40 +163,46 @@ public class WorkSpace {
         return owner;
     }
 
-    public void removeFileByName(String name) {
-        for(airDeskFile airDeskFile : airDeskFiles) {
-            if(airDeskFile.getName().equals(name)){
-                airDeskFiles.remove(airDeskFile);
-                airDeskFile.sqlDelete(this.name);
-                break;
-            }
-        }
-    }
+//    public void removeFileByName(String name) {
+//        for(AirDeskFile AirDeskFile : airDeskFiles) {
+//            if(AirDeskFile.getName().equals(name)){
+//                airDeskFiles.remove(AirDeskFile);
+//                AirDeskFile.sqlDelete(this.name);
+//                break;
+//            }
+//        }
+//    }
 
     public void renameFile(String oldName, String newName) {//in which workspace? new name already exists in this workspace?
-        for(airDeskFile airDeskFile : airDeskFiles) {
-            if(airDeskFile.getName().equals(oldName)){
-                airDeskFile.setName(newName);
-                airDeskFile.sqlUpdate(oldName, name);
+        for(AirDeskFile AirDeskFile : airDeskFiles) {
+            if(AirDeskFile.getName().equals(oldName)){
+                AirDeskFile.setName(newName);
+                AirDeskFile.sqlUpdate(oldName, name);
                 break;
             }
         }
     }
 
-    public void removeAllPermittedUsers(){
-        permittedUsers.clear();
+    public boolean saveFile(AirDeskFile file, String content) {
+        if((quota - getUsedQuota() + file.getSize()) >= content.length()) {
+            file.saveFile(content);
+            return true;
+        }
+        return false;
     }
 
     /*
      * Package access methods
      */
 
-    void setQuota(int quota) {
-        if (quota >= getUsedQuota()) {
+    void setQuota(int quota) throws InvalidQuotaException {
+        final long max = getFreeMemory();
+        final long usedQuota = getUsedQuota();
+        if (quota >= usedQuota && quota < getFreeMemory()) {
             this.quota = quota;
             sqlUpdate(name);
         } else {
-            throw new IllegalStateException("Trying to set quota to a value lower than used quota");
+            throw new InvalidQuotaException(usedQuota, max);
         }
     }
 
@@ -203,14 +223,15 @@ public class WorkSpace {
         tags.clear();
     }
 
-    void addFile(airDeskFile f) {
+    void addFile(AirDeskFile f) {
         airDeskFiles.add(f);
         f.sqlInsert(name);
     }
 
-    void removeFile(airDeskFile f) {
-        airDeskFiles.remove(f);
+    public void removeFile(AirDeskFile f) {
         f.sqlDelete(name);
+        f.deleteStoredFile();
+        airDeskFiles.remove(f);
     }
 
     void setPublic(boolean isPublic) {
@@ -230,6 +251,12 @@ public class WorkSpace {
 
     void removePermittedUser(User u) {
         permittedUsers.remove(u);
+    }
+
+    private long getFreeMemory()
+    {
+        StatFs statFs = new StatFs(Environment.getRootDirectory().getAbsolutePath());
+        return (statFs.getAvailableBlocks() * statFs.getBlockSize());
     }
 
 }

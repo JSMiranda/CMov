@@ -27,5 +27,7 @@
     <string name="title_activity_workspace_permissions">Workspace Permissions</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_show_public_workspaces">Public Workspaces</string>
+    <string name="title_activity_create_file">CreateFileActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

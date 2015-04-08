@@ -11,21 +11,20 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.airDeskFile;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDeskFile;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 
 public class WorkspaceActivity extends ActionBarActivity {
-    private WorkSpace workSpace;
-    private Collection<airDeskFile> airDeskFiles;
+    private WorkSpace workspace;
+    private Collection<AirDeskFile> AirDeskFiles;
     private ArrayAdapter<String> fileAdapter;
     private ArrayList<String> fileNames;
     private String workspaceName;
@@ -41,13 +40,13 @@ public class WorkspaceActivity extends ActionBarActivity {
 
         AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
-        workSpace = user.getOwnedWorkspaceByName(workspaceName);
-        airDeskFiles = workSpace.getAirDeskFiles();
+        workspace = user.getOwnedWorkspaceByName(workspaceName);
+        AirDeskFiles = workspace.getAirDeskFiles();
 
         fileNames = new ArrayList<String>();
 
-        for (airDeskFile airDeskFile : airDeskFiles) {
-            fileNames.add(airDeskFile.getName());
+        for (AirDeskFile AirDeskFile : AirDeskFiles) {
+            fileNames.add(AirDeskFile.getName());
         }
 
         fileAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileNames);
@@ -85,7 +84,7 @@ public class WorkspaceActivity extends ActionBarActivity {
                 shareWorkspace();
                 return true;
             case R.id.action_delete:
-                AirDesk.getInstance(this).getMainUser().deleteWorkspace(workSpace);
+                AirDesk.getInstance(this).getMainUser().deleteWorkspace(workspace);
                 exitActivity(item.getActionView());
                 return true;
             case R.id.action_edit:
@@ -147,12 +146,19 @@ public class WorkspaceActivity extends ActionBarActivity {
     private void deleteFileFromWorkspace(int position) {
         final String fileName = fileAdapter.getItem(position);
         fileAdapter.remove(fileName);
-        workSpace.removeFileByName(fileName);
-        Toast.makeText(WorkspaceActivity.this, fileName, Toast.LENGTH_SHORT).show();
+        AirDeskFile file = workspace.getFile(fileName);
+        workspace.removeFile(file);
     }
 
     public void exitActivity(View v) {
         Intent intent = new Intent(WorkspaceActivity.this, ShowWorkspacesActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    public void createFile(View v) {
+        Intent intent = new Intent(WorkspaceActivity.this, CreateFileActivity.class);
+        intent.putExtra("WorkspaceName", workspaceName);
         startActivity(intent);
         finish();
     }

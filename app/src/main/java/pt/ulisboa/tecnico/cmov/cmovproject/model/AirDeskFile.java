@@ -19,9 +19,9 @@ import java.util.Date;
 
 /**
  * This class abstracts a file. Before opening, closing and reading from a
- * file it is needed to set the implementation using {@link airDeskFile#setImpl(FileImpl)}.
+ * file it is needed to set the implementation using {@link AirDeskFile#setImpl(FileImpl)}.
  */
-public class airDeskFile {
+public class AirDeskFile {
     private static FileImpl impl;
 
     private String name;
@@ -30,10 +30,11 @@ public class airDeskFile {
     private int size;
     private static final String filesRootFolder = "/airDesk/";
 
-    public airDeskFile(String name, int size) {
+    public AirDeskFile(String name, int size) {
         this.name = name;
         this.lastChangeTime = new Date();
         this.size = size;
+        saveFile("");
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -65,6 +66,7 @@ public class airDeskFile {
         db.delete("FILES", "workSpace = ? AND name = ?", whereArgs);
     }
 
+
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
 
@@ -74,7 +76,7 @@ public class airDeskFile {
      * @param impl The implementation of the file reader
      */
     public static void setImpl(FileImpl impl) {
-        airDeskFile.impl = impl;
+        AirDeskFile.impl = impl;
     }
 
     public void close() {
@@ -116,7 +118,7 @@ public class airDeskFile {
      */
 
     /**
-     * Only the method {@link airDeskFile#write()} should use this method
+     * Only the method {@link AirDeskFile#write()} should use this method
      * (and this is why it is private). We are using an attribute
      * to speed up size queries.
      *
@@ -126,30 +128,31 @@ public class airDeskFile {
         this.size = size;
     }
 
-    public static void writeToFile(String filename, String outputString) {
+    void saveFile(String outputString) {
         if (isExternalStorageWritable()) {
             try {
                 java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),filesRootFolder);
                 if (!root.exists())
                     root.mkdirs();
-                java.io.File file = new java.io.File(root, filename);
+                java.io.File file = new java.io.File(root, name + ".txt");
                 FileWriter fWriter = new FileWriter(file);
                 BufferedWriter bWriter = new BufferedWriter(fWriter);
                 bWriter.write(outputString);
                 bWriter.flush();
                 bWriter.close();
+                size = outputString.length();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         };
     }
 
-    public static String readFromFile(String filename){
+    public String readFile(){
         String strRet = "";
         if (isExternalStorageReadable()) {
             try {
                 java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(), filesRootFolder);
-                java.io.File file = new java.io.File(root, filename);
+                java.io.File file = new java.io.File(root, name + ".txt");
                 InputStream secondInputStream = new BufferedInputStream(
                         new FileInputStream(file));
                 BufferedReader bReader = new BufferedReader(new InputStreamReader(
@@ -174,7 +177,7 @@ public class airDeskFile {
     }
 
     /* Checks if external storage is available for read and write */
-    protected static boolean isExternalStorageWritable() {
+    private boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state))
             return true;
@@ -182,7 +185,7 @@ public class airDeskFile {
     }
 
     /* Checks if external storage is available to at least read */
-    protected static boolean isExternalStorageReadable() {
+    private boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)
                 || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))
@@ -190,4 +193,17 @@ public class airDeskFile {
         return false;
     }
 
+    public void deleteStoredFile() {
+        if (isExternalStorageWritable()) {
+            try {
+                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),filesRootFolder);
+                if (!root.exists())
+                    root.mkdirs();
+                java.io.File file = new java.io.File(root, name + ".txt");
+                file.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+    }
 }

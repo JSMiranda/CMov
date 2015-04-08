@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
 /**
- * To use a {@link airDeskFile} it is needed to have a implementation for the
+ * To use a {@link AirDeskFile} it is needed to have a implementation for the
  * file abstraction. Any implementation should implement this interface.
  */
 public interface FileImpl {

@@ -1,5 +1,5 @@
 # Add project specific ProGuard rules here.
-# By default, the flags in this airDeskFile are appended to flags specified
+# By default, the flags in this AirDeskFile are appended to flags specified
 # in /afs/ist.utl.pt/users/8/4/ist169984/Android/Sdk/tools/proguard/proguard-android.txt
 # You can edit the include path and order by changing the proguardFiles
 # directive in build.gradle.

@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.cmov.cmovproject.app;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,13 +10,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDeskFile;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.airDeskFile;
 
 public class EditFileActivity extends ActionBarActivity {
 
     private WorkSpace workspace;
+    private AirDeskFile airDeskFile;
     private String fileName;
     private String workspaceName;
 
@@ -26,19 +26,23 @@ public class EditFileActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_file);
 
+        AirDesk airDesk = AirDesk.getInstance(this);
+        User user = airDesk.getMainUser();
+
         Intent intent = getIntent();
         fileName = intent.getStringExtra("fileName");
         workspaceName = intent.getStringExtra("workspaceName");
         setTitle(workspaceName + "/" + fileName);
         EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
         //String fileText = workspace.getFileText(workspaceName, fileName);
-        String fileText = airDeskFile.readFromFile(fileName+".txt");
+        workspace = user.getOwnedWorkspaceByName(workspaceName);
+        airDeskFile = workspace.getFile(fileName);
+        String fileText = airDeskFile.readFile();
         boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         fileEditText.setText(fileText);
         setTextEditable(enabled);
-        AirDesk airDesk = AirDesk.getInstance(this);
-        User user = airDesk.getMainUser();
-        workspace = user.getOwnedWorkspaceByName(workspaceName);
+
+
     }
 
     @Override
@@ -58,6 +62,9 @@ public class EditFileActivity extends ActionBarActivity {
         switch (id) {
             case R.id.action_settings:
                 return true;
+            case R.id.action_delete:
+                deleteFileFromWorkspace();
+                return true;
             case R.id.action_edit:
                 toggleEditable();
                 return true;
@@ -69,9 +76,12 @@ public class EditFileActivity extends ActionBarActivity {
     }
 
     public void saveFile(View v) {
-        //space.saveFile(workspaceName, fileName, fileEditText.getText().toString());
-        airDeskFile.writeToFile(fileName+".txt", "" + ((EditText) findViewById(R.id.fileEditText)).getText().toString());
-        backToParent("Changes saved!");
+        String text = ((EditText) findViewById(R.id.fileEditText)).getText().toString();
+        if(workspace.saveFile(airDeskFile, text))
+            backToParent("Changes saved!");
+        else
+            Toast.makeText(EditFileActivity.this, "Quota limit exceeded",
+                    Toast.LENGTH_SHORT).show();
     }
 
     public void cancelEdit(View v) {
@@ -99,4 +109,9 @@ public class EditFileActivity extends ActionBarActivity {
         fileEditText.setFocusableInTouchMode(editable);
     }
 
+
+    private void deleteFileFromWorkspace() {
+        workspace.removeFile(airDeskFile);
+        backToParent("File deleted!");
+    }
 }
