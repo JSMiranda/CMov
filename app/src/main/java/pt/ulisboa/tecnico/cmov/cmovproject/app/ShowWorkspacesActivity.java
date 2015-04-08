@@ -85,7 +85,7 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
                     editWorkspace(info.position);
                     return true;
                 case R.id.action_share:
-                    // TODO: share workspace...
+                    shareWorkspace(info.position);
                     return true;
                 default:
                     return super.onContextItemSelected(item);
@@ -94,6 +94,13 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
             //FIXME: add option to display info (which will be possible if showing FOREIGN
             return true;
         }
+    }
+
+    private void shareWorkspace(int position) {
+        Intent intent = new Intent(ShowWorkspacesActivity.this, WorkspacePermissionsActivity.class);
+        intent.putExtra("workspaceName", wsAdapter.getItem(position).getName());
+        intent.putExtra("parent", "ShowWorkspacesActivity");
+        startActivity(intent);
     }
 
     private void deleteWorkspace(int position) {

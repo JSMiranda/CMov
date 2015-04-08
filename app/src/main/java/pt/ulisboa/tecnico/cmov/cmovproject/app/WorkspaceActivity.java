@@ -132,6 +132,7 @@ public class WorkspaceActivity extends ActionBarActivity {
     private void shareWorkspace() {
         Intent intent = new Intent(WorkspaceActivity.this, WorkspacePermissionsActivity.class);
         intent.putExtra("workspaceName", workspaceName);
+        intent.putExtra("parent", "WorkspaceActivity");
         startActivity(intent);
     }
 

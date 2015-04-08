@@ -33,7 +33,7 @@ public class EditFileActivity extends ActionBarActivity {
         boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         //String fileText = workspace.getFileText(workspaceName, fileName);
         fileEditText.setText(fileText);
-        fileEditText.setEnabled(enabled);
+        setTextEditable(enabled);
         AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
         workspace = user.getOwnedWorkspaceByName(workspaceName);
@@ -68,7 +68,15 @@ public class EditFileActivity extends ActionBarActivity {
 
     public void saveFile(View v) {
         //space.saveFile(workspaceName, fileName, fileEditText.getText().toString());
-        Toast.makeText(EditFileActivity.this, "Changes saved!",
+        backToParent("Changes saved!");
+    }
+
+    public void cancelEdit(View v) {
+        backToParent("Changes discarded!");
+    }
+
+    private void backToParent(String toast){
+        Toast.makeText(EditFileActivity.this, toast,
                 Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(EditFileActivity.this, WorkspaceActivity.class);
         intent.putExtra("WorkspaceName", workspaceName);
@@ -76,20 +84,16 @@ public class EditFileActivity extends ActionBarActivity {
         startActivity(intent);
         finish();
     }
-
-    public void cancelEdit(View v) {
-                Toast.makeText(EditFileActivity.this, "Changes discarded!",
-                        Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(EditFileActivity.this, WorkspaceActivity.class);
-        intent.putExtra("WorkspaceName", workspaceName);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
-    }
-
     public void toggleEditable(){
         EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
-        fileEditText.setEnabled(!fileEditText.isEnabled());
+        setTextEditable(!fileEditText.isFocusable());
+    }
+
+    public void setTextEditable(boolean editable){
+        EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
+        fileEditText.setFocusable(editable);
+        fileEditText.setClickable(editable);
+        fileEditText.setFocusableInTouchMode(editable);
     }
 
 }

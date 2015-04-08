@@ -24,8 +24,9 @@
             android:choiceMode="multipleChoice"
             android:textFilterEnabled="true"
             android:paddingTop="10dp"
+            android:overScrollMode="always"
             android:paddingBottom="10dp"
-            >
+            android:layout_weight="0.80">
         </ListView>
         <LinearLayout
             android:orientation="horizontal"

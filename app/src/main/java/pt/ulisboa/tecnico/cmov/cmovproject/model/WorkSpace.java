@@ -172,6 +172,9 @@ public class WorkSpace {
         }
     }
 
+    public void removeAllPermittedUsers(){
+        permittedUsers.clear();
+    }
 
     /*
      * Package access methods
@@ -231,6 +234,5 @@ public class WorkSpace {
     void removePermittedUser(User u) {
         permittedUsers.remove(u);
     }
-
 
 }

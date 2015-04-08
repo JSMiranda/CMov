@@ -276,6 +276,11 @@ public class User {
         u.unsubscribeWorkspace(ws);
     }
 
+    public void removeAllUsersFromWorkspace(String workSpaceName){
+        //WorkSpace ws = getOwnedWorkspaceByName(workSpaceName);
+        //TODO
+    }
+
     public ArrayList<String> getOwnedWorkspaceNames() {
         ArrayList<String> workspaces = new ArrayList<String>();
         for(Map.Entry<String, WorkSpace> entry: ownedWorkSpaces.entrySet()) {

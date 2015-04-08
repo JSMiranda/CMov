@@ -9,16 +9,19 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:focusableInTouchMode="true">
         <EditText
             android:id="@+id/fileEditText"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="wrap_content"
+            android:layout_weight=".80"
             android:padding="4dp"
             android:gravity="top"
             android:background="@drawable/text_area"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:clickable="false"
             android:layout_marginTop="15dp"
             android:inputType="textMultiLine"
             android:singleLine="false"
@@ -32,7 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            android:focusableInTouchMode="true">
 
             <Button
                 android:layout_width="wrap_content"

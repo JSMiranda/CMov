@@ -24,6 +24,7 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 public class WorkspacePermissionsActivity extends ActionBarActivity {
     private WorkSpace workspace;
     private String workspaceName;
+    private String parent;
     ArrayAdapter<String> checkUsersAdapter;
 
     @Override
@@ -33,6 +34,7 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
 
         Intent intent = getIntent();
         workspaceName = intent.getStringExtra("workspaceName");
+        parent = intent.getStringExtra("parent");
         setTitle(workspaceName);
         AirDesk airDesk = AirDesk.getInstance(this);
         User thisUser = airDesk.getMainUser();
@@ -79,19 +81,18 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
 
     public void saveShare(View v) {
         saveListUsers();
-        Toast.makeText(WorkspacePermissionsActivity.this, "Changes saved!",
-                Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(WorkspacePermissionsActivity.this, WorkspaceActivity.class);
-        intent.putExtra("WorkspaceName", workspaceName);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+        backToParent("Changes saved!");
     }
 
     public void cancelShare(View v) {
-        Toast.makeText(WorkspacePermissionsActivity.this, "Changes discarded!",
+        backToParent("Changes discarded!");
+    }
+
+    private void backToParent(String toast){
+        Toast.makeText(WorkspacePermissionsActivity.this, toast,
                 Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(WorkspacePermissionsActivity.this, WorkspaceActivity.class);
+        Intent intent = new Intent(WorkspacePermissionsActivity.this, ("WorkspaceActivity".equals(parent)?
+                WorkspaceActivity.class : ShowWorkspacesActivity.class));
         intent.putExtra("WorkspaceName", workspaceName);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
@@ -128,10 +129,10 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         AirDesk airDesk = AirDesk.getInstance(this);
         User thisUser = airDesk.getMainUser();
         ArrayList<User> listUsers = new ArrayList<User>(workspace.getPermittedUsers());
-        listUsers.add(thisUser); // TODO: In the 2nd part of the project, remove this lines
         listUsers.addAll(airDesk.getOtherUsers());
+        if(!listUsers.contains(thisUser))
+            listUsers.add(thisUser); // TODO: In the 2nd part of the project, remove this lines
         HashMap<String,User> mapUsers = new HashMap<String,User>();
-
         for(User iUser : listUsers)
             mapUsers.put(iUser.getNickname(), iUser);
         for (int i = 0; i < checkUsersAdapter.getCount(); i++) {
