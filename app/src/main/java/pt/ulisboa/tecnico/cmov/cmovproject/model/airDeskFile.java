@@ -28,7 +28,7 @@ public class airDeskFile {
     private Date lastChangeTime; // not used for now
     private User lastChangeBy; // not used for now
     private int size;
-    private static final String filesRootFolder = "/data/airDesk/";
+    private static final String filesRootFolder = "/airDesk/";
 
     public airDeskFile(String name, int size) {
         this.name = name;
@@ -155,9 +155,11 @@ public class airDeskFile {
                 BufferedReader bReader = new BufferedReader(new InputStreamReader(
                         secondInputStream));
                 StringBuilder total = new StringBuilder();
-                String line;
-                while ((line = bReader.readLine()) != null) {
+                String line = bReader.readLine();
+                if(line!=null)
                     total.append(line);
+                while ((line = bReader.readLine()) != null) {
+                    total.append("\n").append(line);
                 }
                 bReader.close();
                 secondInputStream.close();
