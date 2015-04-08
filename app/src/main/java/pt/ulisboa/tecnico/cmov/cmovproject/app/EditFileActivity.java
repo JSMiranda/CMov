@@ -29,7 +29,7 @@ public class EditFileActivity extends ActionBarActivity {
         workspaceName = intent.getStringExtra("workspaceName");
         setTitle(workspaceName + "/" + fileName);
         EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
-        String fileText = "... airDeskFile text...";
+        String fileText = "... File text...";
         boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         //String fileText = workspace.getFileText(workspaceName, fileName);
         fileEditText.setText(fileText);
