@@ -18,29 +18,33 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
 
 public class ShowWorkspacesActivity extends ActionBarActivity {
-    private WorkSpaceAdapter wsAdapter;
-    static Showing state = Showing.OWNED; // FIXME: pass via context / other class? + INIT on load !
+    private enum Showing {
+        OWNED, FOREIGN
+    }
+
+    private static Showing state;
+    private WorkSpaceAdapter wsAdapter = null;
+    private final OwnedWorkSpaceAdapter ownedWsAdapter = new OwnedWorkSpaceAdapter(this);
+    private final ForeignWorkSpaceAdapter foreignWsAdapter = new ForeignWorkSpaceAdapter(this);
+    private GridView gridview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_show_workspaces);
 
-        GridView gridview = (GridView) findViewById(R.id.gridview);
-        wsAdapter = new WorkSpaceAdapter(this);
-        gridview.setAdapter(wsAdapter);
-
+        gridview = (GridView) findViewById(R.id.gridview);
         registerForContextMenu(gridview);
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-
                 Intent intent = new Intent(ShowWorkspacesActivity.this, WorkspaceActivity.class);
                 intent.putExtra("WorkspaceName", wsAdapter.getItem(position).getName());
                 startActivity(intent);
             }
         });
 
+        showOwnedWorkSpaces(gridview);
     }
 
 
@@ -109,25 +113,35 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
-
     public void showOwnedWorkSpaces(View v) {
         findViewById(R.id.newWorkspaceButton).setVisibility(View.VISIBLE);
+        findViewById(R.id.showPublicWorkspacesButton).setVisibility(View.GONE);
         findViewById(R.id.ownedWSButton).setBackgroundColor(getResources().getColor(R.color.light_blue));
         findViewById(R.id.foreignWSButton).setBackgroundColor(getResources().getColor(R.color.button_material_light));
         state = Showing.OWNED;
+        wsAdapter = ownedWsAdapter;
+        gridview.setAdapter(wsAdapter);
         wsAdapter.notifyDataSetChanged();
     }
 
     public void showForeignWorkSpaces(View v) {
-        findViewById(R.id.newWorkspaceButton).setVisibility(View.INVISIBLE);
+        findViewById(R.id.showPublicWorkspacesButton).setVisibility(View.VISIBLE);
+        findViewById(R.id.newWorkspaceButton).setVisibility(View.GONE);
         findViewById(R.id.foreignWSButton).setBackgroundColor(getResources().getColor(R.color.light_blue));
         findViewById(R.id.ownedWSButton).setBackgroundColor(getResources().getColor(R.color.button_material_light));
         state = Showing.FOREIGN;
+        wsAdapter = foreignWsAdapter;
+        gridview.setAdapter(wsAdapter);
         wsAdapter.notifyDataSetChanged();
     }
 
     public void startCreateWorkspaceActivity(View v) {
         Intent intent = new Intent(ShowWorkspacesActivity.this, CreateWorkspaceActivity.class);
+        startActivity(intent);
+    }
+
+    public void startShowPublicWorkspacesActivity(View v) {
+        Intent intent = new Intent(ShowWorkspacesActivity.this, ShowPublicWorkspacesActivity.class);
         startActivity(intent);
     }
 }

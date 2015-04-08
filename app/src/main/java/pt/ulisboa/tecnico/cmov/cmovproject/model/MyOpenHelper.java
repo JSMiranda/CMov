@@ -64,11 +64,12 @@ public class MyOpenHelper extends SQLiteOpenHelper {
 
         // Populate workspaces' table
         query = "INSERT INTO WORKSPACES VALUES(?, ?, ?)";
-        args = new String[]{"Deserts", Integer.toString(1024), Boolean.toString(true)};
+        final String FALSE = "0";
+        args = new String[]{"Deserts", Integer.toString(1024), FALSE};
         db.execSQL(query, args);
-        args = new String[]{"Meat", Integer.toString(512), Boolean.toString(true)};
+        args = new String[]{"Meat", Integer.toString(512), FALSE};
         db.execSQL(query, args);
-        args = new String[]{"Fish", Integer.toString(1024), Boolean.toString(true)};
+        args = new String[]{"Fish", Integer.toString(1024), FALSE};
         db.execSQL(query, args);
 
         // Populate subscriptions' table

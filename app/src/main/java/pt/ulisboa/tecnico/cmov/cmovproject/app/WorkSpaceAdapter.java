@@ -13,36 +13,14 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
 
-public class WorkSpaceAdapter extends BaseAdapter {
-    private Context mContext;
+public abstract class WorkSpaceAdapter extends BaseAdapter {
+    Context mContext;
 
     public WorkSpaceAdapter(Context c) {
         mContext = c;
     }
 
-    @Override
-    public int getCount() {
-        User u = AirDesk.getInstance(mContext).getMainUser();
-        int count = 0;
-        if (ShowWorkspacesActivity.state == Showing.OWNED) {
-            count = u.getOwnedWorkSpaces().size();
-        } else if (ShowWorkspacesActivity.state == Showing.FOREIGN) {
-            count = u.getSubscribedWorkSpaces().size();
-        }
-        return count;
-    }
-
-    @Override
-    public WorkSpace getItem(int position) {
-        User u = AirDesk.getInstance(mContext).getMainUser();
-        WorkSpace ws = null;
-        if (ShowWorkspacesActivity.state == Showing.OWNED) {
-            ws = (WorkSpace) u.getOwnedWorkSpaces().values().toArray()[position];
-        } else if (ShowWorkspacesActivity.state == Showing.FOREIGN) {
-            ws = (WorkSpace) u.getSubscribedWorkSpaces().values().toArray()[position];
-        }
-        return ws;
-    }
+    public abstract WorkSpace getItem(int position);
 
     @Override
     // Method not used
@@ -51,7 +29,7 @@ public class WorkSpaceAdapter extends BaseAdapter {
     }
 
     @Override
-    // create a new ImageView for each item referenced by the Adapter
+    // create a new WorkspaceView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
         ImageView imageView;
