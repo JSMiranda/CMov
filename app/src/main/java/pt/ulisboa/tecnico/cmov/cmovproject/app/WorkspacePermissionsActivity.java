@@ -49,7 +49,7 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
 
         // TODO: Remove in the 2nd part of project
         if(!listUserNames.contains(thisUser.getNickname())) {
-            listUserNames.add(0, thisUser.getNickname());
+            listUserNames.add(numCheckedUsers, thisUser.getNickname());
         }
 
         fillAmazingList(listUserNames, numCheckedUsers);
