@@ -9,18 +9,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
-public abstract class WorkSpaceAdapter extends BaseAdapter {
+public abstract class WorkspaceAdapter extends BaseAdapter {
     Context mContext;
 
-    public WorkSpaceAdapter(Context c) {
+    public WorkspaceAdapter(Context c) {
         mContext = c;
     }
 
-    public abstract WorkSpace getItem(int position);
+    public abstract Workspace getItem(int position);
 
     @Override
     // Method not used

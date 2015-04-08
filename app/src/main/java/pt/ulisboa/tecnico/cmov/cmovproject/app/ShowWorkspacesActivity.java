@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 
 public class ShowWorkspacesActivity extends ActionBarActivity {
@@ -23,9 +23,9 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
     }
 
     private static Showing state;
-    private WorkSpaceAdapter wsAdapter = null;
-    private final OwnedWorkSpaceAdapter ownedWsAdapter = new OwnedWorkSpaceAdapter(this);
-    private final ForeignWorkSpaceAdapter foreignWsAdapter = new ForeignWorkSpaceAdapter(this);
+    private WorkspaceAdapter wsAdapter = null;
+    private final OwnedWorkspaceAdapter ownedWsAdapter = new OwnedWorkspaceAdapter(this);
+    private final ForeignWorkspaceAdapter foreignWsAdapter = new ForeignWorkspaceAdapter(this);
     private GridView gridview;
 
     @Override
@@ -104,7 +104,7 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
     }
 
     private void deleteWorkspace(int position) {
-        WorkSpace ws = wsAdapter.getItem(position);
+        Workspace ws = wsAdapter.getItem(position);
         String wsName = ws.getName();
         AirDesk airDesk = AirDesk.getInstance(this);
         airDesk.getMainUser().deleteWorkspace(ws);
@@ -113,7 +113,7 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
     }
 
     private void editWorkspace(int position) {
-        WorkSpace ws = wsAdapter.getItem(position);
+        Workspace ws = wsAdapter.getItem(position);
         String wsName = ws.getName();
         Intent intent = new Intent(ShowWorkspacesActivity.this, CreateWorkspaceActivity.class);
         intent.putExtra("wsName", wsName);

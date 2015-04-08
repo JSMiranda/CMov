@@ -4,7 +4,7 @@
     <string name="app_name">AirDesk</string>
     <string name="action_search_workspace">Search WorkSpace</string>
 
-    <!-- ActionBar Strings for WorkSpace Activities -->
+    <!-- ActionBar Strings for Workspace Activities -->
     <!-- Only for owned WorkSpaces -->
     <string name="action_share">Share</string>
     <string name="action_edit_ws">Edit WorkSpace</string>

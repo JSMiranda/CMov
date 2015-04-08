@@ -12,14 +12,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDeskFile;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 public class EditFileActivity extends ActionBarActivity {
 
-    private WorkSpace workspace;
-    private AirDeskFile airDeskFile;
+    private Workspace workspace;
     private String fileName;
     private String workspaceName;
 
@@ -38,8 +36,7 @@ public class EditFileActivity extends ActionBarActivity {
         EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
         //String fileText = workspace.getFileText(workspaceName, fileName);
         workspace = user.getOwnedWorkspaceByName(workspaceName);
-        airDeskFile = workspace.getFile(fileName);
-        String fileText = airDeskFile.readFile();
+        String fileText = workspace.openFileByName(fileName);
         boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         fileEditText.setText(fileText);
         setTextEditable(enabled);
@@ -79,7 +76,7 @@ public class EditFileActivity extends ActionBarActivity {
 
     public void saveFile(View v) {
         String text = ((EditText) findViewById(R.id.fileEditText)).getText().toString();
-        if(workspace.saveFile(airDeskFile, text))
+        if(workspace.saveFile(fileName, text))
             backToParent("Changes saved!");
         else
             Toast.makeText(EditFileActivity.this, "Quota limit exceeded",
@@ -120,7 +117,7 @@ public class EditFileActivity extends ActionBarActivity {
 
 
     private void deleteFileFromWorkspace() {
-        workspace.removeFile(airDeskFile);
+        workspace.removeFile(fileName);
         backToParent("File deleted!");
     }
 }

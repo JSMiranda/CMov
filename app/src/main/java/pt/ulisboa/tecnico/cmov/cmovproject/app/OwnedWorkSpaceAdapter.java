@@ -4,10 +4,10 @@ import android.content.Context;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
-public class OwnedWorkSpaceAdapter extends WorkSpaceAdapter {
-    public OwnedWorkSpaceAdapter(Context c) {
+public class OwnedWorkspaceAdapter extends WorkspaceAdapter {
+    public OwnedWorkspaceAdapter(Context c) {
         super(c);
     }
 
@@ -18,8 +18,8 @@ public class OwnedWorkSpaceAdapter extends WorkSpaceAdapter {
     }
 
     @Override
-    public WorkSpace getItem(int position) {
+    public Workspace getItem(int position) {
         User u = AirDesk.getInstance(mContext).getMainUser();
-        return (WorkSpace) u.getOwnedWorkSpaces().values().toArray()[position];
+        return (Workspace) u.getOwnedWorkSpaces().values().toArray()[position];
     }
 }

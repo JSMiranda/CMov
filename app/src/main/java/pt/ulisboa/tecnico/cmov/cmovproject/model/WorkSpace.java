@@ -12,11 +12,11 @@ import java.util.Collection;
 import pt.ulisboa.tecnico.cmov.cmovproject.exception.InvalidQuotaException;
 
 /**
- * A WorkSpace is responsible for maintaining files
+ * A Workspace is responsible for maintaining files
  * and maintaining a very simple ACL
  * (a list of permitted users) for itself.
  */
-public class WorkSpace {
+public class Workspace {
     private String name;
     private int quota;
     private Collection<String> tags;
@@ -24,8 +24,9 @@ public class WorkSpace {
     private boolean isPublic;
     private Collection<User> permittedUsers;
     private User owner;
+    private String rootFolder;
 
-    WorkSpace(String name, int quota, boolean isPublic, User owner) {
+    Workspace(String name, int quota, boolean isPublic, User owner) {
         this.name = name;
         this.quota = quota;
         this.airDeskFiles = new ArrayList<AirDeskFile>();
@@ -33,6 +34,8 @@ public class WorkSpace {
         this.tags = new ArrayList<String>();
         this.permittedUsers = new ArrayList<User>();
         this.owner = owner;
+        rootFolder ="/airDesk/"+this.name;
+        storedFolder();
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -49,6 +52,7 @@ public class WorkSpace {
             String fileName = c.getString(0);
             int size = c.getInt(1);
             airDeskFiles.add(new AirDeskFile(fileName, size));
+            saveFile(fileName,"");
         }
     }
 
@@ -69,7 +73,12 @@ public class WorkSpace {
         // TODO: Change other tables. Create another method to update when no name change is done
     }
 
-    synchronized void sqlDelete() {
+    public void delete(){
+        sqlDelete();
+        deleteStoredFolder();
+    }
+
+    private synchronized void sqlDelete() {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String query = "DELETE FROM WORKSPACES WHERE name = ?";
@@ -176,19 +185,24 @@ public class WorkSpace {
     public void renameFile(String oldName, String newName) {//in which workspace? new name already exists in this workspace?
         for(AirDeskFile AirDeskFile : airDeskFiles) {
             if(AirDeskFile.getName().equals(oldName)){
-                AirDeskFile.setName(newName);
+                AirDeskFile.setName(rootFolder, newName);
                 AirDeskFile.sqlUpdate(oldName, name);
                 break;
             }
         }
     }
 
-    public boolean saveFile(AirDeskFile file, String content) {
+    public boolean saveFile(String fileName, String content) {
+        AirDeskFile file = getFile(fileName);
         if((quota - getUsedQuota() + file.getSize()) >= content.length()) {
-            file.saveFile(content);
+            file.saveFile(rootFolder, content);
             return true;
         }
         return false;
+    }
+
+    public String openFileByName(String fileName){
+        return getFile(fileName).readFile(rootFolder);
     }
 
     /*
@@ -226,11 +240,13 @@ public class WorkSpace {
     void addFile(AirDeskFile f) {
         airDeskFiles.add(f);
         f.sqlInsert(name);
+        saveFile(f.getName(),"");
     }
 
-    public void removeFile(AirDeskFile f) {
+    public void removeFile(String fileName) {
+        AirDeskFile f = getFile(fileName);
         f.sqlDelete(name);
-        f.deleteStoredFile();
+        f.deleteStoredFile(rootFolder);
         airDeskFiles.remove(f);
     }
 
@@ -259,4 +275,29 @@ public class WorkSpace {
         return (statFs.getAvailableBlocks() * statFs.getBlockSize());
     }
 
+
+    private void storedFolder() {
+        if (AirDesk.isExternalStorageWritable()) {
+            try {
+                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),rootFolder);
+                if (!root.exists())
+                    root.mkdir();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void deleteStoredFolder() {
+        if (AirDesk.isExternalStorageWritable()) {
+            try {
+                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),rootFolder);
+                if (root.exists())
+                    root.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
+

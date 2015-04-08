@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.cmov.cmovproject.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,13 +20,13 @@ import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.exception.InvalidQuotaException;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 public class CreateWorkspaceActivity extends ActionBarActivity {
 
     private ArrayList<String> tags = new ArrayList<String>();
     private ArrayAdapter<String> tagListAdapter;
-    private WorkSpace ws = null;
+    private Workspace ws = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

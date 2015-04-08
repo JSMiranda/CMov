@@ -19,11 +19,11 @@ import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDeskFile;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 
 public class WorkspaceActivity extends ActionBarActivity {
-    private WorkSpace workspace;
+    private Workspace workspace;
     private Collection<AirDeskFile> AirDeskFiles;
     private ArrayAdapter<String> fileAdapter;
     private ArrayList<String> fileNames;
@@ -146,8 +146,7 @@ public class WorkspaceActivity extends ActionBarActivity {
     private void deleteFileFromWorkspace(int position) {
         final String fileName = fileAdapter.getItem(position);
         fileAdapter.remove(fileName);
-        AirDeskFile file = workspace.getFile(fileName);
-        workspace.removeFile(file);
+        workspace.removeFile(fileName);
     }
 
     public void exitActivity(View v) {

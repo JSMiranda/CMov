@@ -11,11 +11,11 @@ import android.widget.TextView;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 public class RenameFileActivity extends ActionBarActivity {
 
-    private WorkSpace workSpace;
+    private Workspace workspace;
     private TextView inputBox;
     private String oldName;
     private String workspaceName;
@@ -35,7 +35,7 @@ public class RenameFileActivity extends ActionBarActivity {
 
         AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
-        workSpace = user.getOwnedWorkspaceByName(workspaceName);
+        workspace = user.getOwnedWorkspaceByName(workspaceName);
     }
 
 
@@ -63,7 +63,7 @@ public class RenameFileActivity extends ActionBarActivity {
 
     public void renameFile(View v) {
         String newName = inputBox.getText().toString();
-        workSpace.renameFile(oldName, newName);
+        workspace.renameFile(oldName, newName);
 
         Intent intent = new Intent(RenameFileActivity.this, WorkspaceActivity.class);
         intent.putExtra("WorkspaceName", workspaceName);

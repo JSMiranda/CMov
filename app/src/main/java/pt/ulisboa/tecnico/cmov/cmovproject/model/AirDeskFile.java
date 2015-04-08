@@ -28,13 +28,11 @@ public class AirDeskFile {
     private Date lastChangeTime; // not used for now
     private User lastChangeBy; // not used for now
     private int size;
-    private static final String filesRootFolder = "/airDesk/";
 
     public AirDeskFile(String name, int size) {
         this.name = name;
         this.lastChangeTime = new Date();
         this.size = size;
-        saveFile("");
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -104,8 +102,9 @@ public class AirDeskFile {
         return name;
     }
 
-    void setName(String name) {
-        this.name = name;
+    void setName(String rootFolder, String newFileName) {
+        renameStoredFile(rootFolder, newFileName);
+        this.name = newFileName;
     }
 
     public int getSize() {
@@ -128,10 +127,10 @@ public class AirDeskFile {
         this.size = size;
     }
 
-    void saveFile(String outputString) {
-        if (isExternalStorageWritable()) {
+    void saveFile(String rootFolder, String outputString) {
+        if (AirDesk.isExternalStorageWritable()) {
             try {
-                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),filesRootFolder);
+                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(), rootFolder);
                 if (!root.exists())
                     root.mkdirs();
                 java.io.File file = new java.io.File(root, name + ".txt");
@@ -140,18 +139,18 @@ public class AirDeskFile {
                 bWriter.write(outputString);
                 bWriter.flush();
                 bWriter.close();
-                size = outputString.length();
+                setSize(outputString.length());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        };
+        }
     }
 
-    public String readFile(){
+    String readFile(String rootFolder){
         String strRet = "";
-        if (isExternalStorageReadable()) {
+        if (AirDesk.isExternalStorageReadable()) {
             try {
-                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(), filesRootFolder);
+                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(), rootFolder);
                 java.io.File file = new java.io.File(root, name + ".txt");
                 InputStream secondInputStream = new BufferedInputStream(
                         new FileInputStream(file));
@@ -168,7 +167,7 @@ public class AirDeskFile {
                 secondInputStream.close();
                 strRet = total.toString();
             } catch (FileNotFoundException e) {
-                Log.e("login activity", "File not found: " + e.toString());;
+                Log.e("login activity", "File not found: " + e.toString());
             } catch (IOException e) {
                 Log.e("login activity", "Can not read file: " + e.toString());
             }
@@ -176,34 +175,32 @@ public class AirDeskFile {
         return strRet;
     }
 
-    /* Checks if external storage is available for read and write */
-    private boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state))
-            return true;
-        return false;
-    }
-
-    /* Checks if external storage is available to at least read */
-    private boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)
-                || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))
-            return true;
-        return false;
-    }
-
-    public void deleteStoredFile() {
-        if (isExternalStorageWritable()) {
+    void deleteStoredFile(String rootFolder) {
+        if (AirDesk.isExternalStorageWritable()) {
             try {
-                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),filesRootFolder);
-                if (!root.exists())
-                    root.mkdirs();
-                java.io.File file = new java.io.File(root, name + ".txt");
-                file.delete();
+                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(), rootFolder);
+                if (root.exists()) {
+                    java.io.File file = new java.io.File(root, name + ".txt");
+                    file.delete();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        };
+        }
+    }
+
+    private void renameStoredFile(String rootFolder, String newFileName) {
+        if (AirDesk.isExternalStorageWritable()) {
+            try {
+                java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(), rootFolder);
+                if (root.exists()) {
+                    java.io.File fileOld = new java.io.File(root, name + ".txt");
+                    java.io.File fileNew = new java.io.File(root, newFileName + ".txt");
+                    fileOld.renameTo(fileNew);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

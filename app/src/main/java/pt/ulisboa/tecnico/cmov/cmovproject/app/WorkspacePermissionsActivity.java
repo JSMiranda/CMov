@@ -18,11 +18,11 @@ import java.util.HashMap;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.WorkSpace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 
 public class WorkspacePermissionsActivity extends ActionBarActivity {
-    private WorkSpace workspace;
+    private Workspace workspace;
     private String workspaceName;
     private String parent;
     ArrayAdapter<String> checkUsersAdapter;
@@ -108,21 +108,7 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         }
     }
 
-    private ArrayList<String> getListCheckedUsers(){
-        ArrayList<String> tempList = new ArrayList<String>();
-        ListView amazingList = (ListView) findViewById(R.id.amazingList);
-        SparseBooleanArray checked = amazingList.getCheckedItemPositions();
-        int listSize = checkUsersAdapter.getCount();
-        for (int i = 0; i < listSize; i++) {
-            if (checked.get(i)) {
-                tempList.add(checkUsersAdapter.getItem(i).toString());
-            }
-        }
-        return tempList;
-    }
-
     private void saveListUsers(){
-        User user = AirDesk.getInstance(this).getMainUser();
         ListView amazingList = (ListView) findViewById(R.id.amazingList);
         SparseBooleanArray checked = amazingList.getCheckedItemPositions();
 
@@ -136,9 +122,9 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         for(User iUser : listUsers)
             mapUsers.put(iUser.getNickname(), iUser);
         for (int i = 0; i < checkUsersAdapter.getCount(); i++) {
-            thisUser.removeUserFromWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i).toString()));
+            thisUser.removeUserFromWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i)));
             if (checked.get(i))
-                thisUser.addUserToWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i).toString()));
+                thisUser.addUserToWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i)));
         }
     }
 }

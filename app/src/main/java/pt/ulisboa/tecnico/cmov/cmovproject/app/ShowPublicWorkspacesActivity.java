@@ -13,7 +13,7 @@ import pt.ulisboa.tecnico.cmov.cmovproject.R;
 
 
 public class ShowPublicWorkspacesActivity extends ActionBarActivity {
-    private WorkSpaceAdapter wsAdapter;
+    private WorkspaceAdapter wsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +22,7 @@ public class ShowPublicWorkspacesActivity extends ActionBarActivity {
 
         GridView gridview = (GridView) findViewById(R.id.gridview);
 
-        wsAdapter = new PublicWorkSpaceAdapter(this);
+        wsAdapter = new PublicWorkspaceAdapter(this);
         gridview.setAdapter(wsAdapter);
 
         registerForContextMenu(gridview);
