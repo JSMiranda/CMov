@@ -27,7 +27,8 @@
             android:layout_height="wrap_content"
             android:imeOptions="actionNext"
             android:id="@+id/nameInputBox"
-            android:inputType="text" />
+            android:inputType="text"
+            android:singleLine="true" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,7 +53,8 @@
                     android:inputType="numberDecimal"
                     android:ems="10"
                     android:id="@+id/quotaInputBox"
-                    android:maxLength="10" />
+                    android:maxLength="10"
+                    android:singleLine="true" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -100,7 +102,8 @@
                 android:layout_weight="0.90"
                 android:imeOptions="actionDone"
                 android:maxLength="20"
-                android:inputType="text" />
+                android:inputType="text"
+                android:singleLine="true" />
 
             <Button
                 android:layout_width="60dp"

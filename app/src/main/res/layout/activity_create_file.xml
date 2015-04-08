@@ -22,7 +22,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/fileNameInput"
-            android:maxLength="30" />
+            android:maxLength="30"
+            android:singleLine="true" />
 
         <Space
             android:layout_width="20px"
