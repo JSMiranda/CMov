@@ -124,12 +124,13 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         AirDesk airDesk = AirDesk.getInstance(this);
         User thisUser = airDesk.getMainUser();
         ArrayList<User> listUsers = new ArrayList<User>(workspace.getPermittedUsers());
+        listUsers.add(thisUser); // TODO: In the 2nd part of the project, remove this lines
         listUsers.addAll(airDesk.getOtherUsers());
         HashMap<String,User> mapUsers = new HashMap<String,User>();
 
         for(User iUser : listUsers)
             mapUsers.put(iUser.getNickname(), iUser);
-        for (int i = 1; i < checkUsersAdapter.getCount(); i++) { //starts in one to ignore of MainUser
+        for (int i = 0; i < checkUsersAdapter.getCount(); i++) {
             if (checked.get(i))
                 thisUser.addUserToWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i).toString()));
             else

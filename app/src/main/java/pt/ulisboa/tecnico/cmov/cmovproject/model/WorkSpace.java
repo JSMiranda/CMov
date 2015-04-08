@@ -79,8 +79,8 @@ public class WorkSpace {
         args = new String[]{name};
         db.execSQL(query, args);
 
-        query = "DELETE FROM SUBSCRIPTIONS WHERE workSpace = ?";
-        args = new String[]{name};
+        query = "DELETE FROM SUBSCRIPTIONS WHERE workSpace = ? AND owner = ?";
+        args = new String[]{name, owner.getEmail()};
         db.execSQL(query, args);
 
         query = "DELETE FROM TAGS WHERE workSpace = ?";

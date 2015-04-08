@@ -94,37 +94,42 @@ public class User {
      * @param users The list of all users (needed to fill the permitted users list)
      */
     synchronized void sqlLoadWorkspaces(List<User> users) {
+        // TODO: Remove these line in the 2nd part of the project
+        List<User> listUsers = new ArrayList<User>();
+        listUsers.addAll(users);
+        listUsers.add(sqlLoadMainUser()); // assuming that is not null (can assume that)
+
+
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String query = "SELECT * FROM WORKSPACES";
         Cursor c = db.rawQuery(query, null);
         while (c.moveToNext()) {
-            String name = c.getString(0);
+            String wsName = c.getString(0);
             int quota = c.getInt(1);
             boolean isPublic = c.getInt(2) == 0 ? false : true;
 
             // note that all workspaces in db are owned by the "main user"
-            ownedWorkSpaces.put(name, new WorkSpace(name, quota, isPublic, this));
-            WorkSpace ws = getOwnedWorkspaceByName(name);
+            ownedWorkSpaces.put(wsName, new WorkSpace(wsName, quota, isPublic, this));
+            WorkSpace ws = getOwnedWorkspaceByName(wsName);
 
             // for each workspace, create the file list, tag list, and the permitted users list
             ws.sqlLoadFiles();
             query = "SELECT tag FROM TAGS WHERE workSpace = ?";
-            String[] args = new String[] {name};
+            String[] args = new String[] {wsName};
             Cursor c2 = db.rawQuery(query, args);
             while(c2.moveToNext()) {
                 ws.getTags().add(c2.getString(0)); // FIXME: violating encapsulation
             }
-            query = "SELECT user FROM SUBSCRIPTIONS WHERE workSpace = ?";
-            args = new String[] {name};
+            query = "SELECT user FROM SUBSCRIPTIONS WHERE workSpace = ? AND owner = ?";
+            args = new String[] {wsName, ws.getOwner().getEmail()};
             Cursor c3 = db.rawQuery(query, args);
-            while(c2.moveToNext()) {
+            while(c3.moveToNext()) {
                 // find by email. When found, add to permitted users.
-                for(User u : users) {
-                    if(u.getEmail().equals(c2.getString(0))) {
+                for(User u : listUsers) {
+                    if(u.getEmail().equals(c3.getString(0))) {
                         ws.addPermittedUser(u);
                         subscribedWorkSpaces.put(ws.getName(), ws);
-                        ws.addPermittedUser(this);
                         break;
                     }
                 }
@@ -169,16 +174,16 @@ public class User {
     private synchronized void sqlInsertSubscription(WorkSpace ws) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?)";
-        String[] args = new String[]{this.getEmail(), ws.getName()};
+        String query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?, ?)";
+        String[] args = new String[]{this.getEmail(), ws.getName(), ws.getOwner().getEmail()};
         db.execSQL(query, args);
     }
 
     private synchronized void sqlDeleteSubscription(WorkSpace ws) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "DELETE FROM SUBSCRIPTIONS WHERE user = ?, workSpace = ?";
-        String[] args = new String[]{this.getEmail(), ws.getName()};
+        String query = "DELETE FROM SUBSCRIPTIONS WHERE user = ? AND workSpace = ? AND owner = ?";
+        String[] args = new String[]{this.getEmail(), ws.getName(), ws.getOwner().getEmail()};
         db.execSQL(query, args);
     }
 

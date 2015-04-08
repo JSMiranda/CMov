@@ -36,9 +36,9 @@ public class MyOpenHelper extends SQLiteOpenHelper {
         final String TABLE2_CREATE =
                 "CREATE TABLE USERS (nickname TEXT, email TEXT);";
         final String TABLE3_CREATE =
-                "CREATE TABLE SUBSCRIPTIONS (user TEXT, workSpace TEXT);";
+                "CREATE TABLE SUBSCRIPTIONS (user TEXT, workSpace TEXT, owner TEXT);";
         final String TABLE6_CREATE =
-                "CREATE TABLE MY_SUBSCRIPTIONS (user TEXT, workSpace TEXT);";
+                "CREATE TABLE MY_SUBSCRIPTIONS (owner TEXT, workSpace TEXT);";
         final String TABLE4_CREATE =
                 "CREATE TABLE FILES (workSpace TEXT, name TEXT, size INTEGER);";
         final String TABLE5_CREATE =

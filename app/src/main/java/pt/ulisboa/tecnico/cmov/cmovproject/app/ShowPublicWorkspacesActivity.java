@@ -18,7 +18,7 @@ public class ShowPublicWorkspacesActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_show_workspaces);
+        setContentView(R.layout.activity_show_public_workspaces);
 
         GridView gridview = (GridView) findViewById(R.id.gridview);
 
