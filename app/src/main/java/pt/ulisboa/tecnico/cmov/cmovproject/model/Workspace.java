@@ -52,7 +52,6 @@ public class Workspace {
             String fileName = c.getString(0);
             int size = c.getInt(1);
             airDeskFiles.add(new AirDeskFile(fileName, size));
-            saveFile(fileName,"");
         }
     }
 
