@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.cmovproject.app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -106,6 +107,7 @@ public class EditFileActivity extends ActionBarActivity {
         fileEditText.setFocusable(editable);
         fileEditText.setClickable(editable);
         fileEditText.setFocusableInTouchMode(editable);
+        fileEditText.setTextColor(editable? Color.BLACK : Color.DKGRAY);
         InputMethodManager inputMM = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (editable) {
             fileEditText.requestFocus();
