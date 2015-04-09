@@ -172,21 +172,11 @@ public class Workspace {
         return owner;
     }
 
-//    public void removeFileByName(String name) {
-//        for(AirDeskFile AirDeskFile : airDeskFiles) {
-//            if(AirDeskFile.getName().equals(name)){
-//                airDeskFiles.remove(AirDeskFile);
-//                AirDeskFile.sqlDelete(this.name);
-//                break;
-//            }
-//        }
-//    }
-
     public void renameFile(String oldName, String newName) {//in which workspace? new name already exists in this workspace?
-        for(AirDeskFile AirDeskFile : airDeskFiles) {
-            if(AirDeskFile.getName().equals(oldName)){
-                AirDeskFile.setName(rootFolder, newName);
-                AirDeskFile.sqlUpdate(oldName, name);
+        for(AirDeskFile airDeskFile : airDeskFiles) {
+            if(airDeskFile.getName().equals(oldName)){
+                airDeskFile.setName(rootFolder, newName);
+                airDeskFile.sqlUpdate(oldName, name);
                 break;
             }
         }

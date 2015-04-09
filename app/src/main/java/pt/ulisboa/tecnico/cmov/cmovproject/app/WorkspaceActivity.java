@@ -45,8 +45,8 @@ public class WorkspaceActivity extends ActionBarActivity {
 
         fileNames = new ArrayList<String>();
 
-        for (AirDeskFile AirDeskFile : AirDeskFiles) {
-            fileNames.add(AirDeskFile.getName());
+        for (AirDeskFile airDeskFile : AirDeskFiles) {
+            fileNames.add(airDeskFile.getName());
         }
 
         fileAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileNames);
