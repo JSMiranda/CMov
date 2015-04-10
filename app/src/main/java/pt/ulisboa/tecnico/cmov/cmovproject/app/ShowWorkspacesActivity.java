@@ -126,7 +126,7 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
         AirDesk airDesk = AirDesk.getInstance(this);
         airDesk.getMainUser().deleteWorkspace(ws);
         wsAdapter.notifyDataSetChanged();
-        Toast.makeText(this, wsName, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Deleted \"" + wsName + "\"", Toast.LENGTH_SHORT).show();
     }
 
     private void editWorkspace(int position) {

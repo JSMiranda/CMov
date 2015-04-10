@@ -110,6 +110,11 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
         boolean isPublic = checkBox.isChecked();
         int quota;
 
+        if(workspaceName.equals("")) {
+            Toast.makeText(getApplicationContext(), "Please fill the name box", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         try {
             quota = Integer.parseInt(quotaInputBox.getText().toString());
         } catch (NumberFormatException e) {
