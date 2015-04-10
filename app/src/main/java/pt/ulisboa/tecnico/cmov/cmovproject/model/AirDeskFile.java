@@ -17,13 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
 
-/**
- * This class abstracts a file. Before opening, closing and reading from a
- * file it is needed to set the implementation using {@link AirDeskFile#setImpl(FileImpl)}.
- */
 public class AirDeskFile {
-    private static FileImpl impl;
-
     private String name;
     private Date lastChangeTime; // not used for now
     private User lastChangeBy; // not used for now
@@ -68,32 +62,6 @@ public class AirDeskFile {
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
 
-    /**
-     * Use this method to set an implementation for the file reader
-     *
-     * @param impl The implementation of the file reader
-     */
-    public static void setImpl(FileImpl impl) {
-        AirDeskFile.impl = impl;
-    }
-
-    public void close() {
-        impl.close();
-    }
-
-    public String read() {
-        return impl.read();
-    }
-
-    public void write() {
-        impl.write();
-        // TODO: Change size & last changes
-    }
-
-    public void open() {
-        impl.open();
-    }
-
     /*
      * Getters and setters
      */
@@ -117,7 +85,7 @@ public class AirDeskFile {
      */
 
     /**
-     * Only the method {@link AirDeskFile#write()} should use this method
+     * Only the method {@link AirDeskFile#saveFile(String, String)} ()} should use this method
      * (and this is why it is private). We are using an attribute
      * to speed up size queries.
      *

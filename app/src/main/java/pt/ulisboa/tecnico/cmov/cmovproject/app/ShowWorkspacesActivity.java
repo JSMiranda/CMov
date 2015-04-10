@@ -40,11 +40,28 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
                                     int position, long id) {
                 Intent intent = new Intent(ShowWorkspacesActivity.this, WorkspaceActivity.class);
                 intent.putExtra("WorkspaceName", wsAdapter.getItem(position).getName());
+                switch (state) {
+                    case OWNED:
+                        intent.putExtra("isOwner", true);
+                        break;
+                    case FOREIGN:
+                        intent.putExtra("isOwner", false);
+                        break;
+                    default:
+                        throw new IllegalStateException();
+                }
+
                 startActivity(intent);
             }
         });
 
         showOwnedWorkSpaces(gridview);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        wsAdapter.notifyDataSetChanged();
     }
 
 

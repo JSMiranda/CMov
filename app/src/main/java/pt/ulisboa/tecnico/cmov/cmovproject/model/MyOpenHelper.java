@@ -37,13 +37,11 @@ public class MyOpenHelper extends SQLiteOpenHelper {
                 "CREATE TABLE USERS (nickname TEXT, email TEXT);";
         final String TABLE3_CREATE =
                 "CREATE TABLE SUBSCRIPTIONS (user TEXT, workSpace TEXT, owner TEXT);";
-        final String TABLE6_CREATE =
-                "CREATE TABLE MY_SUBSCRIPTIONS (owner TEXT, workSpace TEXT);";
         final String TABLE4_CREATE =
                 "CREATE TABLE FILES (workSpace TEXT, name TEXT, size INTEGER);";
         final String TABLE5_CREATE =
                 "CREATE TABLE TAGS (workSpace TEXT, tag TEXT);";
-        final String[] CREATE_STRINGS = { MAIN_USER_CREATE, TABLE1_CREATE, TABLE2_CREATE, TABLE3_CREATE, TABLE4_CREATE, TABLE5_CREATE, TABLE6_CREATE };
+        final String[] CREATE_STRINGS = { MAIN_USER_CREATE, TABLE1_CREATE, TABLE2_CREATE, TABLE3_CREATE, TABLE4_CREATE, TABLE5_CREATE};
 
         for(String createStr : CREATE_STRINGS) {
             db.execSQL(createStr);
@@ -71,17 +69,6 @@ public class MyOpenHelper extends SQLiteOpenHelper {
         db.execSQL(query, args);
         args = new String[]{"Fish", Integer.toString(1024), FALSE};
         db.execSQL(query, args);
-
-        // Populate subscriptions' table
-        /*
-        query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?)";
-        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Deserts"};
-        db.execSQL(query, args);
-        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Meat"};
-        db.execSQL(query, args);
-        args = new String[]{"sarah_w@tecnico.ulisboa.pt", "Fish"};
-        db.execSQL(query, args);
-        */ // FIXME: We first thought this was part of init, should we add other permissions instead of these?
 
         // Populate files' table
         query = "INSERT INTO FILES VALUES(?, ?, ?)";

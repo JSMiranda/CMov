@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.exception.InvalidQuotaException;
+import pt.ulisboa.tecnico.cmov.cmovproject.exception.WorkspaceAlreadyExistsException;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
@@ -120,9 +121,17 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
         AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
         if(ws == null) {
-            user.createWorkspace(workspaceName, quota, isPublic); //we need to catch some exceptions were (duplicate workspaces .. etc.) TODO
+            try {
+                user.createWorkspace(workspaceName, quota, isPublic);
+            } catch (WorkspaceAlreadyExistsException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         } else {
-            user.setWorkSpaceName(ws.getName(), workspaceName);
+            try {
+                user.setWorkSpaceName(ws.getName(), workspaceName);
+            } catch (WorkspaceAlreadyExistsException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
             try {
                 user.setWorkSpaceQuota(workspaceName, quota);
             } catch (InvalidQuotaException e) {
@@ -148,9 +157,6 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
     }
 
     public void exitActivity(View v) {
-        Intent intent = new Intent(CreateWorkspaceActivity.this, ShowWorkspacesActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
         finish();
     }
 }

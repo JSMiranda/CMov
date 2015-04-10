@@ -7,8 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
+import pt.ulisboa.tecnico.cmov.cmovproject.exception.FileAlreadyExistsException;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
@@ -63,7 +65,11 @@ public class RenameFileActivity extends ActionBarActivity {
 
     public void renameFile(View v) {
         String newName = inputBox.getText().toString();
-        workspace.renameFile(oldName, newName);
+        try {
+            workspace.renameFile(oldName, newName);
+        } catch (FileAlreadyExistsException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
 
         Intent intent = new Intent(RenameFileActivity.this, WorkspaceActivity.class);
         intent.putExtra("WorkspaceName", workspaceName);

@@ -7,8 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
+import pt.ulisboa.tecnico.cmov.cmovproject.exception.FileAlreadyExistsException;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDeskFile;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
@@ -57,8 +59,12 @@ public class CreateFileActivity extends ActionBarActivity {
         EditText fileNameView = (EditText) findViewById(R.id.fileNameInput);
         String fileName = fileNameView.getText().toString();
         AirDeskFile airDeskFile = new AirDeskFile(fileName, 0);
-        user.addFileToWorkSpace(workspaceName, airDeskFile);
-        exit(v);
+        try {
+            user.addFileToWorkSpace(workspaceName, airDeskFile);
+            exit(v);
+        } catch (FileAlreadyExistsException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void exit(View v) {

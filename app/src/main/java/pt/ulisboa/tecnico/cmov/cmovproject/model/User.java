@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pt.ulisboa.tecnico.cmov.cmovproject.exception.FileAlreadyExistsException;
 import pt.ulisboa.tecnico.cmov.cmovproject.exception.InvalidQuotaException;
+import pt.ulisboa.tecnico.cmov.cmovproject.exception.WorkspaceAlreadyExistsException;
 
 /**
  * A User has a set of workspaces (owned)
@@ -139,7 +141,7 @@ public class User {
     }
 
     // TODO:
-    // This method should be used only after connection is implemented.
+    // This method should be used only after networking is implemented.
     // At that point, think more carefully about visibility
     private synchronized void sqlInsert() {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
@@ -150,7 +152,7 @@ public class User {
     }
 
     // TODO:
-    // This method should be used only after connection is implemented.
+    // This method should be used only after networking is implemented.
     // At that point, think more carefully about visibility
     private synchronized void sqlUpdate(String oldNick, String oldEmail) {
         // TODO: Check if one can change his email. If not, correct this
@@ -162,7 +164,7 @@ public class User {
     }
 
     // TODO:
-    // This method should be used only after connection is implemented.
+    // This method should be used only after networking is implemented.
     // At that point, think more carefully about visibility
     private synchronized void sqlDelete() {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
@@ -191,7 +193,10 @@ public class User {
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
 
-    public void createWorkspace(String name, int quota, boolean isPublic) {
+    public void createWorkspace(String name, int quota, boolean isPublic) throws WorkspaceAlreadyExistsException {
+        if(ownedWorkSpaces.get(name) != null) {
+            throw new WorkspaceAlreadyExistsException(name);
+        }
         Workspace ws = new Workspace(name, quota, isPublic, this);
         ownedWorkSpaces.put(name, ws);
         ws.sqlInsert();
@@ -205,7 +210,6 @@ public class User {
     public void deleteWorkspace(Workspace ws) {
         ws.delete();
         ownedWorkSpaces.remove(ws.getName());
-        // TODO: Remove all files and subscriptions
     }
 
     public void subscribeWorkspace(Workspace ws) {
@@ -240,7 +244,7 @@ public class User {
         ws.removeAllTags();
     }
 
-    public void addFileToWorkSpace(String workSpaceName, AirDeskFile f) {
+    public void addFileToWorkSpace(String workSpaceName, AirDeskFile f) throws FileAlreadyExistsException{
         Workspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.addFile(f);
     }
@@ -260,7 +264,10 @@ public class User {
         ws.setPublic(false);
     }
 
-    public void setWorkSpaceName(String oldName, String newName) {
+    public void setWorkSpaceName(String oldName, String newName) throws WorkspaceAlreadyExistsException {
+        if(ownedWorkSpaces.get(newName) != null) {
+            throw new WorkspaceAlreadyExistsException(newName);
+        }
         Workspace ws = getOwnedWorkspaceByName(oldName);
         ws.setName(newName);
         ownedWorkSpaces.remove(oldName);
@@ -310,8 +317,9 @@ public class User {
         return ownedWorkSpaces.get(workSpaceName);
     }
 
-    @Override
-    public String toString(){
-        return nickname;
-    }
+ //   @Override
+ //   public String toString(){ return nickname;
+//    }
+
+
 }

@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.app;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,17 +16,29 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 
 
 public class LoginActivity extends ActionBarActivity {
+    private class LoadTask extends AsyncTask {
+        @Override
+        protected Boolean doInBackground(Object[] params) {
+            AirDesk airDesk = AirDesk.getInstance(LoginActivity.this);
+            return airDesk.load();
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            if((Boolean)o) {
+                startShowWorkspaceActivity();
+            } else {
+                setContentView(R.layout.activity_login);
+            }
+        }
+
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        AirDesk airDesk = AirDesk.getInstance(this);
-
-        if(airDesk.load()){
-            startShowWorkspaceActivity();
-        }
+        new LoadTask().execute();
     }
 
 
@@ -51,13 +64,13 @@ public class LoginActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void login(View v){
+    public void login(View v) {
         TextView emailView = (TextView) findViewById(R.id.email);
         TextView nickNameView = (TextView) findViewById(R.id.nickname);
         String email = emailView.getText().toString();
         String nickname = nickNameView.getText().toString();
 
-        if(!isValidEmail(email)) {
+        if (!isValidEmail(email)) {
             Toast.makeText(getApplicationContext(), "Invalid email address!", Toast.LENGTH_LONG).show();
             return;
         }

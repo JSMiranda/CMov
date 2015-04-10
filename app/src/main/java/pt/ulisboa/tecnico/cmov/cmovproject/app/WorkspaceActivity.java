@@ -28,6 +28,7 @@ public class WorkspaceActivity extends ActionBarActivity {
     private ArrayAdapter<String> fileAdapter;
     private ArrayList<String> fileNames;
     private String workspaceName;
+    private boolean isOwner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,7 @@ public class WorkspaceActivity extends ActionBarActivity {
 
         Intent intent = getIntent();
         workspaceName = intent.getStringExtra("WorkspaceName");
+        isOwner = intent.getBooleanExtra("isOwner", false);
         setTitle(workspaceName);
 
         AirDesk airDesk = AirDesk.getInstance(this);
@@ -64,11 +66,19 @@ public class WorkspaceActivity extends ActionBarActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        workspaceName = workspace.getName();
+        setTitle(workspaceName);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_workspace, menu);
+        if(isOwner) {
+            getMenuInflater().inflate(R.menu.menu_workspace, menu);
+        }
         return true;
     }
 
@@ -88,7 +98,9 @@ public class WorkspaceActivity extends ActionBarActivity {
                 exitActivity(item.getActionView());
                 return true;
             case R.id.action_edit:
-                // TODO: edit workspace...
+                Intent intent = new Intent(WorkspaceActivity.this, CreateWorkspaceActivity.class);
+                intent.putExtra("wsName", workspaceName);
+                startActivity(intent);
                 return true;
             default:
                 return super.onContextItemSelected(item);

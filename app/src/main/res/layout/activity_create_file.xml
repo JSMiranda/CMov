@@ -54,7 +54,7 @@
                 android:text="Cancel"
                 android:id="@+id/button4"
                 android:layout_marginRight="30dp"
-                android:onClick="exitActivity" />
+                android:onClick="exit" />
         </LinearLayout>
 
     </LinearLayout>

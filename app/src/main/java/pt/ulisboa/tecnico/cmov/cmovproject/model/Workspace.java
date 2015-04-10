@@ -9,6 +9,7 @@ import android.os.StatFs;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import pt.ulisboa.tecnico.cmov.cmovproject.exception.FileAlreadyExistsException;
 import pt.ulisboa.tecnico.cmov.cmovproject.exception.InvalidQuotaException;
 
 /**
@@ -69,10 +70,23 @@ public class Workspace {
         String query = "UPDATE WORKSPACES SET name = ?, quota = ?, isPublic = ? WHERE name = ?";
         String[] args = new String[]{name, Integer.toString(quota), isPublic ? "1" : "0", previousName};
         db.execSQL(query, args);
-        // TODO: Change other tables. Create another method to update when no name change is done
+
+        if (!previousName.equals(name)) {
+            // These tables only need to be updated if we change workspace name
+            query = "UPDATE TAGS SET workSpace = ? WHERE workSpace = ?";
+            args = new String[]{name, previousName};
+            db.execSQL(query, args);
+
+            query = "UPDATE FILES SET workSpace = ? WHERE workSpace = ?";
+            args = new String[]{name, previousName};
+            db.execSQL(query, args);
+        }
     }
 
     public void delete(){
+        for(User u : permittedUsers) {
+            u.unsubscribeWorkspace(this);
+        }
         sqlDelete();
         deleteStoredFolder();
     }
@@ -171,7 +185,9 @@ public class Workspace {
         return owner;
     }
 
-    public void renameFile(String oldName, String newName) {//in which workspace? new name already exists in this workspace?
+    public void renameFile(String oldName, String newName) throws FileAlreadyExistsException {
+        if(existFile(newName))
+            throw new FileAlreadyExistsException(newName);
         for(AirDeskFile airDeskFile : airDeskFiles) {
             if(airDeskFile.getName().equals(oldName)){
                 airDeskFile.setName(rootFolder, newName);
@@ -226,10 +242,22 @@ public class Workspace {
         tags.clear();
     }
 
-    void addFile(AirDeskFile f) {
+    void addFile(AirDeskFile f) throws FileAlreadyExistsException {
+        if(existFile(f.getName())) {
+            throw new FileAlreadyExistsException(f.getName());
+        }
         airDeskFiles.add(f);
         f.sqlInsert(name);
         saveFile(f.getName(),"");
+    }
+
+    private boolean existFile(String name) {
+        for(AirDeskFile file : airDeskFiles) {
+            if(file.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void removeFile(String fileName) {
