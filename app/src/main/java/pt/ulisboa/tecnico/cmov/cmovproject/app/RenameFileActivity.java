@@ -69,6 +69,7 @@ public class RenameFileActivity extends ActionBarActivity {
             workspace.renameFile(oldName, newName);
         } catch (FileAlreadyExistsException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            return;
         }
 
         Intent intent = new Intent(RenameFileActivity.this, WorkspaceActivity.class);

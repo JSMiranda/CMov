@@ -125,18 +125,23 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                 user.createWorkspace(workspaceName, quota, isPublic);
             } catch (WorkspaceAlreadyExistsException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                nameInputBox.setText("");
+                return;
             }
         } else {
             try {
                 user.setWorkSpaceName(ws.getName(), workspaceName);
             } catch (WorkspaceAlreadyExistsException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                nameInputBox.setText("");
+                return;
             }
             try {
                 user.setWorkSpaceQuota(workspaceName, quota);
             } catch (InvalidQuotaException e) {
                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                exitActivity(v);
+                quotaInputBox.setText("");
+                return;
             }
             if(isPublic) {
                 user.setWorkSpaceToPublic(workspaceName);

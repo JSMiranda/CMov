@@ -64,6 +64,7 @@ public class CreateFileActivity extends ActionBarActivity {
             exit(v);
         } catch (FileAlreadyExistsException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            return;
         }
     }
 

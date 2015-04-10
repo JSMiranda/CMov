@@ -186,7 +186,7 @@ public class Workspace {
     }
 
     public void renameFile(String oldName, String newName) throws FileAlreadyExistsException {
-        if(existFile(newName))
+        if(!oldName.equals(newName) && existsFile(newName))
             throw new FileAlreadyExistsException(newName);
         for(AirDeskFile airDeskFile : airDeskFiles) {
             if(airDeskFile.getName().equals(oldName)){
@@ -243,7 +243,7 @@ public class Workspace {
     }
 
     void addFile(AirDeskFile f) throws FileAlreadyExistsException {
-        if(existFile(f.getName())) {
+        if(existsFile(f.getName())) {
             throw new FileAlreadyExistsException(f.getName());
         }
         airDeskFiles.add(f);
@@ -251,7 +251,7 @@ public class Workspace {
         saveFile(f.getName(),"");
     }
 
-    private boolean existFile(String name) {
+    private boolean existsFile(String name) {
         for(AirDeskFile file : airDeskFiles) {
             if(file.getName().equals(name)) {
                 return true;

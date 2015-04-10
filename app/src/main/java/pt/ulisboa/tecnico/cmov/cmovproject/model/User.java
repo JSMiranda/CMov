@@ -265,7 +265,7 @@ public class User {
     }
 
     public void setWorkSpaceName(String oldName, String newName) throws WorkspaceAlreadyExistsException {
-        if(ownedWorkSpaces.get(newName) != null) {
+        if(!oldName.equals(newName) && ownedWorkSpaces.get(newName) != null) {
             throw new WorkspaceAlreadyExistsException(newName);
         }
         Workspace ws = getOwnedWorkspaceByName(oldName);
