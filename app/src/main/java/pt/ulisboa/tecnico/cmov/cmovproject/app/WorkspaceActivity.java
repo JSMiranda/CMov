@@ -162,8 +162,6 @@ public class WorkspaceActivity extends ActionBarActivity {
     }
 
     public void exitActivity(View v) {
-        Intent intent = new Intent(WorkspaceActivity.this, ShowWorkspacesActivity.class);
-        startActivity(intent);
         finish();
     }
 
