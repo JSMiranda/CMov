@@ -15,12 +15,17 @@ import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 
 
+/**
+ * This activity is skipped if the user already logged in.
+ * That is, while data is not clean from the app, only one log in is needed.
+ * @see pt.ulisboa.tecnico.cmov.cmovproject.app.LoginActivity.LoadTask
+ */
 public class LoginActivity extends ActionBarActivity {
     private class LoadTask extends AsyncTask {
         @Override
         protected Boolean doInBackground(Object[] params) {
             AirDesk airDesk = AirDesk.getInstance(LoginActivity.this);
-            return airDesk.load();
+            return airDesk.isLoaded();
         }
 
         @Override
@@ -51,12 +56,8 @@ public class LoginActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }

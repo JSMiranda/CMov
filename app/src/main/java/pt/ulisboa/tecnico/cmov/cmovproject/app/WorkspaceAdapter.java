@@ -11,6 +11,15 @@ import android.widget.TextView;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
+/**
+ * This adapter allows drawing of multiple elements to represent a workspace
+ * (currently one image and a text box that shows its name). The class is abstract
+ * because items are retrieved in multiple ways, each depending on the particular
+ * state of observation.
+ * @see pt.ulisboa.tecnico.cmov.cmovproject.app.OwnedWorkspaceAdapter
+ * @see pt.ulisboa.tecnico.cmov.cmovproject.app.ForeignWorkspaceAdapter
+ * @see pt.ulisboa.tecnico.cmov.cmovproject.app.PublicWorkspaceAdapter
+ */
 public abstract class WorkspaceAdapter extends BaseAdapter {
     Context mContext;
 
@@ -47,8 +56,8 @@ public abstract class WorkspaceAdapter extends BaseAdapter {
         return view;
     }
 
-    // references to our images FIXME: public/private folder images
+    // TODO: public/private folder images (only first position is being used at the moment
     private Integer[] mThumbIds = {
-            R.drawable.ic_action_discard, R.drawable.ic_action_discard,
+            R.drawable.folder, R.drawable.ic_action_discard,
     };
 }
