@@ -107,6 +107,7 @@ public class EditFileActivity extends ActionBarActivity {
         fileEditText.setFocusable(editable);
         fileEditText.setClickable(editable);
         fileEditText.setFocusableInTouchMode(editable);
+        fileEditText.setLongClickable(editable);
         fileEditText.setTextColor(editable? Color.BLACK : Color.DKGRAY);
         InputMethodManager inputMM = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (editable) {
