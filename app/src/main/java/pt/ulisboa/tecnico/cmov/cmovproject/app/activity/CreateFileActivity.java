@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmovproject.app;
+package pt.ulisboa.tecnico.cmov.cmovproject.app.activity;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
@@ -6,45 +6,36 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.exception.FileAlreadyExistsException;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDeskFile;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
-public class RenameFileActivity extends ActionBarActivity {
+public class CreateFileActivity extends ActionBarActivity {
 
-    private Workspace workspace;
-    private TextView inputBox;
-    private String oldName;
+    private User user;
     private String workspaceName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rename_file);
-
-        Intent intent = getIntent();
-        oldName = intent.getStringExtra("OldName");
-        setTitle(getTitle() + " (" + oldName + ")");
-        workspaceName = intent.getStringExtra("WorkspaceName");
-
-        inputBox = (TextView) findViewById(R.id.newNameBox);
-        inputBox.setText(oldName);
+        setContentView(R.layout.activity_create_file);
 
         AirDesk airDesk = AirDesk.getInstance(this);
-        User user = airDesk.getMainUser();
-        workspace = user.getOwnedWorkspaceByName(workspaceName);
+        Intent intent = getIntent();
+        workspaceName = intent.getStringExtra("WorkspaceName");
+        user = airDesk.getMainUser();
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_rename_file, menu);
+        getMenuInflater().inflate(R.menu.menu_create_file, menu);
         return true;
     }
 
@@ -63,27 +54,20 @@ public class RenameFileActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void renameFile(View v) {
-        String newName = inputBox.getText().toString();
+    public void createFile(View v) {
+        EditText fileNameView = (EditText) findViewById(R.id.fileNameInput);
+        String fileName = fileNameView.getText().toString();
+        AirDeskFile airDeskFile = new AirDeskFile(fileName, 0);
         try {
-            workspace.renameFile(oldName, newName);
+            user.addFileToWorkSpace(workspaceName, airDeskFile);
+            exit(v);
         } catch (FileAlreadyExistsException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             return;
         }
-
-        Intent intent = new Intent(RenameFileActivity.this, WorkspaceActivity.class);
-        intent.putExtra("WorkspaceName", workspaceName);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
     }
 
-    public void exitActivity(View v) {
-        Intent intent = new Intent(RenameFileActivity.this, WorkspaceActivity.class);
-        intent.putExtra("WorkspaceName", workspaceName);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+    public void exit(View v) {
         finish();
     }
 }

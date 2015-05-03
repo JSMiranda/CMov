@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmovproject.app;
+package pt.ulisboa.tecnico.cmov.cmovproject.app.activity;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
@@ -10,6 +10,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
+import pt.ulisboa.tecnico.cmov.cmovproject.app.adapter.PublicWorkspaceAdapter;
+import pt.ulisboa.tecnico.cmov.cmovproject.app.adapter.WorkspaceAdapter;
 
 
 public class ShowPublicWorkspacesActivity extends ActionBarActivity {
@@ -31,7 +33,7 @@ public class ShowPublicWorkspacesActivity extends ActionBarActivity {
                                     int position, long id) {
 
                 // TODO: Change this to exit this activity and show what happened with a toast
-                Intent intent = new Intent(ShowPublicWorkspacesActivity.this, WorkspaceActivity.class);
+                Intent intent = new Intent(ShowPublicWorkspacesActivity.this, ShowFilesInWorkspaceActivity.class);
                 intent.putExtra("WorkspaceName", wsAdapter.getItem(position).getName());
                 startActivity(intent);
             }

@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmovproject.app;
+package pt.ulisboa.tecnico.cmov.cmovproject.app.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

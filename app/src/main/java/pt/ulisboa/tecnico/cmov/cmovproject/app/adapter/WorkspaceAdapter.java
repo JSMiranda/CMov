@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmovproject.app;
+package pt.ulisboa.tecnico.cmov.cmovproject.app.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,9 +16,9 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
  * (currently one image and a text box that shows its name). The class is abstract
  * because items are retrieved in multiple ways, each depending on the particular
  * state of observation.
- * @see pt.ulisboa.tecnico.cmov.cmovproject.app.OwnedWorkspaceAdapter
- * @see pt.ulisboa.tecnico.cmov.cmovproject.app.ForeignWorkspaceAdapter
- * @see pt.ulisboa.tecnico.cmov.cmovproject.app.PublicWorkspaceAdapter
+ * @see OwnedWorkspaceAdapter
+ * @see ForeignWorkspaceAdapter
+ * @see PublicWorkspaceAdapter
  */
 public abstract class WorkspaceAdapter extends BaseAdapter {
     Context mContext;

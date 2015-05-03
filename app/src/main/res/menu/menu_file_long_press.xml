@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="pt.ulisboa.tecnico.cmov.cmovproject.app.WorkspaceActivity">
+    tools:context="pt.ulisboa.tecnico.cmov.cmovproject.app.activity.ShowFilesInWorkspaceActivity">
     <item android:id="@+id/delete_file"
         android:title="@string/action_delete_file"
         app:showAsAction="never"  />

@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmovproject.app;
+package pt.ulisboa.tecnico.cmov.cmovproject.app.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -35,14 +35,11 @@ public class EditFileActivity extends ActionBarActivity {
         workspaceName = intent.getStringExtra("workspaceName");
         setTitle(workspaceName + "/" + fileName);
         EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
-        //String fileText = workspace.getFileText(workspaceName, fileName);
         workspace = user.getOwnedWorkspaceByName(workspaceName);
         String fileText = workspace.openFileByName(fileName);
         boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         fileEditText.setText(fileText);
         setTextEditable(enabled);
-
-
     }
 
     @Override
@@ -91,10 +88,6 @@ public class EditFileActivity extends ActionBarActivity {
     private void backToParent(String toast){
         Toast.makeText(EditFileActivity.this, toast,
                 Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(EditFileActivity.this, WorkspaceActivity.class);
-        intent.putExtra("WorkspaceName", workspaceName);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
         finish();
     }
     public void toggleEditable(){

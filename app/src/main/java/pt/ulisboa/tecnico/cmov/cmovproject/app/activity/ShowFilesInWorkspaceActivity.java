@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmovproject.app;
+package pt.ulisboa.tecnico.cmov.cmovproject.app.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,7 +22,7 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 
-public class WorkspaceActivity extends ActionBarActivity {
+public class ShowFilesInWorkspaceActivity extends ActionBarActivity {
     private Workspace workspace;
     private Collection<AirDeskFile> AirDeskFiles;
     private ArrayAdapter<String> fileAdapter;
@@ -37,26 +37,21 @@ public class WorkspaceActivity extends ActionBarActivity {
 
         Intent intent = getIntent();
         workspaceName = intent.getStringExtra("WorkspaceName");
-        isOwner = intent.getBooleanExtra("isOwner", false);
-        setTitle(workspaceName);
-
         AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
         workspace = user.getOwnedWorkspaceByName(workspaceName);
+        isOwner = intent.getBooleanExtra("isOwner", false);
         AirDeskFiles = workspace.getAirDeskFiles();
 
-        fileNames = new ArrayList<String>();
+        setTitle(workspaceName);
 
+        fileNames = new ArrayList<String>();
         for (AirDeskFile airDeskFile : AirDeskFiles) {
             fileNames.add(airDeskFile.getName());
         }
-
         fileAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileNames);
-
         final ListView filesList = (ListView) findViewById(R.id.filesList);
-
         filesList.setAdapter(fileAdapter);
-
         registerForContextMenu(filesList);
         filesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -65,14 +60,6 @@ public class WorkspaceActivity extends ActionBarActivity {
             }
         });
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        workspaceName = workspace.getName();
-        setTitle(workspaceName);
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -98,7 +85,7 @@ public class WorkspaceActivity extends ActionBarActivity {
                 exitActivity(item.getActionView());
                 return true;
             case R.id.action_edit:
-                Intent intent = new Intent(WorkspaceActivity.this, CreateWorkspaceActivity.class);
+                Intent intent = new Intent(ShowFilesInWorkspaceActivity.this, CreateWorkspaceActivity.class);
                 intent.putExtra("wsName", workspaceName);
                 startActivity(intent);
                 return true;
@@ -133,7 +120,7 @@ public class WorkspaceActivity extends ActionBarActivity {
     }
 
     private void openFile(int position, Boolean enabled) {
-        Intent intent = new Intent(WorkspaceActivity.this, EditFileActivity.class);
+        Intent intent = new Intent(ShowFilesInWorkspaceActivity.this, EditFileActivity.class);
         intent.putExtra("fileName", fileAdapter.getItem(position));
         intent.putExtra("workspaceName", workspaceName);
         intent.putExtra("enabled", enabled.toString());
@@ -141,7 +128,7 @@ public class WorkspaceActivity extends ActionBarActivity {
     }
 
     private void shareWorkspace() {
-        Intent intent = new Intent(WorkspaceActivity.this, WorkspacePermissionsActivity.class);
+        Intent intent = new Intent(ShowFilesInWorkspaceActivity.this, WorkspacePermissionsActivity.class);
         intent.putExtra("workspaceName", workspaceName);
         intent.putExtra("parent", "WorkspaceActivity");
         startActivity(intent);
@@ -149,7 +136,7 @@ public class WorkspaceActivity extends ActionBarActivity {
 
     private void renameFile(int position) {
         final String fileName = fileAdapter.getItem(position);
-        Intent intent = new Intent(WorkspaceActivity.this, RenameFileActivity.class);
+        Intent intent = new Intent(ShowFilesInWorkspaceActivity.this, RenameFileActivity.class);
         intent.putExtra("OldName", fileName);
         intent.putExtra("WorkspaceName", workspaceName);
         startActivity(intent);
@@ -166,7 +153,7 @@ public class WorkspaceActivity extends ActionBarActivity {
     }
 
     public void createFile(View v) {
-        Intent intent = new Intent(WorkspaceActivity.this, CreateFileActivity.class);
+        Intent intent = new Intent(ShowFilesInWorkspaceActivity.this, CreateFileActivity.class);
         intent.putExtra("WorkspaceName", workspaceName);
         startActivity(intent);
         finish();

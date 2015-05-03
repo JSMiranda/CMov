@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmovproject.app;
+package pt.ulisboa.tecnico.cmov.cmovproject.app.activity;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -18,7 +18,7 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 /**
  * This activity is skipped if the user already logged in.
  * That is, while data is not clean from the app, only one log in is needed.
- * @see pt.ulisboa.tecnico.cmov.cmovproject.app.LoginActivity.LoadTask
+ * @see LoginActivity.LoadTask
  */
 public class LoginActivity extends ActionBarActivity {
     private class LoadTask extends AsyncTask {

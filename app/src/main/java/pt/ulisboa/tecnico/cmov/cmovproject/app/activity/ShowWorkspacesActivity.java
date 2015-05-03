@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmovproject.app;
+package pt.ulisboa.tecnico.cmov.cmovproject.app.activity;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
@@ -13,6 +13,9 @@ import android.widget.GridView;
 import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
+import pt.ulisboa.tecnico.cmov.cmovproject.app.adapter.ForeignWorkspaceAdapter;
+import pt.ulisboa.tecnico.cmov.cmovproject.app.adapter.OwnedWorkspaceAdapter;
+import pt.ulisboa.tecnico.cmov.cmovproject.app.adapter.WorkspaceAdapter;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
@@ -38,7 +41,7 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Intent intent = new Intent(ShowWorkspacesActivity.this, WorkspaceActivity.class);
+                Intent intent = new Intent(ShowWorkspacesActivity.this, ShowFilesInWorkspaceActivity.class);
                 intent.putExtra("WorkspaceName", wsAdapter.getItem(position).getName());
                 switch (state) {
                     case OWNED:
@@ -116,7 +119,6 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
     private void shareWorkspace(int position) {
         Intent intent = new Intent(ShowWorkspacesActivity.this, WorkspacePermissionsActivity.class);
         intent.putExtra("workspaceName", wsAdapter.getItem(position).getName());
-        intent.putExtra("parent", "ShowWorkspacesActivity");
         startActivity(intent);
     }
 

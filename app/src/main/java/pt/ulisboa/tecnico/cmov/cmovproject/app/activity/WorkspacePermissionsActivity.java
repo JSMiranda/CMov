@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.cmovproject.app;
+package pt.ulisboa.tecnico.cmov.cmovproject.app.activity;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
@@ -24,7 +24,6 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 public class WorkspacePermissionsActivity extends ActionBarActivity {
     private Workspace workspace;
     private String workspaceName;
-    private String parent;
     ArrayAdapter<String> checkUsersAdapter;
 
     @Override
@@ -34,7 +33,6 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
 
         Intent intent = getIntent();
         workspaceName = intent.getStringExtra("workspaceName");
-        parent = intent.getStringExtra("parent");
         setTitle(workspaceName);
         AirDesk airDesk = AirDesk.getInstance(this);
         User thisUser = airDesk.getMainUser();
@@ -91,11 +89,6 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
     private void backToParent(String toast){
         Toast.makeText(WorkspacePermissionsActivity.this, toast,
                 Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(WorkspacePermissionsActivity.this, ("WorkspaceActivity".equals(parent)?
-                WorkspaceActivity.class : ShowWorkspacesActivity.class));
-        intent.putExtra("WorkspaceName", workspaceName);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
         finish();
     }
 
