@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
+import pt.ulisboa.tecnico.cmov.cmovproject.connectivity.Client;
+import pt.ulisboa.tecnico.cmov.cmovproject.connectivity.Server;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 
 
@@ -43,7 +45,11 @@ public class LoginActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Client client = new Client();
+        //Server server = new Server();
         new LoadTask().execute();
+        client.execute(this);
+        //server.execute(this);
     }
 
 
