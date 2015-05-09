@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "pt.ulisboa.tecnico.cmov.cmovproject"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -22,4 +22,11 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:21.0.3'
+    compile(name:'Termite-WifiP2P-API-20150503', ext:'aar')
+}
+
+repositories{
+    flatDir{
+        dirs 'libs'
+    }
 }

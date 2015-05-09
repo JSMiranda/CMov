@@ -55,6 +55,12 @@
             android:name=".app.activity.CreateFileActivity"
             android:label="@string/title_activity_create_file" >
         </activity>
+
+        <service
+            android:name=".connectivity.ConnectivityService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>
