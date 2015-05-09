@@ -61,6 +61,14 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+
+        <receiver
+            android:name=".connectivity.SimWifiP2pBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" >
+        </receiver>
+
+        <service android:name="pt.inesc.termite.wifidirect.service.SimWifiP2pService" />
     </application>
 
 </manifest>
