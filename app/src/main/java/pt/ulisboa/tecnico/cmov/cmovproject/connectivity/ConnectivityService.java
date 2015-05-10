@@ -6,10 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.Messenger;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,7 +30,10 @@ import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager.Channel;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager.GroupInfoListener;
 import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
+import pt.ulisboa.tecnico.cmov.cmovproject.R;
 
 public class ConnectivityService extends Service implements GroupInfoListener {
     boolean mWiFiDirectIsOn = false;
@@ -30,6 +41,7 @@ public class ConnectivityService extends Service implements GroupInfoListener {
     Channel mChannel = null;
 
     private TreeMap<String, String> userIps = new TreeMap<String, String>();
+    private SimWifiP2pSocketServer mSrvSocket = null;
 
     private final String TAG = this.getClass().getName();
 
@@ -118,6 +130,126 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         Log.d(TAG, "Map changed: " + userIps);
     }
 
+    public class IncommingCommTask extends AsyncTask<Void, SimWifiP2pSocket, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            Log.d(TAG, "IncommingCommTask started (" + this.hashCode() + ").");
+
+            try {
+                mSrvSocket = new SimWifiP2pSocketServer(
+                        Integer.parseInt(getString(R.string.port)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    SimWifiP2pSocket sock = mSrvSocket.accept();
+                    publishProgress(sock);
+                } catch (IOException e) {
+                    Log.d("Error accepting socket:", e.getMessage());
+                    break;
+                    //e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(SimWifiP2pSocket... values) {
+            SimWifiP2pSocket sock = values[0];
+
+            ReceiveCommTask comm = new ReceiveCommTask();
+            comm.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, sock);
+        }
+    }
+
+    public class OutgoingCommTask extends AsyncTask<String, Void, Void> {
+
+        SimWifiP2pSocket mCliSocket;
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+                mCliSocket = new SimWifiP2pSocket(params[0],
+                        Integer.parseInt(getString(R.string.port)));
+                mCliSocket.getOutputStream().write(params[1].getBytes());
+            } catch (UnknownHostException e) {
+                Log.d(TAG, e.getMessage());
+            } catch (IOException e) {
+                Log.d(TAG, e.getMessage());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            BufferedReader sockIn = null;
+            try {
+                sockIn = new BufferedReader(new InputStreamReader(mCliSocket.getInputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String st = null;
+            String st2;
+
+            try {
+                while ((st2 = sockIn.readLine()) != null) {
+                    st += st2 + "\n";
+                }
+                JSONObject message = new JSONObject(st);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                Log.d(TAG, "Error while parsing JSON object");
+            }
+        }
+    }
+
+    public class ReceiveCommTask extends AsyncTask<SimWifiP2pSocket, String, String> {
+        SimWifiP2pSocket s;
+
+        @Override
+        protected String doInBackground(SimWifiP2pSocket... params) {
+            BufferedReader sockIn;
+            String st = null;
+            String st2;
+
+            s = params[0];
+            try {
+                sockIn = new BufferedReader(new InputStreamReader(s.getInputStream()));
+
+                while ((st2 = sockIn.readLine()) != null) {
+                    st += st2 + "\n";
+                }
+            } catch (IOException e) {
+                Log.d("Error reading socket:", e.getMessage());
+            }
+            return st;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (!s.isClosed()) {
+                try {
+                    s.close();
+                }
+                catch (Exception e) {
+                    Log.d("Error closing socket:", e.getMessage());
+                }
+            }
+
+            s = null;
+
+            try {
+                JSONObject message = new JSONObject(result);
+            } catch (JSONException e) {
+                Log.d(TAG, "Error while parsing JSON object");
+            }
+        }
+    }
+
     private void addJoiningPeersToUserMap(final ArrayList<String> peerIps) {
         for(String ip : peerIps) {
             if(!userIps.containsValue(ip)) {
@@ -128,8 +260,15 @@ public class ConnectivityService extends Service implements GroupInfoListener {
     }
 
     private String askForUsername(String ip) {
-        // TODO: Implement
-        return "Teste";
+        JSONObject message = new JSONObject();
+        try {
+            message.put("ask", "ask");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String result = null;
+        new OutgoingCommTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ip, message.toString(), result);
+        return result;
     }
 
     private void removeExitingPeersFromUserMap(ArrayList<String> peerIps) {
