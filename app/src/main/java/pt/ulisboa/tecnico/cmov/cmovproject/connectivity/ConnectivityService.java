@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Messenger;
 import android.util.Log;
 
@@ -42,6 +44,7 @@ public class ConnectivityService extends Service implements GroupInfoListener {
 
     private TreeMap<String, String> userIps = new TreeMap<String, String>();
     private SimWifiP2pSocketServer mSrvSocket = null;
+    private ConnectivityThread thread;
 
     private final String TAG = this.getClass().getName();
 
@@ -69,7 +72,10 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             toggleWiFiDirect();
         }
 
-        // TODO: get list of users from intent. Return through the intent the list of online users.
+        thread = new ConnectivityThread();
+        thread.start();
+
+        new IncommingCommTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         return START_STICKY;
     }
@@ -165,48 +171,6 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         }
     }
 
-    public class OutgoingCommTask extends AsyncTask<String, Void, Void> {
-
-        SimWifiP2pSocket mCliSocket;
-
-        @Override
-        protected Void doInBackground(String... params) {
-            try {
-                mCliSocket = new SimWifiP2pSocket(params[0],
-                        Integer.parseInt(getString(R.string.port)));
-                mCliSocket.getOutputStream().write(params[1].getBytes());
-            } catch (UnknownHostException e) {
-                Log.d(TAG, e.getMessage());
-            } catch (IOException e) {
-                Log.d(TAG, e.getMessage());
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            BufferedReader sockIn = null;
-            try {
-                sockIn = new BufferedReader(new InputStreamReader(mCliSocket.getInputStream()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            String st = null;
-            String st2;
-
-            try {
-                while ((st2 = sockIn.readLine()) != null) {
-                    st += st2 + "\n";
-                }
-                JSONObject message = new JSONObject(st);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                Log.d(TAG, "Error while parsing JSON object");
-            }
-        }
-    }
-
     public class ReceiveCommTask extends AsyncTask<SimWifiP2pSocket, String, String> {
         SimWifiP2pSocket s;
 
@@ -214,15 +178,14 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         protected String doInBackground(SimWifiP2pSocket... params) {
             BufferedReader sockIn;
             String st = null;
-            String st2;
 
             s = params[0];
             try {
                 sockIn = new BufferedReader(new InputStreamReader(s.getInputStream()));
-
-                while ((st2 = sockIn.readLine()) != null) {
-                    st += st2 + "\n";
-                }
+                Log.d(TAG, "Server will read");
+                st = sockIn.readLine();
+                Log.d(TAG, "Server unlocked, read " + st);
+                s.getOutputStream().write("xD\n".getBytes());
             } catch (IOException e) {
                 Log.d("Error reading socket:", e.getMessage());
             }
@@ -253,22 +216,47 @@ public class ConnectivityService extends Service implements GroupInfoListener {
     private void addJoiningPeersToUserMap(final ArrayList<String> peerIps) {
         for(String ip : peerIps) {
             if(!userIps.containsValue(ip)) {
-                String userName = askForUsername(ip);
-                userIps.put(userName, ip);
+                askForUsername(ip);
             }
         }
     }
 
-    private String askForUsername(String ip) {
-        JSONObject message = new JSONObject();
+    private void askForUsername(final String ip) {
+        final JSONObject message = new JSONObject();
         try {
-            message.put("ask", "ask");
+            message.put("RequestType", "tellEmail");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String result = null;
-        new OutgoingCommTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ip, message.toString(), result);
-        return result;
+
+        sendMessage(ip, message, new JSONObject[1]);
+    }
+
+    private void sendMessage(final String ip, JSONObject message, final JSONObject[] response) {
+        final String messageToSend = message.toString();
+        thread.getHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SimWifiP2pSocket mCliSocket = new SimWifiP2pSocket(ip,
+                            Integer.parseInt(getString(R.string.port)));
+                    mCliSocket.getOutputStream().write((messageToSend.replaceAll("[\n]", " ") + "\n").getBytes());
+                    BufferedReader sockIn = new BufferedReader(new InputStreamReader(mCliSocket.getInputStream()));
+                    Log.d(TAG, "Client will read, server has ip " + ip);
+                    String st = sockIn.readLine();
+                    Log.d(TAG, "Client unlocked, read " + st);
+                    mCliSocket.close();
+                    response[0] = new JSONObject(st);
+                    // TODO: Change the way we react to responses
+                } catch (UnknownHostException e) {
+                    Log.d(TAG, e.getMessage());
+                } catch (IOException e) {
+                    Log.d(TAG, e.getMessage());
+                } catch (JSONException e) {
+                    Log.d(TAG, e.getMessage());
+                }
+            }
+        });
     }
 
     private void removeExitingPeersFromUserMap(ArrayList<String> peerIps) {
@@ -288,4 +276,20 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                 userIps.remove(userName);
         }
     }
+
+    private class ConnectivityThread extends Thread {
+        private Handler handler;
+
+        @Override
+        public void run() {
+            Looper.prepare();
+            handler = new Handler();
+            Looper.loop();
+        }
+
+        public Handler getHandler() {
+            return handler;
+        }
+    }
+
 }
