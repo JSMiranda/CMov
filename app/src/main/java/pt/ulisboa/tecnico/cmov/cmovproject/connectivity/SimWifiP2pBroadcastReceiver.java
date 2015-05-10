@@ -4,10 +4,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
+import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
+import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 
 public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
+    private final String TAG = this.getClass().getName();
+
+    private ConnectivityService mService = null;
+
+    public SimWifiP2pBroadcastReceiver(ConnectivityService service) {
+        mService = service;
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
@@ -33,15 +44,15 @@ public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
             Toast.makeText(mActivity, "Peer list changed",
                     Toast.LENGTH_SHORT).show();
 
-        } else if (SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION.equals(action)) {
+        }*/ else if (SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION.equals(action)) {
 
-            SimWifiP2pInfo ginfo = (SimWifiP2pInfo) intent.getSerializableExtra(
-                    SimWifiP2pBroadcast.EXTRA_GROUP_INFO);
-            ginfo.print();
-            Toast.makeText(mActivity, "Network membership changed",
-                    Toast.LENGTH_SHORT).show();
+            if (mService.mWiFiDirectIsOn) {
+                mService.mManager.requestGroupInfo(mService.mChannel, mService);
+            } else {
+                Log.d(TAG, "WiFi Direct is OFF");
+            }
 
-        } else if (SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION.equals(action)) {
+        }/* else if (SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION.equals(action)) {
 
             SimWifiP2pInfo ginfo = (SimWifiP2pInfo) intent.getSerializableExtra(
                     SimWifiP2pBroadcast.EXTRA_GROUP_INFO);
