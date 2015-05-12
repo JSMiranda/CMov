@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.OwnedWorkspace;
 
 /**
  * This adapter allows drawing of multiple elements to represent a workspace
@@ -27,7 +27,7 @@ public abstract class WorkspaceAdapter extends BaseAdapter {
         mContext = c;
     }
 
-    public abstract Workspace getItem(int position);
+    public abstract OwnedWorkspace getItem(int position);
 
     @Override
     // Method not used

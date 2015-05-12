@@ -18,8 +18,8 @@ import pt.ulisboa.tecnico.cmov.cmovproject.exception.WorkspaceAlreadyExistsExcep
  * A user is responsible for managing their own workspaces.
  */
 public class User {
-    private Map<String, Workspace> ownedWorkSpaces;
-    private Map<String, Workspace> subscribedWorkSpaces;
+    private Map<String, OwnedWorkspace> ownedWorkSpaces;
+    private Map<String, OwnedWorkspace> subscribedWorkSpaces;
     private String nickname;
     private String email;
 
@@ -30,8 +30,8 @@ public class User {
      * @param email    User's email
      */
     public User(String nickname, String email) {
-        this.ownedWorkSpaces = new HashMap<String, Workspace>();
-        this.subscribedWorkSpaces = new HashMap<String, Workspace>();
+        this.ownedWorkSpaces = new HashMap<String, OwnedWorkspace>();
+        this.subscribedWorkSpaces = new HashMap<String, OwnedWorkspace>();
         this.nickname = nickname;
         this.email = email;
     }
@@ -113,8 +113,8 @@ public class User {
             boolean isPublic = c.getInt(2) == 0 ? false : true;
 
             // note that all workspaces in db are owned by the "main user"
-            ownedWorkSpaces.put(wsName, new Workspace(wsName, quota, isPublic, this));
-            Workspace ws = getOwnedWorkspaceByName(wsName);
+            ownedWorkSpaces.put(wsName, new OwnedWorkspace(wsName, quota, isPublic, this));
+            OwnedWorkspace ws = getOwnedWorkspaceByName(wsName);
 
             // for each workspace, create the file list, tag list, and the permitted users list
             ws.sqlLoadFiles();
@@ -174,7 +174,7 @@ public class User {
         db.execSQL(query, args);
     }
 
-    private synchronized void sqlInsertSubscription(Workspace ws) {
+    private synchronized void sqlInsertSubscription(OwnedWorkspace ws) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?, ?)";
@@ -182,7 +182,7 @@ public class User {
         db.execSQL(query, args);
     }
 
-    private synchronized void sqlDeleteSubscription(Workspace ws) {
+    private synchronized void sqlDeleteSubscription(OwnedWorkspace ws) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String query = "DELETE FROM SUBSCRIPTIONS WHERE user = ? AND workSpace = ? AND owner = ?";
@@ -197,7 +197,7 @@ public class User {
         if(ownedWorkSpaces.get(name) != null) {
             throw new WorkspaceAlreadyExistsException(name);
         }
-        Workspace ws = new Workspace(name, quota, isPublic, this);
+        OwnedWorkspace ws = new OwnedWorkspace(name, quota, isPublic, this);
         ownedWorkSpaces.put(name, ws);
         ws.sqlInsert();
     }
@@ -205,62 +205,62 @@ public class User {
     /**
      * Delete a given workspace. To get user's workspaces use {@link User#getOwnedWorkSpaces}
      *
-     * @param ws instance of Workspace to delete.
+     * @param ws instance of OwnedWorkspace to delete.
      */
-    public void deleteWorkspace(Workspace ws) {
+    public void deleteWorkspace(OwnedWorkspace ws) {
         ws.delete();
         ownedWorkSpaces.remove(ws.getName());
     }
 
-    public void subscribeWorkspace(Workspace ws) {
+    public void subscribeWorkspace(OwnedWorkspace ws) {
         subscribedWorkSpaces.put(ws.getName(), ws);
         ws.addPermittedUser(this);
         sqlInsertSubscription(ws);
     }
 
-    public void unsubscribeWorkspace(Workspace ws) {
+    public void unsubscribeWorkspace(OwnedWorkspace ws) {
         subscribedWorkSpaces.remove(ws.getName());
         ws.removePermittedUser(this);
         sqlDeleteSubscription(ws);
     }
 
     public void setWorkSpaceQuota(String workSpaceName, int quota) throws InvalidQuotaException {
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.setQuota(quota);
     }
 
     public void addTagToWorkSpace(String workSpaceName, String tag) {
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.addTag(tag);
     }
 
     public void removeTagFromWorkSpace(String workSpaceName, String tag) {
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.removeTag(tag);
     }
 
     public void removeAllTagsFromWorkSpace(String workSpaceName) {
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.removeAllTags();
     }
 
     public void addFileToWorkSpace(String workSpaceName, AirDeskFile f) throws FileAlreadyExistsException{
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.addFile(f);
     }
 
     public void removeFileFromWorkSpace(String workSpaceName, String fileName) {
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.removeFile(fileName);
     }
 
     public void setWorkSpaceToPublic(String workSpaceName) {
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.setPublic(true);
     }
 
     public void setWorkSpaceToPrivate(String workSpaceName) {
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.setPublic(false);
     }
 
@@ -268,25 +268,25 @@ public class User {
         if(!oldName.equals(newName) && ownedWorkSpaces.get(newName) != null) {
             throw new WorkspaceAlreadyExistsException(newName);
         }
-        Workspace ws = getOwnedWorkspaceByName(oldName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(oldName);
         ws.setName(newName);
         ownedWorkSpaces.remove(oldName);
         ownedWorkSpaces.put(newName, ws);
     }
 
     public void addUserToWorkSpace(String workSpaceName, User u) {
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         u.subscribeWorkspace(ws);
     }
 
     public void removeUserFromWorkSpace(String workSpaceName, User u) {
-        Workspace ws = getOwnedWorkspaceByName(workSpaceName);
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         u.unsubscribeWorkspace(ws);
     }
 
     public ArrayList<String> getOwnedWorkspaceNames() {
         ArrayList<String> workspaces = new ArrayList<String>();
-        for(Map.Entry<String, Workspace> entry: ownedWorkSpaces.entrySet()) {
+        for(Map.Entry<String, OwnedWorkspace> entry: ownedWorkSpaces.entrySet()) {
             workspaces.add(entry.getValue().getName());
         }
 
@@ -305,15 +305,15 @@ public class User {
         return email;
     }
 
-    public Map<String, Workspace> getOwnedWorkSpaces() {
+    public Map<String, OwnedWorkspace> getOwnedWorkSpaces() {
         return ownedWorkSpaces;
     }
 
-    public Map<String, Workspace> getSubscribedWorkSpaces() {
+    public Map<String, OwnedWorkspace> getSubscribedWorkSpaces() {
         return subscribedWorkSpaces;
     }
 
-    public Workspace getOwnedWorkspaceByName(String workSpaceName) {
+    public OwnedWorkspace getOwnedWorkspaceByName(String workSpaceName) {
         return ownedWorkSpaces.get(workSpaceName);
     }
 

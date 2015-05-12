@@ -46,13 +46,7 @@ public class LoginActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Client client = new Client();
-        //Server server = new Server();
         new LoadTask().execute();
-        Intent intent = new Intent(this, ConnectivityService.class);
-        startService(intent);
-        //client.execute(this);
-        //server.execute(this);
     }
 
 

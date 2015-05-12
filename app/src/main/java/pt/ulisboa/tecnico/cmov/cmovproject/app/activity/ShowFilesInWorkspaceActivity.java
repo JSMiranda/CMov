@@ -19,11 +19,11 @@ import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDeskFile;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.OwnedWorkspace;
 
 
 public class ShowFilesInWorkspaceActivity extends ActionBarActivity {
-    private Workspace workspace;
+    private OwnedWorkspace workspace;
     private Collection<AirDeskFile> AirDeskFiles;
     private ArrayAdapter<String> fileAdapter;
     private ArrayList<String> fileNames;

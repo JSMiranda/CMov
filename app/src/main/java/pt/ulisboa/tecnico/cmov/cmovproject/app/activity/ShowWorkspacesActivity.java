@@ -16,8 +16,9 @@ import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.app.adapter.ForeignWorkspaceAdapter;
 import pt.ulisboa.tecnico.cmov.cmovproject.app.adapter.OwnedWorkspaceAdapter;
 import pt.ulisboa.tecnico.cmov.cmovproject.app.adapter.WorkspaceAdapter;
+import pt.ulisboa.tecnico.cmov.cmovproject.connectivity.ConnectivityService;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.OwnedWorkspace;
 
 
 public class ShowWorkspacesActivity extends ActionBarActivity {
@@ -35,6 +36,10 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_workspaces);
+
+        Intent intent = new Intent(this, ConnectivityService.class);
+        intent.putExtra("Email", AirDesk.getInstance(this).getMainUser().getEmail());
+        startService(intent);
 
         gridview = (GridView) findViewById(R.id.gridview);
         registerForContextMenu(gridview);
@@ -123,7 +128,7 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
     }
 
     private void deleteWorkspace(int position) {
-        Workspace ws = wsAdapter.getItem(position);
+        OwnedWorkspace ws = wsAdapter.getItem(position);
         String wsName = ws.getName();
         AirDesk airDesk = AirDesk.getInstance(this);
         airDesk.getMainUser().deleteWorkspace(ws);
@@ -132,7 +137,7 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
     }
 
     private void editWorkspace(int position) {
-        Workspace ws = wsAdapter.getItem(position);
+        OwnedWorkspace ws = wsAdapter.getItem(position);
         String wsName = ws.getName();
         Intent intent = new Intent(ShowWorkspacesActivity.this, CreateWorkspaceActivity.class);
         intent.putExtra("wsName", wsName);
@@ -169,5 +174,13 @@ public class ShowWorkspacesActivity extends ActionBarActivity {
     public void startShowPublicWorkspacesActivity(View v) {
         Intent intent = new Intent(ShowWorkspacesActivity.this, ShowPublicWorkspacesActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Intent intent = new Intent(this, ConnectivityService.class);
+        intent.putExtra("Email", AirDesk.getInstance(this).getMainUser().getEmail());
+        stopService(intent);
     }
 }

@@ -13,12 +13,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 public class EditFileActivity extends ActionBarActivity {
 
-    private Workspace workspace;
+    private OwnedWorkspace workspace;
     private String fileName;
     private String workspaceName;
 

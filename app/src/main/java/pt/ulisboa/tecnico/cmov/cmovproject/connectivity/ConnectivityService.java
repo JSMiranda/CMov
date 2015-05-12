@@ -19,7 +19,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -42,8 +41,10 @@ public class ConnectivityService extends Service implements GroupInfoListener {
     SimWifiP2pManager mManager = null;
     Channel mChannel = null;
 
+    private String mEmail = null;
     private TreeMap<String, String> userIps = new TreeMap<String, String>();
 
+    private SimWifiP2pBroadcastReceiver mReceiver;
     private SimWifiP2pSocketServer mSrvSocket = null;
     private ConnectivityThread thread;
 
@@ -55,21 +56,22 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         // initialize the WDSim API
         SimWifiP2pSocketManager.Init(getApplicationContext());
 
-        // register broadcast receiver
+        // register broadcast mReceiver
         IntentFilter filter = new IntentFilter();
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
-        SimWifiP2pBroadcastReceiver receiver = new SimWifiP2pBroadcastReceiver(this);
-        registerReceiver(receiver, filter);
+        mReceiver = new SimWifiP2pBroadcastReceiver(this);
+        registerReceiver(mReceiver, filter);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
+        mEmail = intent.getStringExtra("Email");
 
-        if(!mWiFiDirectIsOn) {
+        if (!mWiFiDirectIsOn) {
             toggleWiFiDirect();
         }
 
@@ -81,8 +83,14 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         return START_STICKY;
     }
 
-    public boolean toggleWiFiDirect(){
-        if(mWiFiDirectIsOn) {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
+
+    public boolean toggleWiFiDirect() {
+        if (mWiFiDirectIsOn) {
             unbindService(mConnection);
             return mWiFiDirectIsOn = false;
         } else {
@@ -149,9 +157,11 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         }
 
     }
+
     public class ReceiveCommTask extends AsyncTask<SimWifiP2pSocket, String, String> {
 
         SimWifiP2pSocket s;
+
         @Override
         protected String doInBackground(SimWifiP2pSocket... params) {
             BufferedReader sockIn;
@@ -181,26 +191,48 @@ public class ConnectivityService extends Service implements GroupInfoListener {
 
         private String computeResponse(JSONObject request) {
             try {
-                // TODO: All other responses :)
-                if(request.getString("RequestType").equals("tellEmail")) {
-                    JSONObject jsonObj = new JSONObject().put("Email", "hihi"); //FIXME: hardcode
-                    request.put("Response", jsonObj);
-                    return request.toString();
-                } else {
-                    JSONObject jsonObj = new JSONObject().put("what???", "what???");
-                    return jsonObj.toString();
+                switch (request.getString("RequestType")) {
+                    case "tellEmail":
+                        JSONObject jsonObj = new JSONObject().put("Email", mEmail);
+                        request.put("Response", jsonObj);
+                        return request.toString();
+                    case "subscribeWorkspace":
+                        break;
+                    case "unsubscribeWorkspace":
+                        break;
+                    case "shareWorkspace":
+                        break;
+                    case "unshareWorkspace":
+                        break;
+                    case "fetchFile":
+                        break;
+                    case "requestLock":
+                        break;
+                    case "editFile":
+                        break;
+                    case "notifyNewFile":
+                        break;
+                    case "notifyFileEdited":
+                        break;
+                    case "notifyFileDeleted":
+                        break;
+                    case "notifyWorkspaceEdited":
+                        break;
+                    case "notifyWorkspaceDeleted":
+                        break;
+                    default:
+                        throw new UnsupportedOperationException(request.getString("RequestType"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
                 return null;
             }
+            return null;
         }
-
     }
 
     @Override
     public void onGroupInfoAvailable(SimWifiP2pDeviceList devices, SimWifiP2pInfo groupInfo) {
-
         // compile list of network members
         StringBuilder peersStr = new StringBuilder();
         ArrayList<String> peerIps = new ArrayList<String>();
@@ -208,10 +240,10 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         for (String deviceName : groupInfo.getDevicesInNetwork()) {
             SimWifiP2pDevice device = devices.getByName(deviceName);
             String devStr = "" + deviceName + " (" +
-                    ((device == null)?"??":device.getVirtIp()) + ")\n";
+                    ((device == null) ? "??" : device.getVirtIp()) + ")\n";
             peersStr.append(devStr);
 
-            if(device != null)
+            if (device != null)
                 peerIps.add(device.getVirtIp());
         }
 
@@ -220,7 +252,9 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         addJoiningPeersToUserMap(peerIps);
     }
 
-    private void removeExitingPeersFromUserMap(ArrayList<String> peerIps) {
+    private synchronized void removeExitingPeersFromUserMap(ArrayList<String> peerIps) {
+        ArrayList<String> keysToRemove = new ArrayList<String>();
+
         for (Map.Entry<String, String> entry : userIps.entrySet()) {
             String userName = entry.getKey();
             String ipInMap = entry.getValue();
@@ -234,15 +268,27 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             }
 
             if (!found)
-                userIps.remove(userName);
+                keysToRemove.add(userName);
+        }
+
+        for (String key : keysToRemove) {
+            userIps.remove(key);
         }
     }
 
     private void addJoiningPeersToUserMap(final ArrayList<String> peerIps) {
-        for (String ip : peerIps) {
-            if (!userIps.containsValue(ip)) {
-                askForUsername(ip);
+        ArrayList<String> newIps = new ArrayList<String>();
+
+        synchronized (this) {
+            for (String ip : peerIps) {
+                if (!userIps.containsValue(ip)) {
+                    newIps.add(ip);
+                }
             }
+        }
+
+        for (String ip : newIps) {
+            askForUsername(ip);
         }
     }
 
@@ -254,10 +300,56 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             e.printStackTrace();
         }
 
-        sendMessage(ip, message, new JSONObject[1]);
+        sendMessage(ip, message, new ResponseHandler() {
+            @Override
+            public void run() {
+                String email = null;
+                try {
+                    email = getResponse().getJSONObject("Response").getString("Email");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                synchronized (ConnectivityService.this) {
+                    userIps.put(email, ip);
+                    Log.d(TAG, "Map changed: " + userIps);
+                }
+            }
+        });
     }
 
-    private void sendMessage(final String ip, JSONObject message, final JSONObject[] response) {
+    private void subscribeWorkspace(final String workspaceOwnerEmail, final String workspaceName) {
+        final JSONObject message = new JSONObject();
+        try {
+            message.put("RequestType", "subscribeWorkspace");
+            message.put("workspaceOwnerEmail", workspaceOwnerEmail);
+            message.put("workspaceName", workspaceName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String ip;
+        synchronized (this) {
+            ip = userIps.get(workspaceOwnerEmail);
+        }
+
+        sendMessage(ip, message, new ResponseHandler() {
+            @Override
+            public void run() {
+                String email = null;
+                try {
+                    email = getResponse().getJSONObject("Response").getString("Email");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                synchronized (ConnectivityService.this) {
+                    userIps.put(email, ip);
+                    Log.d(TAG, "Map changed: " + userIps);
+                }
+            }
+        });
+    }
+
+    private void sendMessage(final String ip, JSONObject message, final ResponseHandler responseHandler) {
         final String messageToSend = message.toString();
         thread.getHandler().post(new Runnable() {
             @Override
@@ -269,19 +361,13 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                     mCliSocket.getOutputStream().write((messageToSend.replaceAll("[\n]", " ") + "\n").getBytes());
                     BufferedReader sockIn = new BufferedReader(new InputStreamReader(mCliSocket.getInputStream()));
                     Log.d(TAG, "Client blocked, waiting for response. Server has ip " + ip);
-                    String st = sockIn.readLine();
-                    Log.d(TAG, "Client unblocked, has read " + st);
+                    String response = sockIn.readLine();
+                    Log.d(TAG, "Client unblocked, has read " + response);
                     mCliSocket.close();
-                    response[0] = new JSONObject(st);
-                    st = response[0].getJSONObject("Response").getString("Email");
-                    userIps.put(st, ip); // FIXME: response -> to real obj
-                    Log.d(TAG, "Map changed: " + userIps);
-                    // TODO: Change the way we react to responses. Use another runnable passed to this function
-                } catch (UnknownHostException e) {
-                    Log.d(TAG, e.getMessage());
-                } catch (IOException e) {
-                    Log.d(TAG, e.getMessage());
-                } catch (JSONException e) {
+                    JSONObject jsonResponse = new JSONObject(response);
+                    responseHandler.setResponse(jsonResponse);
+                    responseHandler.run();
+                } catch (IOException | JSONException e) {
                     Log.d(TAG, e.getMessage());
                 }
             }
@@ -303,4 +389,15 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         }
     }
 
+    private abstract class ResponseHandler implements Runnable {
+        private JSONObject response;
+
+        public void setResponse(JSONObject response) {
+            this.response = response;
+        }
+
+        public JSONObject getResponse() {
+            return response;
+        }
+    }
 }

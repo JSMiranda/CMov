@@ -18,11 +18,11 @@ import java.util.HashMap;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.OwnedWorkspace;
 
 
 public class WorkspacePermissionsActivity extends ActionBarActivity {
-    private Workspace workspace;
+    private OwnedWorkspace workspace;
     private String workspaceName;
     ArrayAdapter<String> checkUsersAdapter;
 

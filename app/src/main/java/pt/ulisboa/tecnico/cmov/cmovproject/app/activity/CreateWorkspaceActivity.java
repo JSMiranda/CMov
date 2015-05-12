@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.app.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -21,13 +20,13 @@ import pt.ulisboa.tecnico.cmov.cmovproject.exception.InvalidQuotaException;
 import pt.ulisboa.tecnico.cmov.cmovproject.exception.WorkspaceAlreadyExistsException;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
-import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.OwnedWorkspace;
 
 public class CreateWorkspaceActivity extends ActionBarActivity {
 
     private ArrayList<String> tags = new ArrayList<String>();
     private ArrayAdapter<String> tagListAdapter;
-    private Workspace ws = null;
+    private OwnedWorkspace ws = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +36,7 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
         String wsName = getIntent().getStringExtra("wsName");
         ws = null;
         if (wsName != null) {
-            setTitle("Edit Workspace");
+            setTitle("Edit OwnedWorkspace");
             ws = AirDesk.getInstance(this).getMainUser().getOwnedWorkspaceByName(wsName);
         }
 

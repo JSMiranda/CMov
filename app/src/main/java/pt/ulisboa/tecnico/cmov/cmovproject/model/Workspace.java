@@ -1,70 +1,36 @@
 package pt.ulisboa.tecnico.cmov.cmovproject.model;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
-import android.os.StatFs;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.exception.FileAlreadyExistsException;
-import pt.ulisboa.tecnico.cmov.cmovproject.exception.InvalidQuotaException;
 
-/**
- * A Workspace is responsible for maintaining files
- * and maintaining a very simple ACL
- * (a list of permitted users) for itself.
- */
-public class Workspace {
-    private String name;
-    private int quota;
-    private Collection<String> tags;
-    private Collection<AirDeskFile> airDeskFiles;
-    private boolean isPublic;
-    private Collection<User> permittedUsers;
-    private User owner;
-    private String rootFolder;
+public abstract class Workspace {
+    protected String name;
+    protected int quota;
+    protected Collection<String> tags;
+    protected boolean isPublic;
+    protected User owner;
+    protected String rootFolder;
+    protected Collection<AirDeskFile> airDeskFiles;
 
-    Workspace(String name, int quota, boolean isPublic, User owner) {
+    public Workspace(String name, int quota, User owner, boolean isPublic) {
+        this.tags = new ArrayList<String>();
         this.name = name;
         this.quota = quota;
-        this.airDeskFiles = new ArrayList<AirDeskFile>();
-        this.isPublic = isPublic;
-        this.tags = new ArrayList<String>();
-        this.permittedUsers = new ArrayList<User>();
         this.owner = owner;
         rootFolder ="/airDesk/"+this.name;
-        storedFolder();
+        this.isPublic = isPublic;
+        this.airDeskFiles = new ArrayList<AirDeskFile>();
     }
 
-    //////////////////////////////////////////////////////////////////////
-    //////////////////// SQL operation methods ///////////////////////////
-    //////////////////////////////////////////////////////////////////////
+    abstract void sqlInsert();
 
-    synchronized void sqlLoadFiles() {
-        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String query = "SELECT name, size FROM FILES WHERE workSpace = ?";
-        String[] args = new String[] {name};
-        Cursor c = db.rawQuery(query, args);
-        while (c.moveToNext()) {
-            String fileName = c.getString(0);
-            int size = c.getInt(1);
-            airDeskFiles.add(new AirDeskFile(fileName, size));
-        }
-    }
-
-    synchronized void sqlInsert() {
-        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "INSERT INTO WORKSPACES VALUES(?, ?, ?)";
-        String[] args = new String[]{name, Integer.toString(quota), isPublic ? "1" : "0"};
-        db.execSQL(query, args);
-    }
-
-    private synchronized void sqlUpdate(String previousName) {
+    protected synchronized void sqlUpdate(String previousName) {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String query = "UPDATE WORKSPACES SET name = ?, quota = ?, isPublic = ? WHERE name = ?";
@@ -83,69 +49,7 @@ public class Workspace {
         }
     }
 
-    public void delete(){
-        for(User u : permittedUsers) {
-            u.unsubscribeWorkspace(this);
-        }
-        sqlDelete();
-        deleteStoredFolder();
-    }
-
-    private synchronized void sqlDelete() {
-        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "DELETE FROM WORKSPACES WHERE name = ?";
-        String[] args = new String[]{name};
-        db.execSQL(query, args);
-
-        query = "DELETE FROM FILES WHERE workSpace = ?";
-        args = new String[]{name};
-        db.execSQL(query, args);
-
-        query = "DELETE FROM SUBSCRIPTIONS WHERE workSpace = ? AND owner = ?";
-        args = new String[]{name, owner.getEmail()};
-        db.execSQL(query, args);
-
-        query = "DELETE FROM TAGS WHERE workSpace = ?";
-        args = new String[]{name};
-        db.execSQL(query, args);
-    }
-
-    private synchronized void sqlInsertTag(String tag) {
-        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "INSERT INTO TAGS VALUES(?, ?)";
-        String[] args = new String[]{name, tag};
-        db.execSQL(query, args);
-    }
-
-    private synchronized void sqlDeleteTag(String tag) {
-        SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "DELETE FROM TAGS WHERE tag = ? AND workSpace = ?";
-        String[] args = new String[]{tag, name};
-        db.execSQL(query, args);
-    }
-
-    //////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////
-
-    /*
-     * Domain Logic
-     */
-
-    public int getUsedQuota() {
-        int res = 0;
-        for (AirDeskFile f : airDeskFiles) {
-            res += f.getSize();
-        }
-        return res;
-    }
-
-
-    /*
-     * Getters and setters
-     */
+    protected abstract void sqlDelete();
 
     public String getName() {
         return name;
@@ -159,9 +63,7 @@ public class Workspace {
         return tags;
     }
 
-    public Collection<AirDeskFile> getAirDeskFiles() {
-        return airDeskFiles;
-    }
+    public abstract Collection<AirDeskFile> getAirDeskFiles();
 
     public AirDeskFile getFile(String fileName) {
         for (AirDeskFile airDeskFile : airDeskFiles) {
@@ -177,81 +79,19 @@ public class Workspace {
         return isPublic;
     }
 
-    public Collection<User> getPermittedUsers() {
-        return permittedUsers;
-    }
-
     public User getOwner() {
         return owner;
     }
 
-    public void renameFile(String oldName, String newName) throws FileAlreadyExistsException {
-        if(!oldName.equals(newName) && existsFile(newName))
-            throw new FileAlreadyExistsException(newName);
-        for(AirDeskFile airDeskFile : airDeskFiles) {
-            if(airDeskFile.getName().equals(oldName)){
-                airDeskFile.setName(rootFolder, newName);
-                airDeskFile.sqlUpdate(oldName, name);
-                break;
-            }
-        }
-    }
+    public abstract void renameFile(String oldName, String newName) throws FileAlreadyExistsException;
 
-    public boolean saveFile(String fileName, String content) {
-        AirDeskFile file = getFile(fileName);
-        if((quota - getUsedQuota() + file.getSize()) >= content.length()) {
-            file.saveFile(rootFolder, content);
-            return true;
-        }
-        return false;
-    }
+    public abstract boolean saveFile(String fileName, String content);
 
-    public String openFileByName(String fileName){
-        return getFile(fileName).readFile(rootFolder);
-    }
+    public abstract String openFileByName(String fileName);
 
-    /*
-     * Package access methods
-     */
+    abstract void addFile(AirDeskFile f) throws FileAlreadyExistsException;
 
-    void setQuota(int quota) throws InvalidQuotaException {
-        final long max = getFreeMemory();
-        final long usedQuota = getUsedQuota();
-        if (quota >= usedQuota && quota < getFreeMemory()) {
-            this.quota = quota;
-            sqlUpdate(name);
-        } else {
-            throw new InvalidQuotaException(usedQuota, max);
-        }
-    }
-
-    void addTag(String tag) {
-        tags.add(tag);
-        sqlInsertTag(tag);
-    }
-
-    void removeTag(String tag) {
-        tags.remove(tag);
-        sqlDeleteTag(tag);
-    }
-
-    void removeAllTags() {
-        for(String tag : tags) {
-            sqlDeleteTag(tag);
-        }
-        tags.clear();
-    }
-
-    void addFile(AirDeskFile f) throws FileAlreadyExistsException {
-        if(existsFile(f.getName())) {
-            throw new FileAlreadyExistsException(f.getName());
-        }
-        airDeskFiles.add(f);
-        f.sqlInsert(name);
-        saveFile(f.getName(),"");
-    }
-
-    private boolean existsFile(String name) {
+    protected boolean existsFile(String name) {
         for(AirDeskFile file : airDeskFiles) {
             if(file.getName().equals(name)) {
                 return true;
@@ -260,17 +100,7 @@ public class Workspace {
         return false;
     }
 
-    public void removeFile(String fileName) {
-        AirDeskFile f = getFile(fileName);
-        f.sqlDelete(name);
-        f.deleteStoredFile(rootFolder);
-        airDeskFiles.remove(f);
-    }
-
-    void setPublic(boolean isPublic) {
-        this.isPublic = isPublic;
-        sqlUpdate(name);
-    }
+    public abstract void removeFile(String fileName);
 
     void setName(String name) {
         String prevName = this.name;
@@ -278,22 +108,7 @@ public class Workspace {
         sqlUpdate(prevName);
     }
 
-    void addPermittedUser(User u) {
-        permittedUsers.add(u);
-    }
-
-    void removePermittedUser(User u) {
-        permittedUsers.remove(u);
-    }
-
-    private long getFreeMemory()
-    {
-        StatFs statFs = new StatFs(Environment.getRootDirectory().getAbsolutePath());
-        return (statFs.getAvailableBlocks() * statFs.getBlockSize());
-    }
-
-
-    private void storedFolder() {
+    protected void createStoringFolder() {
         if (AirDesk.isExternalStorageWritable()) {
             try {
                 java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),rootFolder);
@@ -304,7 +119,8 @@ public class Workspace {
             }
         }
     }
-    private void deleteStoredFolder() {
+
+    protected void deleteStoredFolder() {
         if (AirDesk.isExternalStorageWritable()) {
             try {
                 java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),rootFolder);
@@ -315,6 +131,4 @@ public class Workspace {
             }
         }
     }
-
 }
-
