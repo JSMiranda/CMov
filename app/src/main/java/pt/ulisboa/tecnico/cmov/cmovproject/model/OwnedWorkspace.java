@@ -45,7 +45,7 @@ public class OwnedWorkspace extends Workspace {
 
     public void delete(){
         for(User u : permittedUsers) {
-            u.unsubscribeWorkspace(this);
+            // TODO: send msg to u
         }
         sqlDelete();
         deleteStoredFolder();

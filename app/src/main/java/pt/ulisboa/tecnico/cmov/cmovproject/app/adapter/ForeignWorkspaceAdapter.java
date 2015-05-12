@@ -14,12 +14,12 @@ public class ForeignWorkspaceAdapter extends WorkspaceAdapter {
     @Override
     public int getCount() {
         User u = AirDesk.getInstance(mContext).getMainUser();
-        return u.getSubscribedWorkSpaces().size();
+        return u.getForeignWorkSpaces().size();
     }
 
     @Override
     public OwnedWorkspace getItem(int position) {
         User u = AirDesk.getInstance(mContext).getMainUser();
-        return (OwnedWorkspace) u.getSubscribedWorkSpaces().values().toArray()[position];
+        return (OwnedWorkspace) u.getForeignWorkSpaces().values().toArray()[position];
     }
 }

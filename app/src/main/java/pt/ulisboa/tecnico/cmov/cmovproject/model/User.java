@@ -19,7 +19,7 @@ import pt.ulisboa.tecnico.cmov.cmovproject.exception.WorkspaceAlreadyExistsExcep
  */
 public class User {
     private Map<String, OwnedWorkspace> ownedWorkSpaces;
-    private Map<String, OwnedWorkspace> subscribedWorkSpaces;
+    private Map<String, ForeignWorkspace> foreignWorkSpaces;
     private String nickname;
     private String email;
 
@@ -31,7 +31,7 @@ public class User {
      */
     public User(String nickname, String email) {
         this.ownedWorkSpaces = new HashMap<String, OwnedWorkspace>();
-        this.subscribedWorkSpaces = new HashMap<String, OwnedWorkspace>();
+        this.foreignWorkSpaces = new HashMap<String, ForeignWorkspace>();
         this.nickname = nickname;
         this.email = email;
     }
@@ -125,14 +125,15 @@ public class User {
                 ws.getTags().add(c2.getString(0)); // FIXME: violating encapsulation
             }
             query = "SELECT user FROM SUBSCRIPTIONS WHERE workSpace = ? AND owner = ?";
-            args = new String[] {wsName, ws.getOwner().getEmail()};
+            args = new String[] {wsName, this.getEmail()};
             Cursor c3 = db.rawQuery(query, args);
             while(c3.moveToNext()) {
                 // find by email. When found, add to permitted users.
                 for(User u : listUsers) {
                     if(u.getEmail().equals(c3.getString(0))) {
                         ws.addPermittedUser(u);
-                        subscribedWorkSpaces.put(ws.getName(), ws);
+                        // we do not need to add this ws to the user's foreign list,
+                        // because they already have it
                         break;
                     }
                 }
@@ -212,16 +213,40 @@ public class User {
         ownedWorkSpaces.remove(ws.getName());
     }
 
-    public void subscribeWorkspace(OwnedWorkspace ws) {
-        subscribedWorkSpaces.put(ws.getName(), ws);
-        ws.addPermittedUser(this);
-        sqlInsertSubscription(ws);
+    public void subscribeWorkspace(ForeignWorkspace ws) {
+        // TODO: Send msg
+        // if ok, do
+        foreignWorkSpaces.put(ws.getName(), ws);
+        ws.sqlInsert();
     }
 
-    public void unsubscribeWorkspace(OwnedWorkspace ws) {
-        subscribedWorkSpaces.remove(ws.getName());
-        ws.removePermittedUser(this);
-        sqlDeleteSubscription(ws);
+    public void unsubscribeWorkspace(ForeignWorkspace ws) {
+        // TODO: Send msg
+        // if ok, do
+        foreignWorkSpaces.remove(ws.getName());
+        ws.sqlDelete();
+    }
+
+    public void addUserToWorkSpace(String workSpaceName, User u) {
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
+        ws.addPermittedUser(u);
+    }
+
+    public void removeUserFromWorkSpace(String workSpaceName, User u) {
+        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
+        ws.removePermittedUser(u);
+    }
+
+    public void shareWorkspace(String workspaceName, User user) {
+        // TODO: Send msg
+        // if ok, do
+        addUserToWorkSpace(workspaceName, user);
+    }
+
+    public void unshareWorkspace(String workspaceName, User user) {
+        // TODO: Send msg
+        // if ok, do
+        removeUserFromWorkSpace(workspaceName, user);
     }
 
     public void setWorkSpaceQuota(String workSpaceName, int quota) throws InvalidQuotaException {
@@ -274,16 +299,6 @@ public class User {
         ownedWorkSpaces.put(newName, ws);
     }
 
-    public void addUserToWorkSpace(String workSpaceName, User u) {
-        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
-        u.subscribeWorkspace(ws);
-    }
-
-    public void removeUserFromWorkSpace(String workSpaceName, User u) {
-        OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
-        u.unsubscribeWorkspace(ws);
-    }
-
     public ArrayList<String> getOwnedWorkspaceNames() {
         ArrayList<String> workspaces = new ArrayList<String>();
         for(Map.Entry<String, OwnedWorkspace> entry: ownedWorkSpaces.entrySet()) {
@@ -309,8 +324,8 @@ public class User {
         return ownedWorkSpaces;
     }
 
-    public Map<String, OwnedWorkspace> getSubscribedWorkSpaces() {
-        return subscribedWorkSpaces;
+    public Map<String, ForeignWorkspace> getForeignWorkSpaces() {
+        return foreignWorkSpaces;
     }
 
     public OwnedWorkspace getOwnedWorkspaceByName(String workSpaceName) {
