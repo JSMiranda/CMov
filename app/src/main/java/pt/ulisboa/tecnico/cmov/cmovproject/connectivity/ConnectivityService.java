@@ -43,6 +43,7 @@ public class ConnectivityService extends Service implements GroupInfoListener {
     Channel mChannel = null;
 
     private TreeMap<String, String> userIps = new TreeMap<String, String>();
+
     private SimWifiP2pSocketServer mSrvSocket = null;
     private ConnectivityThread thread;
 
@@ -113,29 +114,6 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         }
     };
 
-    @Override
-    public void onGroupInfoAvailable(SimWifiP2pDeviceList devices, SimWifiP2pInfo groupInfo) {
-
-        // compile list of network members
-        StringBuilder peersStr = new StringBuilder();
-        ArrayList<String> peerIps = new ArrayList<String>();
-        int i = 0;
-        for (String deviceName : groupInfo.getDevicesInNetwork()) {
-            SimWifiP2pDevice device = devices.getByName(deviceName);
-            String devStr = "" + deviceName + " (" +
-                    ((device == null)?"??":device.getVirtIp()) + ")\n";
-            peersStr.append(devStr);
-
-            if(device != null)
-                peerIps.add(device.getVirtIp());
-        }
-
-        Log.d(TAG, peersStr.toString());
-        removeExitingPeersFromUserMap(peerIps);
-        addJoiningPeersToUserMap(peerIps);
-        Log.d(TAG, "Map changed: " + userIps);
-    }
-
     public class IncommingCommTask extends AsyncTask<Void, SimWifiP2pSocket, Void> {
 
         @Override
@@ -169,11 +147,11 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             ReceiveCommTask comm = new ReceiveCommTask();
             comm.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, sock);
         }
+
     }
-
     public class ReceiveCommTask extends AsyncTask<SimWifiP2pSocket, String, String> {
-        SimWifiP2pSocket s;
 
+        SimWifiP2pSocket s;
         @Override
         protected String doInBackground(SimWifiP2pSocket... params) {
             BufferedReader sockIn;
@@ -182,40 +160,87 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             s = params[0];
             try {
                 sockIn = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                Log.d(TAG, "Server will read");
+                Log.d(TAG, "Server blocked, waiting for request");
                 st = sockIn.readLine();
-                Log.d(TAG, "Server unlocked, read " + st);
-                s.getOutputStream().write("xD\n".getBytes());
+                Log.d(TAG, "Server unblocked, read " + st);
+                JSONObject request = null;
+                try {
+                    request = new JSONObject(st);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                // defensive removal of newlines. Remove in the end or... just in case of bad performance?
+                String response = computeResponse(request).replaceAll("[\n]", " ") + "\n";
+                s.getOutputStream().write(response.getBytes());
             } catch (IOException e) {
                 Log.d("Error reading socket:", e.getMessage());
             }
             return st;
         }
 
-        @Override
-        protected void onPostExecute(String result) {
-            if (!s.isClosed()) {
-                try {
-                    s.close();
-                }
-                catch (Exception e) {
-                    Log.d("Error closing socket:", e.getMessage());
-                }
-            }
-
-            s = null;
-
+        private String computeResponse(JSONObject request) {
             try {
-                JSONObject message = new JSONObject(result);
+                // TODO: All other responses :)
+                if(request.getString("RequestType").equals("tellEmail")) {
+                    JSONObject jsonObj = new JSONObject().put("Email", "hihi"); //FIXME: hardcode
+                    request.put("Response", jsonObj);
+                    return request.toString();
+                } else {
+                    JSONObject jsonObj = new JSONObject().put("what???", "what???");
+                    return jsonObj.toString();
+                }
             } catch (JSONException e) {
-                Log.d(TAG, "Error while parsing JSON object");
+                e.printStackTrace();
+                return null;
             }
+        }
+
+    }
+
+    @Override
+    public void onGroupInfoAvailable(SimWifiP2pDeviceList devices, SimWifiP2pInfo groupInfo) {
+
+        // compile list of network members
+        StringBuilder peersStr = new StringBuilder();
+        ArrayList<String> peerIps = new ArrayList<String>();
+        int i = 0;
+        for (String deviceName : groupInfo.getDevicesInNetwork()) {
+            SimWifiP2pDevice device = devices.getByName(deviceName);
+            String devStr = "" + deviceName + " (" +
+                    ((device == null)?"??":device.getVirtIp()) + ")\n";
+            peersStr.append(devStr);
+
+            if(device != null)
+                peerIps.add(device.getVirtIp());
+        }
+
+        Log.d(TAG, peersStr.toString());
+        removeExitingPeersFromUserMap(peerIps);
+        addJoiningPeersToUserMap(peerIps);
+    }
+
+    private void removeExitingPeersFromUserMap(ArrayList<String> peerIps) {
+        for (Map.Entry<String, String> entry : userIps.entrySet()) {
+            String userName = entry.getKey();
+            String ipInMap = entry.getValue();
+            boolean found = false;
+
+            for (String ipInArray : peerIps) {
+                if (ipInMap.equals(ipInArray)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+                userIps.remove(userName);
         }
     }
 
     private void addJoiningPeersToUserMap(final ArrayList<String> peerIps) {
-        for(String ip : peerIps) {
-            if(!userIps.containsValue(ip)) {
+        for (String ip : peerIps) {
+            if (!userIps.containsValue(ip)) {
                 askForUsername(ip);
             }
         }
@@ -240,14 +265,18 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                 try {
                     SimWifiP2pSocket mCliSocket = new SimWifiP2pSocket(ip,
                             Integer.parseInt(getString(R.string.port)));
+                    // defensive removal of newlines
                     mCliSocket.getOutputStream().write((messageToSend.replaceAll("[\n]", " ") + "\n").getBytes());
                     BufferedReader sockIn = new BufferedReader(new InputStreamReader(mCliSocket.getInputStream()));
-                    Log.d(TAG, "Client will read, server has ip " + ip);
+                    Log.d(TAG, "Client blocked, waiting for response. Server has ip " + ip);
                     String st = sockIn.readLine();
-                    Log.d(TAG, "Client unlocked, read " + st);
+                    Log.d(TAG, "Client unblocked, has read " + st);
                     mCliSocket.close();
                     response[0] = new JSONObject(st);
-                    // TODO: Change the way we react to responses
+                    st = response[0].getJSONObject("Response").getString("Email");
+                    userIps.put(st, ip); // FIXME: response -> to real obj
+                    Log.d(TAG, "Map changed: " + userIps);
+                    // TODO: Change the way we react to responses. Use another runnable passed to this function
                 } catch (UnknownHostException e) {
                     Log.d(TAG, e.getMessage());
                 } catch (IOException e) {
@@ -257,24 +286,6 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                 }
             }
         });
-    }
-
-    private void removeExitingPeersFromUserMap(ArrayList<String> peerIps) {
-        for(Map.Entry<String, String> entry : userIps.entrySet()) {
-            String userName = entry.getKey();
-            String ipInMap = entry.getValue();
-            boolean found = false;
-
-            for(String ipInArray : peerIps) {
-                if(ipInMap.equals(ipInArray)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if(!found)
-                userIps.remove(userName);
-        }
     }
 
     private class ConnectivityThread extends Thread {
