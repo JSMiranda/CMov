@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmov.cmovproject.app.adapter;
 import android.content.Context;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 
@@ -18,8 +19,8 @@ public class ForeignWorkspaceAdapter extends WorkspaceAdapter {
     }
 
     @Override
-    public OwnedWorkspace getItem(int position) {
+    public ForeignWorkspace getItem(int position) {
         User u = AirDesk.getInstance(mContext).getMainUser();
-        return (OwnedWorkspace) u.getForeignWorkSpaces().values().toArray()[position];
+        return (ForeignWorkspace) u.getForeignWorkSpaces().values().toArray()[position];
     }
 }

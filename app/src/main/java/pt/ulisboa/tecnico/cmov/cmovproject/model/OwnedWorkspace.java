@@ -92,6 +92,14 @@ public class OwnedWorkspace extends Workspace {
         return airDeskFiles;
     }
 
+    public ArrayList<String> getFileNames() {
+        ArrayList<String> names = new ArrayList<>();
+        for(AirDeskFile f : airDeskFiles) {
+            names.add(f.getName());
+        }
+        return names;
+    }
+
     public Collection<User> getPermittedUsers() {
         return permittedUsers;
     }

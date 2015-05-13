@@ -20,10 +20,11 @@ import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDeskFile;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.OwnedWorkspace;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 
 public class ShowFilesInWorkspaceActivity extends ActionBarActivity {
-    private OwnedWorkspace workspace;
+    private Workspace workspace;
     private Collection<AirDeskFile> AirDeskFiles;
     private ArrayAdapter<String> fileAdapter;
     private ArrayList<String> fileNames;
@@ -39,8 +40,12 @@ public class ShowFilesInWorkspaceActivity extends ActionBarActivity {
         workspaceName = intent.getStringExtra("WorkspaceName");
         AirDesk airDesk = AirDesk.getInstance(this);
         User user = airDesk.getMainUser();
-        workspace = user.getOwnedWorkspaceByName(workspaceName);
         isOwner = intent.getBooleanExtra("isOwner", false);
+        if(isOwner) {
+            workspace = user.getOwnedWorkspaceByName(workspaceName);
+        } else {
+            workspace = user.getForeignWorkspaceByName(workspaceName);
+        }
         AirDeskFiles = workspace.getAirDeskFiles();
 
         setTitle(workspaceName);
@@ -81,7 +86,7 @@ public class ShowFilesInWorkspaceActivity extends ActionBarActivity {
                 shareWorkspace();
                 return true;
             case R.id.action_delete:
-                AirDesk.getInstance(this).getMainUser().deleteWorkspace(workspace);
+                AirDesk.getInstance(this).getMainUser().deleteWorkspace((OwnedWorkspace) workspace);
                 exitActivity(item.getActionView());
                 return true;
             case R.id.action_edit:

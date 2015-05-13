@@ -114,10 +114,14 @@ public class WorkspacePermissionsActivity extends ActionBarActivity {
         HashMap<String,User> mapUsers = new HashMap<String,User>();
         for(User iUser : listUsers)
             mapUsers.put(iUser.getNickname(), iUser);
+
+        ArrayList<User> alreadyPermitted = new ArrayList<User>(workspace.getPermittedUsers());
         for (int i = 0; i < checkUsersAdapter.getCount(); i++) {
-            thisUser.removeUserFromWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i)));
-            if (checked.get(i))
-                thisUser.addUserToWorkSpace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i)));
+            if (!checked.get(i) && alreadyPermitted.contains(mapUsers.get(checkUsersAdapter.getItem(i)))) {
+                thisUser.unshareWorkspace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i)));
+            } else if (checked.get(i) && !alreadyPermitted.contains(mapUsers.get(checkUsersAdapter.getItem(i)))) {
+                thisUser.shareWorkspace(workspaceName, mapUsers.get(checkUsersAdapter.getItem(i)));
+            }
         }
     }
 }

@@ -10,8 +10,8 @@ import pt.ulisboa.tecnico.cmov.cmovproject.exception.FileAlreadyExistsException;
 
 public class ForeignWorkspace extends Workspace {
 
-    ForeignWorkspace(String name, int quota, boolean isPublic, User owner) {
-        super(name, quota, owner, isPublic);
+    ForeignWorkspace(String name, User owner) {
+        super(name, 0, owner, false); //FIXME
         createStoringFolder();
     }
 
@@ -22,8 +22,8 @@ public class ForeignWorkspace extends Workspace {
     synchronized void sqlInsert() {
         SQLiteOpenHelper dbHelper = new MyOpenHelper(AirDesk.getContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?)";
-        String[] args = new String[]{name, owner.getEmail()};
+        String query = "INSERT INTO SUBSCRIPTIONS VALUES(?, ?, ?)";
+        String[] args = new String[]{AirDesk.getInstance().getMainUser().getEmail(), name, owner.getEmail()};
         db.execSQL(query, args);
     }
 

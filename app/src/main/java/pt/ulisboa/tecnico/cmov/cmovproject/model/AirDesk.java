@@ -6,6 +6,8 @@ import android.util.Log;
 
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmov.cmovproject.connectivity.ConnectivityService;
+
 /**
  * Singleton AirDesk
  */
@@ -13,10 +15,11 @@ public class AirDesk {
     private static AirDesk instance = null;
     private static Context context;
 
+    private ConnectivityService connService;
+
     private User mainUser;
     private List<User> otherUsers;
     private boolean isLoaded;
-
     /**
      * Singleton getter
      * @param context context where it is called
@@ -28,6 +31,18 @@ public class AirDesk {
             instance = new AirDesk();
         }
         return instance;
+    }
+
+    public static AirDesk getInstance() {
+        return instance;
+    }
+
+    public ConnectivityService getConnService() {
+        return connService;
+    }
+
+    public void setConnService(ConnectivityService connService) {
+        this.connService = connService;
     }
 
     // FIXME: a bit hacky... see if we could/should change this for a "global var" (application context)
@@ -97,6 +112,19 @@ public class AirDesk {
 
     public List<User> getOtherUsers() {
         return otherUsers;
+    }
+
+    public void addUser(String nick, String email) {
+        otherUsers.add(new User(nick, email));
+    }
+
+    public User getOtherUserByEmail(String email) {
+        for(User u : otherUsers) {
+            if(u.getEmail().equals(email)) {
+                return u;
+            }
+        }
+        return null;
     }
 
     public boolean isLoaded() {

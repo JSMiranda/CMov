@@ -13,6 +13,7 @@ import android.os.Looper;
 import android.os.Messenger;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,6 +36,8 @@ import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 import pt.ulisboa.tecnico.cmov.cmovproject.R;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
 
 public class ConnectivityService extends Service implements GroupInfoListener {
     boolean mWiFiDirectIsOn = false;
@@ -80,6 +83,7 @@ public class ConnectivityService extends Service implements GroupInfoListener {
 
         new IncommingCommTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
+        AirDesk.getInstance(getApplicationContext()).setConnService(this);
         return START_STICKY;
     }
 
@@ -193,7 +197,9 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             try {
                 switch (request.getString("RequestType")) {
                     case "tellEmail":
-                        JSONObject jsonObj = new JSONObject().put("Email", mEmail);
+                        JSONObject jsonObj = new JSONObject();
+                        jsonObj.put("Email", mEmail);
+                        jsonObj.put("Nick", AirDesk.getInstance().getMainUser().getNickname());
                         request.put("Response", jsonObj);
                         return request.toString();
                     case "subscribeWorkspace":
@@ -201,7 +207,15 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                     case "unsubscribeWorkspace":
                         break;
                     case "shareWorkspace":
-                        break;
+                        String ownerEmail = request.getString("ownerEmail");
+                        String workspaceName = request.getString("workspaceName");
+                        JSONArray jArr = request.getJSONArray("fileNames");
+                        ArrayList<String> fileNames = new ArrayList<>();
+                        for (int i = 0 ; i < jArr.length() ; i++) {
+                            fileNames.add(jArr.getString(i));
+                        }
+                        AirDesk.getInstance().getMainUser().addForeignWorkspace(workspaceName, ownerEmail, fileNames);
+                        return request.toString();
                     case "unshareWorkspace":
                         break;
                     case "fetchFile":
@@ -306,6 +320,8 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                 String email = null;
                 try {
                     email = getResponse().getJSONObject("Response").getString("Email");
+                    String nick = getResponse().getJSONObject("Response").getString("Nick");
+                    AirDesk.getInstance().addUser(nick, email);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -317,34 +333,28 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         });
     }
 
-    private void subscribeWorkspace(final String workspaceOwnerEmail, final String workspaceName) {
+    public void shareWorkspace(final String userEmail, final String workspaceName, final ArrayList<String> fileNames) {
         final JSONObject message = new JSONObject();
         try {
-            message.put("RequestType", "subscribeWorkspace");
-            message.put("workspaceOwnerEmail", workspaceOwnerEmail);
+            message.put("RequestType", "shareWorkspace");
+            message.put("ownerEmail", mEmail);
             message.put("workspaceName", workspaceName);
+            JSONArray jArr = new JSONArray(fileNames);
+            message.put("fileNames", jArr);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         final String ip;
         synchronized (this) {
-            ip = userIps.get(workspaceOwnerEmail);
+            ip = userIps.get(userEmail);
         }
 
         sendMessage(ip, message, new ResponseHandler() {
             @Override
             public void run() {
-                String email = null;
-                try {
-                    email = getResponse().getJSONObject("Response").getString("Email");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                synchronized (ConnectivityService.this) {
-                    userIps.put(email, ip);
-                    Log.d(TAG, "Map changed: " + userIps);
-                }
+                User user = AirDesk.getInstance().getOtherUserByEmail(userEmail);
+                AirDesk.getInstance().getMainUser().addUserToWorkSpace(workspaceName, user);
             }
         });
     }
@@ -363,7 +373,7 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                     Log.d(TAG, "Client blocked, waiting for response. Server has ip " + ip);
                     String response = sockIn.readLine();
                     Log.d(TAG, "Client unblocked, has read " + response);
-                    mCliSocket.close();
+                    mCliSocket.close(); // TODO: check null answer
                     JSONObject jsonResponse = new JSONObject(response);
                     responseHandler.setResponse(jsonResponse);
                     responseHandler.run();

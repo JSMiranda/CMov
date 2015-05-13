@@ -203,6 +203,16 @@ public class User {
         ws.sqlInsert();
     }
 
+    public void addForeignWorkspace(String name, String ownerEmail, ArrayList<String> fileNames) {
+        User owner = AirDesk.getInstance().getOtherUserByEmail(ownerEmail);
+        ForeignWorkspace ws = new ForeignWorkspace(name, owner);
+        for(String fName : fileNames) {
+            ws.notifyAddedFile(fName);
+        }
+        foreignWorkSpaces.put(name, ws);
+        ws.sqlInsert();
+    }
+
     /**
      * Delete a given workspace. To get user's workspaces use {@link User#getOwnedWorkSpaces}
      *
@@ -238,9 +248,8 @@ public class User {
     }
 
     public void shareWorkspace(String workspaceName, User user) {
-        // TODO: Send msg
-        // if ok, do
-        addUserToWorkSpace(workspaceName, user);
+        ArrayList<String> fileNames = getOwnedWorkspaceByName(workspaceName).getFileNames();
+        AirDesk.getInstance().getConnService().shareWorkspace(user.getEmail(), workspaceName, fileNames);
     }
 
     public void unshareWorkspace(String workspaceName, User user) {
@@ -330,6 +339,10 @@ public class User {
 
     public OwnedWorkspace getOwnedWorkspaceByName(String workSpaceName) {
         return ownedWorkSpaces.get(workSpaceName);
+    }
+
+    public ForeignWorkspace getForeignWorkspaceByName(String workSpaceName) {
+        return foreignWorkSpaces.get(workSpaceName);
     }
 
  //   @Override
