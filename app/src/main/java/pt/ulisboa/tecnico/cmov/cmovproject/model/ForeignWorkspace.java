@@ -75,6 +75,24 @@ public class ForeignWorkspace extends Workspace {
     }
 
     @Override
+    public boolean tryLock(String filename, String email, String workspacename) {
+        AirDesk.getInstance().getConnService().tryLock(filename, email, workspacename, owner.getEmail());
+        while(!getFile(filename).isLockMessageReceived()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return getFile(filename).isLocked();
+    }
+
+    @Override
+    public void unlock(String filename, String email, String workspacename) {
+        AirDesk.getInstance().getConnService().unlock(filename, email, workspacename, owner.getEmail());
+    }
+
+    @Override
     void addFile(AirDeskFile f) throws FileAlreadyExistsException {
         // TODO: Send message
     }

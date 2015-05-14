@@ -187,6 +187,23 @@ public class OwnedWorkspace extends Workspace {
         sqlUpdate(name);
     }
 
+    @Override
+    public boolean tryLock(String filename, String email, String workspacename) {
+        AirDeskFile f = getFile(filename);
+        if(f.tryLock()) {
+            owner.putLock(email, workspacename, filename);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void unlock(String filename, String email, String workspacename) {
+        owner.removeLock(email);
+        AirDeskFile f = getFile(filename);
+        f.unlock();
+    }
+
     void addPermittedUser(User u) {
         permittedUsers.add(u);
     }

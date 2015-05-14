@@ -198,6 +198,7 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             String wsName;
             String fileName;
             String content;
+            String userEmail;
             try {
                 switch (request.getString("RequestType")) {
                     case "tellEmail":
@@ -260,6 +261,23 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                         break;
                     case "notifyWorkspaceDeleted":
                         break;
+                    case "tryLock":
+                        jsonObj = new JSONObject();
+                        wsName = request.getString("workspaceName");
+                        fileName = request.getString("fileName");
+                        userEmail = request.getString("userEmail");
+                        boolean isLocked = AirDesk.getInstance().getMainUser().getOwnedWorkspaceByName(wsName).tryLock(fileName, userEmail, wsName);
+                        jsonObj.put("isLocked", isLocked);
+                        request.put("Response", jsonObj);
+                        return request.toString();
+                    case "unlock":
+                        jsonObj = new JSONObject();
+                        wsName = request.getString("workspaceName");
+                        fileName = request.getString("fileName");
+                        userEmail = request.getString("userEmail");
+                        AirDesk.getInstance().getMainUser().getOwnedWorkspaceByName(wsName).unlock(fileName, userEmail, wsName);
+                        request.put("Response", jsonObj);
+                        return request.toString();
                     default:
                         throw new UnsupportedOperationException(request.getString("RequestType"));
                 }
@@ -489,6 +507,66 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             @Override
             public void run() {
                 //no response needed
+            }
+        });
+    }
+
+    public void tryLock(final String fileName, final String email, final String workspaceName, final String ownerEmail) {
+        final JSONObject message = new JSONObject();
+        try {
+            message.put("RequestType", "tryLock");
+            message.put("userEmail", email);
+            message.put("workspaceName", workspaceName);
+            message.put("fileName", fileName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String ip;
+        synchronized (this) {
+            ip = userIps.get(ownerEmail);
+            if(ip == null)
+                return;
+        }
+
+        sendMessage(ip, message, new ResponseHandler() {
+            @Override
+            public void run() {
+                boolean isLocked = false;
+                try {
+                    isLocked = getResponse().getJSONObject("Response").getBoolean("isLocked");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(workspaceName).getFile(fileName).setLocked(isLocked);
+                AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(workspaceName).getFile(fileName).setLockMessageReceived(true);
+            }
+        });
+    }
+
+    public void unlock(final String fileName, final String email, final String workspaceName, final String ownerEmail) {
+        final JSONObject message = new JSONObject();
+        try {
+            message.put("RequestType", "unlock");
+            message.put("userEmail", email);
+            message.put("workspaceName", workspaceName);
+            message.put("fileName", fileName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String ip;
+        synchronized (this) {
+            ip = userIps.get(ownerEmail);
+            if(ip == null)
+                return;
+        }
+
+        sendMessage(ip, message, new ResponseHandler() {
+            @Override
+            public void run() {
+                AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(workspaceName).getFile(fileName).setLocked(false);
+                AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(workspaceName).getFile(fileName).setLockMessageReceived(false);
             }
         });
     }

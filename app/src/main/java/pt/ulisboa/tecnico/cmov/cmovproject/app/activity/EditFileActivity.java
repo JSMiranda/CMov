@@ -22,7 +22,8 @@ public class EditFileActivity extends ActionBarActivity {
     private Workspace workspace;
     private String fileName;
     private String workspaceName;
-    private Boolean isOwned;
+    private boolean isOwned;
+    private boolean isLocked = false ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +100,21 @@ public class EditFileActivity extends ActionBarActivity {
         finish();
     }
     public void toggleEditable(){
-        EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
-        setTextEditable(!fileEditText.isFocusable());
+        AirDesk airDesk = AirDesk.getInstance();
+        if(!isLocked) {
+            if(workspace.tryLock(fileName, airDesk.getMainUser().getEmail(), workspaceName)) {
+                isLocked = true;
+            } else {
+                Toast.makeText(EditFileActivity.this, "This file is already locked.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            workspace.unlock(fileName, airDesk.getMainUser().getEmail(), workspaceName);
+            isLocked = false;
+        }
+        setTextEditable(isLocked);
+
+
     }
 
     public void setTextEditable(boolean editable){

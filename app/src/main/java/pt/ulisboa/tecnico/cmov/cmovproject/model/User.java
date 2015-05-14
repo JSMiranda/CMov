@@ -22,6 +22,34 @@ public class User {
     private Map<String, ForeignWorkspace> foreignWorkSpaces;
     private String nickname;
     private String email;
+    private HashMap<String, SharedWorkspace> lockMap = new HashMap<String, SharedWorkspace>();
+
+    class SharedWorkspace {
+        private String workspaceName;
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public String getWorkspaceName() {
+            return workspaceName;
+        }
+
+        private String fileName;
+
+        SharedWorkspace(String workspaceName, String fileName) {
+            this.workspaceName = workspaceName;
+            this.fileName = fileName;
+        }
+    }
+
+    public void putLock(String email, String workspaceName, String fileName) {
+        lockMap.put(email, new SharedWorkspace(workspaceName, fileName));
+    }
+
+    public void removeLock(String email) {
+        lockMap.remove(email);
+    }
 
     /**
      * Initializes this {@code User}. Can be used to create a new user or load an existing one

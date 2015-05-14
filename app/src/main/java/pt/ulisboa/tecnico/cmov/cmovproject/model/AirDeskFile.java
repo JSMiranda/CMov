@@ -26,6 +26,16 @@ public class AirDeskFile {
     private int size;
     private boolean isShared = false;
 
+    public void setLocked(boolean isLocked) {
+        this.isLocked = isLocked;
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    private boolean isLocked = false;
+
     public void setShadowContent(String shadowContent) {
         this.shadowContent = shadowContent;
     }
@@ -42,11 +52,33 @@ public class AirDeskFile {
 
     private boolean isFetched = true;
 
+    public boolean isLockMessageReceived() {
+        return isLockMessageReceived;
+    }
+
+    public void setLockMessageReceived(boolean isLockMessageReceived) {
+        this.isLockMessageReceived = isLockMessageReceived;
+    }
+
+    private boolean isLockMessageReceived = false;
+
     public AirDeskFile(String name, int size, boolean isShared) {
         this.name = name;
         this.lastChangeTime = new Date();
         this.size = size;
         this.isShared = isShared;
+    }
+
+    protected boolean tryLock() {
+        if(isLocked) {
+            return false;
+        }
+        setLocked(true);
+        return true;
+    }
+
+    protected void unlock() {
+        setLocked(false);
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -105,7 +137,7 @@ public class AirDeskFile {
      */
 
     /**
-     * Only the method {@link AirDeskFile#saveFile(String, String)} ()} should use this method
+     * Only the method {@link AirDeskFile#saveFile(String, String, String, String)} ()} should use this method
      * (and this is why it is private). We are using an attribute
      * to speed up size queries.
      *

@@ -75,6 +75,9 @@ public abstract class Workspace {
         return null;
     }
 
+    public abstract boolean tryLock(String filename, String email, String workspacename);
+    public abstract void unlock(String filename, String email, String workspacename);
+
     public boolean isPublic() {
         return isPublic;
     }
