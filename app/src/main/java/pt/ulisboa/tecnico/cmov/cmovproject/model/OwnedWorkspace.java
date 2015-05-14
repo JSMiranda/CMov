@@ -39,7 +39,7 @@ public class OwnedWorkspace extends Workspace {
         while (c.moveToNext()) {
             String fileName = c.getString(0);
             int size = c.getInt(1);
-            airDeskFiles.add(new AirDeskFile(fileName, size));
+            airDeskFiles.add(new AirDeskFile(fileName, size, false));
         }
     }
 
@@ -121,7 +121,7 @@ public class OwnedWorkspace extends Workspace {
     public boolean saveFile(String fileName, String content) {
         AirDeskFile file = getFile(fileName);
         if((quota - getUsedQuota() + file.getSize()) >= content.length()) {
-            file.saveFile(rootFolder, content);
+            file.saveFile(rootFolder, content, name, owner.getEmail());
             return true;
         }
         return false;
@@ -129,7 +129,7 @@ public class OwnedWorkspace extends Workspace {
 
     @Override
     public String openFileByName(String fileName){
-        return getFile(fileName).readFile(rootFolder);
+        return getFile(fileName).readFile(rootFolder, name, owner.getEmail());
     }
 
     /*

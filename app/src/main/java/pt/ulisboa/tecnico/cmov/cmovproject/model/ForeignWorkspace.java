@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.cmov.cmovproject.model;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import pt.ulisboa.tecnico.cmov.cmovproject.exception.FileAlreadyExistsException;
@@ -63,14 +62,16 @@ public class ForeignWorkspace extends Workspace {
 
     @Override
     public boolean saveFile(String fileName, String content) {
-        // TODO: send msg
-        return false;
+        AirDeskFile file = getFile(fileName);
+        if(file == null)
+            return false;
+        file.saveFile(rootFolder, content, name, owner.getEmail());
+        return true;
     }
 
     @Override
     public String openFileByName(String fileName){
-        return null;
-        // TODO: send msg ........ getFile(fileName).readFile(rootFolder);
+        return getFile(fileName).readFile(rootFolder, name, owner.getEmail());
     }
 
     @Override
@@ -79,7 +80,7 @@ public class ForeignWorkspace extends Workspace {
     }
 
     public void notifyAddedFile(String fileName) {
-        airDeskFiles.add(new AirDeskFile(fileName, 0));
+        airDeskFiles.add(new AirDeskFile(fileName, 0, true));
     }
 
     @Override

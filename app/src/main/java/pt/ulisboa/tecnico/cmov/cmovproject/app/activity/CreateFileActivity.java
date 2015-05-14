@@ -57,7 +57,7 @@ public class CreateFileActivity extends ActionBarActivity {
     public void createFile(View v) {
         EditText fileNameView = (EditText) findViewById(R.id.fileNameInput);
         String fileName = fileNameView.getText().toString();
-        AirDeskFile airDeskFile = new AirDeskFile(fileName, 0);
+        AirDeskFile airDeskFile = new AirDeskFile(fileName, 0, false);
         try {
             user.addFileToWorkSpace(workspaceName, airDeskFile);
             exit(v);

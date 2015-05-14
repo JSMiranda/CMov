@@ -194,10 +194,14 @@ public class ConnectivityService extends Service implements GroupInfoListener {
         }
 
         private String computeResponse(JSONObject request) {
+            JSONObject jsonObj;
+            String wsName;
+            String fileName;
+            String content;
             try {
                 switch (request.getString("RequestType")) {
                     case "tellEmail":
-                        JSONObject jsonObj = new JSONObject();
+                        jsonObj = new JSONObject();
                         jsonObj.put("Email", mEmail);
                         jsonObj.put("Nick", AirDesk.getInstance().getMainUser().getNickname());
                         request.put("Response", jsonObj);
@@ -219,17 +223,39 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                     case "unshareWorkspace":
                         break;
                     case "fetchFile":
-                        break;
+                        jsonObj = new JSONObject();
+                        wsName = request.getString("workspaceName");
+                        fileName = request.getString("fileName");
+                        content = AirDesk.getInstance().getMainUser().getOwnedWorkspaceByName(wsName).openFileByName(fileName);
+                        jsonObj.put("Content", content);
+                        request.put("Response", jsonObj);
+                        return request.toString();
+                    case "saveFile":
+                        jsonObj = new JSONObject();
+                        wsName = request.getString("workspaceName");
+                        fileName = request.getString("fileName");
+                        content = request.getString("content");
+                        request.put("Response", jsonObj);
+                        AirDesk.getInstance().getMainUser().getOwnedWorkspaceByName(wsName).saveFile(fileName, content);
+                        return request.toString();
                     case "requestLock":
                         break;
-                    case "editFile":
-                        break;
                     case "notifyNewFile":
-                        break;
+                        jsonObj = new JSONObject();
+                        wsName = request.getString("workspaceName");
+                        fileName = request.getString("fileName");
+                        request.put("Response", jsonObj);
+                        AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(wsName).notifyAddedFile(fileName);
+                        return request.toString();
                     case "notifyFileEdited":
                         break;
                     case "notifyFileDeleted":
-                        break;
+                        jsonObj = new JSONObject();
+                        wsName = request.getString("workspaceName");
+                        fileName = request.getString("fileName");
+                        request.put("Response", jsonObj);
+                        AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(wsName).notifyFileRemoved(fileName);
+                        return request.toString();
                     case "notifyWorkspaceEdited":
                         break;
                     case "notifyWorkspaceDeleted":
@@ -355,6 +381,114 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             public void run() {
                 User user = AirDesk.getInstance().getOtherUserByEmail(userEmail);
                 AirDesk.getInstance().getMainUser().addUserToWorkSpace(workspaceName, user);
+            }
+        });
+    }
+
+    public void fetchFile(final String workspaceName, final String fileName, final String ownerEmail) {
+        final JSONObject message = new JSONObject();
+        try {
+            message.put("RequestType", "fetchFile");
+            message.put("userEmail", mEmail);
+            message.put("workspaceName", workspaceName);
+            message.put("fileName", fileName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String ip;
+        synchronized (this) {
+            ip = userIps.get(ownerEmail);
+        }
+
+        sendMessage(ip, message, new ResponseHandler() {
+            @Override
+            public void run() {
+                String content = null;
+                try {
+                    content = getResponse().getJSONObject("Response").getString("Content");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(workspaceName).getFile(fileName).setShadowContent(content);
+                AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(workspaceName).getFile(fileName).setFetched(true);
+            }
+        });
+    }
+
+    public void saveFile(final String workspaceName, final String fileName, final String ownerEmail, final String content) {
+        final JSONObject message = new JSONObject();
+        try {
+            message.put("RequestType", "saveFile");
+            message.put("userEmail", mEmail);
+            message.put("workspaceName", workspaceName);
+            message.put("fileName", fileName);
+            message.put("content", content);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String ip;
+        synchronized (this) {
+            ip = userIps.get(ownerEmail);
+        }
+
+        sendMessage(ip, message, new ResponseHandler() {
+            @Override
+            public void run() {
+                //no response needed
+            }
+        });
+    }
+
+    public void notifyFileDeleted(final String userEmail, final String workspaceName, final String fileName) {
+        final JSONObject message = new JSONObject();
+        try {
+            message.put("RequestType", "notifyFileDeleted");
+            message.put("userEmail", userEmail);
+            message.put("workspaceName", workspaceName);
+            message.put("fileName", fileName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String ip;
+        synchronized (this) {
+            ip = userIps.get(userEmail);
+            if(ip == null)
+                return;
+        }
+
+        sendMessage(ip, message, new ResponseHandler() {
+            @Override
+            public void run() {
+                //no response needed
+            }
+        });
+    }
+
+    public void notifyNewFile(final String userEmail, final String workspaceName, final String fileName) {
+        final JSONObject message = new JSONObject();
+        try {
+            message.put("RequestType", "notifyNewFile");
+            message.put("userEmail", userEmail);
+            message.put("workspaceName", workspaceName);
+            message.put("fileName", fileName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String ip;
+        synchronized (this) {
+            ip = userIps.get(userEmail);
+            if(ip == null)
+                return;
+        }
+
+        sendMessage(ip, message, new ResponseHandler() {
+            @Override
+            public void run() {
+                //no response needed
             }
         });
     }

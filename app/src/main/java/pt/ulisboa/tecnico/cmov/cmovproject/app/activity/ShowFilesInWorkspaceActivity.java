@@ -129,6 +129,7 @@ public class ShowFilesInWorkspaceActivity extends ActionBarActivity {
         intent.putExtra("fileName", fileAdapter.getItem(position));
         intent.putExtra("workspaceName", workspaceName);
         intent.putExtra("enabled", enabled.toString());
+        intent.putExtra("isOwned", isOwner);
         startActivity(intent);
     }
 
@@ -150,7 +151,7 @@ public class ShowFilesInWorkspaceActivity extends ActionBarActivity {
     private void deleteFileFromWorkspace(int position) {
         final String fileName = fileAdapter.getItem(position);
         fileAdapter.remove(fileName);
-        workspace.removeFile(fileName);
+        AirDesk.getInstance().getMainUser().removeFileFromWorkSpace(workspaceName, fileName);
     }
 
     public void exitActivity(View v) {

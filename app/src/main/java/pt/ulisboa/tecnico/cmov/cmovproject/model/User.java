@@ -281,11 +281,17 @@ public class User {
     public void addFileToWorkSpace(String workSpaceName, AirDeskFile f) throws FileAlreadyExistsException{
         OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.addFile(f);
+        for(User u : ws.getPermittedUsers()) {
+            AirDesk.getInstance().getConnService().notifyNewFile(u.getEmail(), workSpaceName, f.getName());
+        }
     }
 
     public void removeFileFromWorkSpace(String workSpaceName, String fileName) {
         OwnedWorkspace ws = getOwnedWorkspaceByName(workSpaceName);
         ws.removeFile(fileName);
+        for(User u : ws.getPermittedUsers()) {
+            AirDesk.getInstance().getConnService().notifyFileDeleted(u.getEmail(), workSpaceName, fileName);
+        }
     }
 
     public void setWorkSpaceToPublic(String workSpaceName) {

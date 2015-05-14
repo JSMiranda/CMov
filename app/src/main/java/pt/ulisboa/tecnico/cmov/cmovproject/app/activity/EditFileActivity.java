@@ -15,12 +15,14 @@ import pt.ulisboa.tecnico.cmov.cmovproject.R;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.AirDesk;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.cmovproject.model.User;
+import pt.ulisboa.tecnico.cmov.cmovproject.model.Workspace;
 
 public class EditFileActivity extends ActionBarActivity {
 
-    private OwnedWorkspace workspace;
+    private Workspace workspace;
     private String fileName;
     private String workspaceName;
+    private Boolean isOwned;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +35,15 @@ public class EditFileActivity extends ActionBarActivity {
         Intent intent = getIntent();
         fileName = intent.getStringExtra("fileName");
         workspaceName = intent.getStringExtra("workspaceName");
+        isOwned = intent.getBooleanExtra("isOwned", true);
         setTitle(workspaceName + "/" + fileName);
         EditText fileEditText = (EditText) findViewById(R.id.fileEditText);
-        workspace = user.getOwnedWorkspaceByName(workspaceName);
+        if(isOwned) {
+            workspace = user.getOwnedWorkspaceByName(workspaceName);
+        } else {
+            workspace = user.getForeignWorkspaceByName(workspaceName);
+        }
+
         String fileText = workspace.openFileByName(fileName);
         boolean enabled = Boolean.parseBoolean(intent.getStringExtra("enabled"));
         fileEditText.setText(fileText);
