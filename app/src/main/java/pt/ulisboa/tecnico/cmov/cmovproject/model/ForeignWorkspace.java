@@ -72,7 +72,9 @@ public class ForeignWorkspace extends Workspace {
     @Override
     public boolean tryLock(String filename, String email, String workspacename) {
         AirDesk.getInstance().getConnService().tryLock(filename, email, workspacename, owner.getEmail());
-        while(!getFile(filename).isLockMessageReceived()) {
+        for(int i=0; !getFile(filename).isLockMessageReceived(); i++) {
+            if(i>30) //Prevent deadlock
+                return false;
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
