@@ -46,15 +46,10 @@ public class ForeignWorkspace extends Workspace {
     }
 
     @Override
-    public void renameFile(String oldName, String newName) throws FileAlreadyExistsException {
-        if(!oldName.equals(newName) && existsFile(newName))
-            ;// TODO: send msg
-    }
-
-    public void notifyFileRenamed(String oldName, String newName) {
-        for(AirDeskFile airDeskFile : airDeskFiles) {
-            if(airDeskFile.getName().equals(oldName)){
-                airDeskFile.setName(rootFolder, newName);
+    public void renameFile(String oldName, String newName) {
+        for (AirDeskFile airDeskFile : airDeskFiles) {
+            if (airDeskFile.getName().equals(oldName)) {
+                airDeskFile.setName(null, newName);
                 break;
             }
         }

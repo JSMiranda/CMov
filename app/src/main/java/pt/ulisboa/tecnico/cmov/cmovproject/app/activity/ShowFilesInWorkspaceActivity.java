@@ -145,6 +145,7 @@ public class ShowFilesInWorkspaceActivity extends ActionBarActivity {
         Intent intent = new Intent(ShowFilesInWorkspaceActivity.this, RenameFileActivity.class);
         intent.putExtra("OldName", fileName);
         intent.putExtra("WorkspaceName", workspaceName);
+        intent.putExtra("isOwner", isOwner);
         startActivity(intent);
     }
 
@@ -161,6 +162,7 @@ public class ShowFilesInWorkspaceActivity extends ActionBarActivity {
     public void createFile(View v) {
         Intent intent = new Intent(ShowFilesInWorkspaceActivity.this, CreateFileActivity.class);
         intent.putExtra("WorkspaceName", workspaceName);
+        intent.putExtra("isOwner", isOwner);
         startActivity(intent);
         finish();
     }

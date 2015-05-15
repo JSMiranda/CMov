@@ -35,6 +35,7 @@ public class ShowPublicWorkspacesActivity extends ActionBarActivity {
                 // TODO: Change this to exit this activity and show what happened with a toast
                 Intent intent = new Intent(ShowPublicWorkspacesActivity.this, ShowFilesInWorkspaceActivity.class);
                 intent.putExtra("WorkspaceName", wsAdapter.getItem(position).getName());
+                intent.putExtra("isOwner", false);
                 startActivity(intent);
             }
         });

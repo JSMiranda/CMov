@@ -248,8 +248,14 @@ public class ConnectivityService extends Service implements GroupInfoListener {
                         request.put("Response", jsonObj);
                         AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(wsName).notifyAddedFile(fileName);
                         return request.toString();
-                    case "notifyFileEdited":
-                        break;
+                    case "notifyFileRenamed":
+                        jsonObj = new JSONObject();
+                        wsName = request.getString("workspaceName");
+                        String oldName = request.getString("oldName");
+                        String newName = request.getString("newName");
+                        AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(wsName).renameFile(oldName, newName);
+                        request.put("Response", jsonObj);
+                        return request.toString();
                     case "notifyFileDeleted":
                         jsonObj = new JSONObject();
                         wsName = request.getString("workspaceName");
@@ -331,6 +337,7 @@ public class ConnectivityService extends Service implements GroupInfoListener {
 
         for (String key : keysToRemove) {
             userIps.remove(key);
+            AirDesk.getInstance().getMainUser().removeLock(key);
         }
     }
 
@@ -466,6 +473,33 @@ public class ConnectivityService extends Service implements GroupInfoListener {
             message.put("userEmail", userEmail);
             message.put("workspaceName", workspaceName);
             message.put("fileName", fileName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String ip;
+        synchronized (this) {
+            ip = userIps.get(userEmail);
+            if(ip == null)
+                return;
+        }
+
+        sendMessage(ip, message, new ResponseHandler() {
+            @Override
+            public void run() {
+                //no response needed
+            }
+        });
+    }
+
+    public void notifyFileRenamed(final String userEmail, final String workspaceName, final String oldName, final String newName) {
+        final JSONObject message = new JSONObject();
+        try {
+            message.put("RequestType", "notifyFileRenamed");
+            message.put("userEmail", userEmail);
+            message.put("workspaceName", workspaceName);
+            message.put("newName", newName);
+            message.put("oldName", oldName);
         } catch (JSONException e) {
             e.printStackTrace();
         }

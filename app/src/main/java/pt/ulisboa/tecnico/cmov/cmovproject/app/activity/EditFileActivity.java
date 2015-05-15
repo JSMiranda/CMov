@@ -83,11 +83,25 @@ public class EditFileActivity extends ActionBarActivity {
 
     public void saveFile(View v) {
         String text = ((EditText) findViewById(R.id.fileEditText)).getText().toString();
-        if(workspace.saveFile(fileName, text))
+        if(AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(workspaceName) == null) {
+            Toast.makeText(EditFileActivity.this, "Cannot save. Workspace name changed.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(workspace.getFile(fileName) == null) {
+            Toast.makeText(EditFileActivity.this, "Cannot save. File name changed.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(workspace.saveFile(fileName, text)) {
             backToParent("Changes saved!");
-        else
+            workspace.unlock(fileName, AirDesk.getInstance().getMainUser().getEmail(), workspaceName);
+            isLocked = false;
+        }
+        else {
             Toast.makeText(EditFileActivity.this, "Quota limit exceeded",
                     Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void cancelEdit(View v) {

@@ -21,6 +21,7 @@ public class RenameFileActivity extends ActionBarActivity {
     private TextView inputBox;
     private String oldName;
     private String workspaceName;
+    private boolean isOwner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,7 @@ public class RenameFileActivity extends ActionBarActivity {
         oldName = intent.getStringExtra("OldName");
         setTitle(getTitle() + " (" + oldName + ")");
         workspaceName = intent.getStringExtra("WorkspaceName");
+        isOwner = intent.getBooleanExtra("isOwner", false);
 
         inputBox = (TextView) findViewById(R.id.newNameBox);
         inputBox.setText(oldName);
@@ -65,15 +67,22 @@ public class RenameFileActivity extends ActionBarActivity {
 
     public void renameFile(View v) {
         String newName = inputBox.getText().toString();
-        try {
-            workspace.renameFile(oldName, newName);
-        } catch (FileAlreadyExistsException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            return;
+        if(!workspace.getFile(oldName).isLocked()) {
+            try {
+                workspace.renameFile(oldName, newName);
+                for (User u : AirDesk.getInstance().getMainUser().getOwnedWorkspaceByName(workspaceName).getPermittedUsers()) {
+                    AirDesk.getInstance().getConnService().notifyFileRenamed(u.getEmail(), workspaceName, oldName, newName);
+                }
+            } catch (FileAlreadyExistsException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else {
+            Toast.makeText(this, "The file is locked, it cannot be renamed!", Toast.LENGTH_SHORT).show();
         }
-
         Intent intent = new Intent(RenameFileActivity.this, ShowFilesInWorkspaceActivity.class);
         intent.putExtra("WorkspaceName", workspaceName);
+        intent.putExtra("isOwner", isOwner);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

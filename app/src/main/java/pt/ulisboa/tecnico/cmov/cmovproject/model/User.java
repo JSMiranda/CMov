@@ -48,7 +48,14 @@ public class User {
     }
 
     public void removeLock(String email) {
-        lockMap.remove(email);
+        if(lockMap.get(email) != null) {
+            String fileName = lockMap.get(email).getFileName();
+            String wsName = lockMap.get(email).getWorkspaceName();
+            Workspace workspace = getOwnedWorkspaceByName(wsName);
+            AirDeskFile f = workspace.getFile(fileName);
+            f.unlock();
+            lockMap.remove(email);
+        }
     }
 
     /**

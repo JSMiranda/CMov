@@ -200,8 +200,6 @@ public class OwnedWorkspace extends Workspace {
     @Override
     public void unlock(String filename, String email, String workspacename) {
         owner.removeLock(email);
-        AirDeskFile f = getFile(filename);
-        f.unlock();
     }
 
     void addPermittedUser(User u) {
