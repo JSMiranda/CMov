@@ -83,7 +83,7 @@ public class EditFileActivity extends ActionBarActivity {
 
     public void saveFile(View v) {
         String text = ((EditText) findViewById(R.id.fileEditText)).getText().toString();
-        if(AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(workspaceName) == null) {
+        if(!isOwned && AirDesk.getInstance().getMainUser().getForeignWorkspaceByName(workspaceName) == null) {
             Toast.makeText(EditFileActivity.this, "Cannot save. Workspace name changed.",
                     Toast.LENGTH_SHORT).show();
             return;
